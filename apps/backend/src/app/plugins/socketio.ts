@@ -18,7 +18,7 @@ export default fp(async function (fastify: FastifyInstance) {
       socket.on('message', (data) => {
         console.log('Message received:', data);
         // Echo the message back to the client
-        socket.emit('message', `Echo: ${data}`);
+        io.emit('message', `Broadcast: ${data}`);
       });
 
       // Handle disconnection
