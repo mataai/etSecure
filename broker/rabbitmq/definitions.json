@@ -1,0 +1,35 @@
+{
+  "vhosts": [
+    {
+      "name": "/"
+    }
+  ],
+  "users": [
+    {
+      "name": "ind520admin",
+      "password": "REDACTED",
+      "tags": "administrator"
+    },
+    {
+      "name": "client",
+      "password": "REDACTED",
+      "tags": ""
+    }
+  ],
+  "permissions": [
+    {
+      "user": "ind520admin",
+      "vhost": "/",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    },
+    {
+      "user": "client",
+      "vhost": "/",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    }
+  ]
+}
