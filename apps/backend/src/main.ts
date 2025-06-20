@@ -9,8 +9,19 @@ const server = Fastify({
   logger: true,
 });
 
+const mqttOptions = {
+  url: 'mqtts://cloud-ind520',
+  options: {
+    clientId: process.env.MQTT_CLIENT_ID || 'server',
+    username: process.env.MQTT_USERNAME || 'client',
+    password: process.env.MQTT_PASSWORD || 'REDACTED',
+    ca: process.env.MQTT_CA || './server.crt',
+    port: process.env.MQTT_PORT || 8883
+  }
+}
+
 // Register your application as a normal plugin.
-server.register(app);
+server.register(app, mqttOptions);
 
 // Start listening.
 server.listen({ port, host }, (err) => {

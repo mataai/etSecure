@@ -24,6 +24,8 @@ export default fp(async function (fastify: FastifyInstance) {
         const filename = `images/image_${socket.id}.jpg`;
         const filePath = join(process.cwd(), filename);
 
+        fastify.mqttClient.publish('test', 'open');
+
         writeFile(filePath, data, (err) => {
           if (err) {
             console.error('Error saving file:', err);
