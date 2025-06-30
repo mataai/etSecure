@@ -1,11 +1,14 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
 @Component({
-  imports: [RouterModule],
   selector: 'app-root',
+  standalone: true,
+  imports: [
+    RouterOutlet,
+    RouterLink,
+    RouterModule,  
+  ],
   templateUrl: './app.html',
-  styleUrl: './app.scss',
+  styleUrls:   ['./app.scss'],
 })
-export class App {
-  protected title = 'frontend';
-}
+export class AppComponent {}

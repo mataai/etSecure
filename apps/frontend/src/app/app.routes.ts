@@ -5,6 +5,10 @@ import { Documentation } from './pages/documentation/documentation';
 import { Landing } from './pages/landing/landing';
 import { Notfound } from './pages/notfound/notfound';
 
+import { HomePage } from './home.page';
+import { StudentPage } from './student.page';
+import { AdminPage } from './admin.page';
+
 export const appRoutes: Routes = [
   {
     path: '',
@@ -23,4 +27,8 @@ export const appRoutes: Routes = [
   { path: 'notfound', component: Notfound },
   { path: 'auth', loadChildren: () => import('./pages/auth/auth.routes') },
   { path: '**', redirectTo: '/notfound' },
+  { path: '', component: HomePage },
+  { path: 'student', component: StudentPage },
+  { path: 'admin', component: AdminPage },
+  { path: '**', redirectTo: '' },
 ];
