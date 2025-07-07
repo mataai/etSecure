@@ -1,6 +1,7 @@
 import * as path from 'path';
 import { FastifyInstance } from 'fastify';
 import AutoLoad from '@fastify/autoload';
+import { container } from 'tsyringe';
 import fastifyMultipart from '@fastify/multipart';
 
 /* eslint-disable-next-line */
@@ -25,6 +26,9 @@ export async function app(fastify: FastifyInstance, opts: AppOptions) {
     dir: path.join(__dirname, 'routes'),
     options: { ...opts },
   });
-
   fastify.register(fastifyMultipart);
+
+  container.register<FastifyInstance>('FastifyInstance', {
+    useValue: fastify,
+  });
 }
