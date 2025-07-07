@@ -1,9 +1,13 @@
 import { OAuth2Namespace } from '@fastify/oauth2';
 import { FastifyInstance } from 'fastify';
 
-export default async function (
-  fastify: FastifyInstance & { customOauth2: OAuth2Namespace }
-) {
+declare module 'fastify' {
+  interface FastifyInstance {
+    customOauth2?: OAuth2Namespace;
+  }
+}
+
+export default async function (fastify: FastifyInstance) {
   fastify.get('/auth/login', async function (req, res) {
     fastify.customOauth2.generateAuthorizationUri(
       req,
