@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import Fastify from 'fastify';
 import { app } from './app/app';
 

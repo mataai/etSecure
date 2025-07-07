@@ -24,6 +24,7 @@
     "@angular/router": "~20.0.0",
     "@angular/ssr": "~20.0.0",
     "@fastify/autoload": "~6.0.3",
+    "@fastify/oauth2": "^8.1.2",
     "@fastify/multipart": "^9.0.3",
     "@fastify/sensible": "~6.0.2",
     "express": "^4.21.2",
@@ -33,6 +34,7 @@
     "mqtt": "^5.13.1",
     "rxjs": "~7.8.0",
     "socket.io": "^4.8.1",
+    "tsyringe": "^4.10.0",
     "zone.js": "~0.15.0"
   },
   "devDependencies": {
