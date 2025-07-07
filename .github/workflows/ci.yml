@@ -1,8 +1,21 @@
 name: CI
 on:
+  pull_request:
+    branches:
+      - master
+      - develop
+    paths-ignore:
+      - .github/workflows/ci.yml
+      - .github/workflows/release.yml
+      - .github/workflows/merge.yml
   push:
     branches:
       - master
+      - develop
+    paths-ignore:
+      - .github/workflows/ci.yml
+      - .github/workflows/release.yml
+      - .github/workflows/merge.yml
 permissions:
   contents: read
   actions: read
