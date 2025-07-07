@@ -24,6 +24,7 @@
     "@angular/router": "~20.0.0",
     "@angular/ssr": "~20.0.0",
     "@fastify/autoload": "~6.0.3",
+    "@fastify/oauth2": "^8.1.2",
     "@fastify/sensible": "~6.0.2",
     "express": "^4.21.2",
     "fastify": "~5.2.1",
