@@ -38,6 +38,9 @@
         "componentTestingTargetName": "component-test",
         "ciTargetName": "e2e-ci"
       }
+    },
+    {
+      "plugin": "@nxlv/python"
     }
   ],
   "generators": {

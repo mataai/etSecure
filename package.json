@@ -51,6 +51,7 @@
     "@nx/node": "^21.2.1",
     "@nx/web": "21.2.1",
     "@nx/workspace": "21.2.1",
+    "@nxlv/python": "^21.0.3",
     "@schematics/angular": "~20.0.0",
     "@swc-node/register": "~1.9.1",
     "@swc/core": "~1.5.7",
