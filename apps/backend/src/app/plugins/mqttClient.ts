@@ -29,11 +29,11 @@ const mqttClientPlugin: FastifyPluginAsync<MqttClientPluginOptions> = async (
   // Add extra options for username, password, and CA file if present
   const clientOptions: IClientOptions = {
     ...options,
-    // Provide username and password if defined
+    clientId: options.clientId || undefined,
     username: options.username || undefined,
     password: options.password || undefined,
     port: options.port || 1883, // Default to 1883 if not provided
-    ca: options.ca || undefined
+    ca: options.ca || undefined,
   };
 
   // If CA file path is provided, load the certificate file
