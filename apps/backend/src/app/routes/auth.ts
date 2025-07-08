@@ -86,10 +86,21 @@ export default async function (fastify: FastifyInstance) {
       return res.status(400).send({ error: 'File upload failed' });
     }
 
+    fs.mkdirSync('./uploads', { recursive: true });
+
     const savePath = `./uploads/${userInfo.sub}.jpg`;
     const writeStream = fs.createWriteStream(savePath);
     
-    await file.pipe(writeStream);
+    // Use a Promise to wait for the stream to finish
+    await new Promise<void>((resolve, reject) => {
+      file.pipe(writeStream);
+      
+      writeStream.on('finish', resolve);
+      writeStream.on('error', reject);
+    }).catch((err) => {
+      console.error('Error writing file:', err);
+      return res.status(500).send({ error: 'Failed to save file' });
+    });
 
     writeStream.on('error', (err) => {
       console.error('Error writing file:', err);
