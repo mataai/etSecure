@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import fp from 'fastify-plugin';
 import fastifyIO from 'fastify-socket';
-import { Server } from "socket.io";
+import { Server } from 'socket.io';
 import { writeFile } from 'fs';
 import { join } from 'path';
 
