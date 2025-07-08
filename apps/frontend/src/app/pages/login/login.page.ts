@@ -20,7 +20,7 @@ import { CardModule } from 'primeng/card';
         </div>
         <p class="text-lg text-surface-600 dark:text-surface-200">Please log in to continue</p>
       </header>
-      <main class="flex flex-1 justify-center items-center">
+      <main class="flex flex-1 justify-center items-center mt-[-12rem]">
         <p-card class="w-full max-w-md">
           <ng-template pTemplate="header">
             <h2 class="text-center m-0 text-2xl font-bold tracking-tight text-primary mb-1">
