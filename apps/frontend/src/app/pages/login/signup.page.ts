@@ -61,6 +61,7 @@ export class SignupPage {
   username = '';
   referral = '';
   password = '';
+  photoPreview: string | ArrayBuffer | null = null;
   signupSuccess = false;
 
   private router = inject(Router);
@@ -69,5 +70,14 @@ export class SignupPage {
     // Demo logic; replace with real signup
     this.signupSuccess = true;
     setTimeout(() => this.router.navigate(['/login']), 1500);
+  }
+
+  onPhotoSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = (e) => this.photoPreview = e.target?.result ?? null;
+      reader.readAsDataURL(input.files[0]);
+    }
   }
 }
