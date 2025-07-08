@@ -1,5 +1,6 @@
 import { OAuth2Namespace } from '@fastify/oauth2';
 import { FastifyInstance } from 'fastify';
+import fs from 'fs';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -53,19 +54,47 @@ export default async function (fastify: FastifyInstance) {
   });
 
   fastify.post('/auth/picture', async function (req, res) {
-    const data = req.file();
+    const token: string = req.headers.authorization?.split(' ')[1];
+
+    if (!token) {
+      return res.status(401).send({ error: 'Unauthorized' });
+    }
+
+    let userInfo;
+
+    try {
+      userInfo = await fastify.customOauth2.userinfo(token);
+    } catch (err) {
+      if (err instanceof Error && err.message.includes('Unauthorized')) {
+        return res.status(401).send({ error: 'Unauthorized' });
+      } else {
+        console.error('Error fetching user info:', err);
+        return res.status(500).send({ error: 'Internal Server Error' });
+      }
+    }
+
+    const data =  await req.file();
 
     if (!data) {
+      console.log(req);
       return res.status(400).send({ error: 'No file uploaded' });
     }
 
-    const file = (await data).file;
+    const file =  data.file;
 
     if (!file) {
       return res.status(400).send({ error: 'File upload failed' });
     }
 
-    // Use token to extract user id and save the file (userid.jpg)
+    const savePath = `./uploads/${userInfo.sub}.jpg`;
+    const writeStream = fs.createWriteStream(savePath);
+    
+    await file.pipe(writeStream);
+
+    writeStream.on('error', (err) => {
+      console.error('Error writing file:', err);
+      return res.status(500).send({ error: 'Failed to save file' });
+    });
 
     return res.status(200).send({
       message: 'File uploaded successfully'});
