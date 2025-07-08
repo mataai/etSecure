@@ -12,28 +12,39 @@ import { CardModule } from 'primeng/card';
   standalone: true,
   imports: [CommonModule, FormsModule, InputTextModule, PasswordModule, ButtonModule, CardModule],
   template: `
-    <div class="flex justify-center items-center min-h-screen bg-surface-100 dark:bg-surface-900">
-      <p-card class="w-full max-w-md">
-        <ng-template pTemplate="header">
-          <h2 class="text-center m-0">Sign Up with Referral</h2>
-        </ng-template>
-        <form (ngSubmit)="onSignup()" #signupForm="ngForm" class="flex flex-col gap-4 mt-4">
-          <span class="p-float-label">
-            <input pInputText id="username" name="username" [(ngModel)]="username" required class="w-full" />
-            <label for="username">Username</label>
-          </span>
-          <span class="p-float-label">
-            <input pInputText id="referral" name="referral" [(ngModel)]="referral" required class="w-full" />
-            <label for="referral">Referral Code</label>
-          </span>
-          <span class="p-float-label">
-            <input pPassword id="password" name="password" [(ngModel)]="password" required class="w-full" />
-            <label for="password">Password</label>
-          </span>
-          <button pButton type="submit" class="w-full mt-2">Sign Up</button>
-        </form>
-        <div *ngIf="signupSuccess" class="text-green-500 text-center mt-4">Signup successful!</div>
-      </p-card>
+    <div class="flex flex-col min-h-screen bg-surface-100 dark:bg-surface-900">
+      <header class="flex flex-col items-center pt-12 pb-4">
+        <div class="flex items-center gap-3 mb-2">
+          <i class="pi pi-user-plus text-4xl text-primary"></i>
+          <h1 class="text-3xl font-bold tracking-tight text-primary">Join etSecure</h1>
+        </div>
+        <p class="text-lg text-surface-600 dark:text-surface-200">Create your account with a referral code</p>
+      </header>
+      <main class="flex flex-1 justify-center items-center">
+        <p-card class="w-full max-w-md">
+          <ng-template pTemplate="header">
+            <h2 class="text-center m-0 text-2xl font-bold tracking-tight text-primary mb-1">
+              Sign Up with Referral
+            </h2>
+          </ng-template>
+          <form (ngSubmit)="onSignup()" #signupForm="ngForm" class="flex flex-col gap-4 mt-4">
+            <span class="p-float-label">
+              <input pInputText id="username" name="username" [(ngModel)]="username" required class="w-full" />
+              <label for="username">Username</label>
+            </span>
+            <span class="p-float-label">
+              <input pInputText id="referral" name="referral" [(ngModel)]="referral" required class="w-full" />
+              <label for="referral">Referral Code</label>
+            </span>
+            <span class="p-float-label">
+              <input pPassword id="password" name="password" [(ngModel)]="password" required class="w-full" />
+              <label for="password">Password</label>
+            </span>
+            <button pButton type="submit" class="w-full mt-2">Sign Up</button>
+          </form>
+          <div *ngIf="signupSuccess" class="text-green-500 text-center mt-4">Signup successful!</div>
+        </p-card>
+      </main>
     </div>
   `,
   styles: [`
