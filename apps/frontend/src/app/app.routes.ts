@@ -5,16 +5,20 @@ import { Documentation } from './pages/documentation/documentation';
 import { Landing } from './pages/landing/landing';
 import { Notfound } from './pages/notfound/notfound';
 
-import { HomePage } from './home.page';
-import { StudentPage } from './student.page';
-import { AdminPage } from './admin.page';
+import { HomePage } from './pages/home/home.page';
+import { StudentPage } from './pages/student/student.page';
+import { AdminPage } from './pages/admin/admin.page';
+import { LoginPage } from './pages/login/login.page';
+import { SignupPage } from './pages/login/signup.page';
 
 export const appRoutes: Routes = [
+  { path: '', component: LoginPage },
+  { path: 'signup', component: SignupPage },
   {
     path: '',
     component: AppLayout,
     children: [
-      { path: '', component: Dashboard },
+      { path: 'dashboard', component: Dashboard },
       {
         path: 'uikit',
         loadChildren: () => import('./pages/uikit/uikit.routes'),
@@ -25,9 +29,7 @@ export const appRoutes: Routes = [
   },
   { path: 'landing', component: Landing },
   { path: 'notfound', component: Notfound },
-  { path: 'auth', loadChildren: () => import('./pages/auth/auth.routes') },
-  { path: '**', redirectTo: '/notfound' },
-  { path: '', component: HomePage },
+  { path: 'home', component: HomePage },
   { path: 'student', component: StudentPage },
   { path: 'admin', component: AdminPage },
   { path: '**', redirectTo: '' },

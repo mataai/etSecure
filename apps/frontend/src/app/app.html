@@ -1,6 +1,10 @@
-<nav>
-  <a routerLink="">Home</a> |
-  <a routerLink="student">Student</a> |
-  <a routerLink="admin">Admin</a>
+<nav class="flex justify-between items-center py-4 bg-surface-0 dark:bg-surface-900 shadow-md rounded-b-xl mb-6 px-8">
+  <div class="flex items-center gap-6">
+    <a routerLink="student" class="text-lg font-semibold text-primary hover:underline">Student</a>
+    <a routerLink="admin" class="text-lg font-semibold text-primary hover:underline">Admin</a>
+  </div>
+  <div>
+    <a routerLink="/" class="text-lg font-semibold text-primary hover:underline" style="cursor:pointer;">Login</a>
+  </div>
 </nav>
 <router-outlet></router-outlet>

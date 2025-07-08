@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { HttpClient }         from '@angular/common/http';
 import { RouterLink }         from '@angular/router';
 
@@ -14,7 +14,7 @@ import { RouterLink }         from '@angular/router';
 })
 export class StudentPage implements OnInit {
   message = '...loading';
-  constructor(private http: HttpClient) {}
+  private http = inject(HttpClient);
   ngOnInit() {
     this.http
       .get<{ message: string }>('http://localhost:3000/') //change to actual backend
