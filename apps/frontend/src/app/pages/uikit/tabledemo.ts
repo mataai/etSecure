@@ -428,11 +428,11 @@ export class TableDemo implements OnInit {
 
     activityValues: number[] = [0, 100];
 
-    isExpanded: boolean = false;
+    isExpanded = false;
 
-    balanceFrozen: boolean = false;
+    balanceFrozen = false;
 
-    loading: boolean = true;
+    loading = true;
 
     @ViewChild('filter') filter!: ElementRef;
 
@@ -557,7 +557,7 @@ export class TableDemo implements OnInit {
         let total = 0;
 
         if (this.customers2) {
-            for (let customer of this.customers2) {
+            for (const customer of this.customers2) {
                 if (customer.representative?.name === name) {
                     total++;
                 }
