@@ -17,9 +17,9 @@ const mqttOptions = {
     username: process.env.MQTT_USERNAME || 'client',
     password: process.env.MQTT_PASSWORD || 'REDACTED',
     ca: process.env.MQTT_CA || './server.crt',
-    port: process.env.MQTT_PORT || 8883
-  }
-}
+    port: process.env.MQTT_PORT || 8883,
+  },
+};
 
 // Register your application as a normal plugin.
 server.register(app, mqttOptions);
