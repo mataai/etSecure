@@ -20,10 +20,10 @@ import { CardModule } from 'primeng/card';
         </div>
         <p class="text-lg text-surface-600 dark:text-surface-200">Please log in to continue</p>
       </header>
-      <main class="flex flex-1 justify-center items-center mt-[-12rem]">
+      <main class="flex flex-1 justify-center items-center">
         <p-card class="w-full max-w-md">
           <ng-template pTemplate="header">
-            <h2 class="text-center m-0 text-2xl font-bold tracking-tight text-primary mb-1">
+            <h2 class="text-center m-0 text-2xl font-bold tracking-tight text-primary mb-1 login-title">
               Login
             </h2>
           </ng-template>
@@ -57,6 +57,22 @@ import { CardModule } from 'primeng/card';
     }
     .p-float-label {
       width: 100%;
+    }
+    .login-title {
+      padding-top: 1rem;
+      padding-bottom: 1rem;
+    }
+    main.flex-1 {
+      margin-top: 0 !important;
+      padding-top: 2rem;
+      padding-bottom: 2rem;
+      align-items: flex-start;
+    }
+    @media (max-width: 640px) {
+      main.flex-1 {
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+      }
     }
   `]
 })
