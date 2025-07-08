@@ -51,4 +51,23 @@ export default async function (fastify: FastifyInstance) {
       res.status(500).send({ error: 'Failed to fetch user profile' });
     }
   });
+
+  fastify.post('/auth/picture', async function (req, res) {
+    const data = req.file();
+
+    if (!data) {
+      return res.status(400).send({ error: 'No file uploaded' });
+    }
+
+    const file = (await data).file;
+
+    if (!file) {
+      return res.status(400).send({ error: 'File upload failed' });
+    }
+
+    // Use token to extract user id and save the file (userid.jpg)
+
+    return res.status(200).send({
+      message: 'File uploaded successfully'});
+  });
 }
