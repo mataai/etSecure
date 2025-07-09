@@ -83,7 +83,9 @@ export class LayoutService {
   private initialized = false;
 
   constructor() {
+    if (this.initialized) return;
     console.log('LayoutService initialized');
+
     effect(() => {
       const config = this.layoutConfig();
       if (config) {
@@ -92,13 +94,12 @@ export class LayoutService {
     });
 
     const config = this.layoutConfig();
+    this.handleDarkModeTransition(config);
 
     if (!this.initialized || !config) {
       this.initialized = true;
       return;
     }
-
-    this.handleDarkModeTransition(config);
   }
 
   private handleDarkModeTransition(config: layoutConfig): void {

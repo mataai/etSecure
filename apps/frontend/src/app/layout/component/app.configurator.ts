@@ -44,7 +44,8 @@ declare type SurfacesType = {
 };
 
 @Component({
-  selector: 'app-configurator',imports: [CommonModule, FormsModule, SelectButtonModule],
+  selector: 'app-configurator',
+  imports: [CommonModule, FormsModule, SelectButtonModule],
   template: `
     <div class="flex flex-col gap-4">
       <div>
@@ -335,7 +336,8 @@ export class AppConfigurator implements OnInit {
       this.primaryColors().find(
         (c) => c.name === this.selectedPrimaryColor()
       ) || {};
-    const preset = this.layoutService.layoutConfig().preset;
+      const preset = this.layoutService.layoutConfig().preset;
+      console.log('getPresetExt', preset);
 
     if (color.name === 'noir') {
       return {

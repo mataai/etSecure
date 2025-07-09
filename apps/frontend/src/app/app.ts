@@ -1,12 +1,13 @@
 import { Component } from '@angular/core';
-import { RouterLink, RouterModule, RouterOutlet } from '@angular/router';
+import { RouterModule, RouterOutlet } from '@angular/router';
 @Component({
-  selector: 'app-root',imports: [
-    RouterOutlet,
-    RouterLink,
-    RouterModule,
-  ],
+  selector: 'app-root',
+  imports: [RouterOutlet, RouterModule],
   templateUrl: './app.html',
-  styleUrls:   ['./app.scss'],
+  styleUrls: ['./app.scss'],
 })
-export class AppComponent {}
+export class AppComponent {
+  constructor() {
+    document.documentElement.classList.add('app-dark');
+  }
+}
