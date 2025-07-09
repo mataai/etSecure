@@ -15,9 +15,7 @@ import { IconField, IconFieldModule } from 'primeng/iconfield';
 import { InputIcon, InputIconModule } from 'primeng/inputicon';
 
 @Component({
-  selector: 'app-menu-demo',
-  standalone: true,
-  imports: [
+  selector: 'app-menu-demo',imports: [
     CommonModule,
     BreadcrumbModule,
     TieredMenuModule,

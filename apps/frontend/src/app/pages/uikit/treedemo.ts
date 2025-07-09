@@ -7,9 +7,7 @@ import { CommonModule } from '@angular/common';
 import { NodeService } from '../service/node.service';
 
 @Component({
-  selector: 'app-tree-demo',
-  standalone: true,
-  imports: [CommonModule, FormsModule, TreeModule, TreeTableModule],
+  selector: 'app-tree-demo',imports: [CommonModule, FormsModule, TreeModule, TreeTableModule],
   template: `
     <div class="card">
       <div class="font-semibold text-xl">Tree</div>

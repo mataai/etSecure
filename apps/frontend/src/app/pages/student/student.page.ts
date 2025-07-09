@@ -7,9 +7,7 @@ import { ButtonModule } from 'primeng/button';
 import { SkeletonModule } from 'primeng/skeleton';
 
 @Component({
-  selector: 'app-student',
-  standalone: true,
-  imports: [CommonModule, RouterLink, CardModule, TableModule, ButtonModule, SkeletonModule],
+  selector: 'app-student',imports: [CommonModule, RouterLink, CardModule, TableModule, ButtonModule, SkeletonModule],
   template: `
     <div class="flex flex-col gap-8 max-w-5xl mx-auto py-8">
       <h1 class="text-3xl font-extrabold tracking-tight text-primary mb-2 text-center">Student Panel</h1>

@@ -4,9 +4,7 @@ import { ButtonModule } from 'primeng/button';
 import { AppFloatingConfigurator } from '../../layout/component/app.floatingconfigurator';
 
 @Component({
-  selector: 'app-notfound',
-  standalone: true,
-  imports: [RouterModule, AppFloatingConfigurator, ButtonModule],
+  selector: 'app-notfound',imports: [RouterModule, AppFloatingConfigurator, ButtonModule],
   template: ` <app-floating-configurator />
     <div class="flex items-center justify-center min-h-screen overflow-hidden">
       <div class="flex flex-col items-center justify-center">

@@ -14,9 +14,7 @@ import { AppFooter } from './app.footer';
 import { LayoutService } from '../service/layout.service';
 
 @Component({
-  selector: 'app-layout',
-  standalone: true,
-  imports: [CommonModule, AppTopbar, AppSidebar, RouterModule, AppFooter],
+  selector: 'app-layout',imports: [CommonModule, AppTopbar, AppSidebar, RouterModule, AppFooter],
   template: `<div class="layout-wrapper" [ngClass]="containerClass">
     <app-topbar></app-topbar>
     <app-sidebar></app-sidebar>

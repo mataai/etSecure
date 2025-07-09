@@ -3,9 +3,7 @@ import { ChartModule } from 'primeng/chart';
 import { debounceTime, Subscription } from 'rxjs';
 import { LayoutService } from '../../../layout/service/layout.service';
 
-@Component({
-  standalone: true,
-  selector: 'app-revenue-stream-widget',
+@Component({selector: 'app-revenue-stream-widget',
   imports: [ChartModule],
   template: `<div class="card !mb-8">
     <div class="font-semibold text-xl mb-4">Revenue Stream</div>

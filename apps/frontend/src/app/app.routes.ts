@@ -2,7 +2,6 @@ import { Routes } from '@angular/router';
 import { AppLayout } from './layout/component/app.layout';
 import { Dashboard } from './pages/dashboard/dashboard';
 import { Documentation } from './pages/documentation/documentation';
-import { Landing } from './pages/landing/landing';
 import { Notfound } from './pages/notfound/notfound';
 
 import { HomePage } from './pages/home/home.page';
@@ -12,8 +11,17 @@ import { LoginPage } from './pages/login/login.page';
 import { SignupPage } from './pages/login/signup.page';
 
 export const appRoutes: Routes = [
-  { path: '', component: LoginPage },
-  { path: 'signup', component: SignupPage },
+  {
+    path: '',
+  children: [
+      { path: 'login', component: LoginPage },
+      { path: 'signup', component: SignupPage },
+      { path: 'home', component: HomePage },
+      { path: 'student', component: StudentPage },
+      { path: 'admin', component: AdminPage },
+      { path: '', redirectTo: 'login', pathMatch: 'full' },
+    ],
+  },
   {
     path: '',
     component: AppLayout,
@@ -25,12 +33,9 @@ export const appRoutes: Routes = [
       },
       { path: 'documentation', component: Documentation },
       { path: 'pages', loadChildren: () => import('./pages/pages.routes') },
+      { path: '**', redirectTo: 'notfound' },
     ],
   },
-  { path: 'landing', component: Landing },
   { path: 'notfound', component: Notfound },
-  { path: 'home', component: HomePage },
-  { path: 'student', component: StudentPage },
-  { path: 'admin', component: AdminPage },
-  { path: '**', redirectTo: '' },
+  { path: '**', redirectTo: 'notfound' },
 ];

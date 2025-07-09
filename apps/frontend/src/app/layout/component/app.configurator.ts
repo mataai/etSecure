@@ -44,9 +44,7 @@ declare type SurfacesType = {
 };
 
 @Component({
-  selector: 'app-configurator',
-  standalone: true,
-  imports: [CommonModule, FormsModule, SelectButtonModule],
+  selector: 'app-configurator',imports: [CommonModule, FormsModule, SelectButtonModule],
   template: `
     <div class="flex flex-col gap-4">
       <div>

@@ -7,9 +7,7 @@ import { ButtonModule } from 'primeng/button';
 import { SkeletonModule } from 'primeng/skeleton';
 
 @Component({
-  selector: 'app-admin',
-  standalone: true,
-  imports: [CommonModule, RouterLink, CardModule, TableModule, ButtonModule, SkeletonModule],
+  selector: 'app-admin',imports: [CommonModule, RouterLink, CardModule, TableModule, ButtonModule, SkeletonModule],
   template: `
     <div class="flex flex-col gap-8 max-w-5xl mx-auto py-8">
       <h1 class="text-3xl font-extrabold tracking-tight text-primary mb-2 text-center">Admin Panel</h1>

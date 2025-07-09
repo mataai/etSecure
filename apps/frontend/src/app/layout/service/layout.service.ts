@@ -83,6 +83,7 @@ export class LayoutService {
   private initialized = false;
 
   constructor() {
+    console.log('LayoutService initialized');
     effect(() => {
       const config = this.layoutConfig();
       if (config) {
@@ -90,16 +91,14 @@ export class LayoutService {
       }
     });
 
-    effect(() => {
-      const config = this.layoutConfig();
+    const config = this.layoutConfig();
 
-      if (!this.initialized || !config) {
-        this.initialized = true;
-        return;
-      }
+    if (!this.initialized || !config) {
+      this.initialized = true;
+      return;
+    }
 
-      this.handleDarkModeTransition(config);
-    });
+    this.handleDarkModeTransition(config);
   }
 
   private handleDarkModeTransition(config: layoutConfig): void {
@@ -113,6 +112,7 @@ export class LayoutService {
 
   private startViewTransition(config: layoutConfig): void {
     const transition = (document as any).startViewTransition(() => {
+      console.log('Transition started');
       this.toggleDarkMode(config);
     });
 

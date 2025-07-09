@@ -35,9 +35,7 @@ import { TreeNode } from 'primeng/api';
 import { Country } from '../service/customer.service';
 
 @Component({
-  selector: 'app-input-demo',
-  standalone: true,
-  imports: [
+  selector: 'app-input-demo',imports: [
     CommonModule,
     FormsModule,
     InputTextModule,

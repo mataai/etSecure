@@ -8,9 +8,7 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 
 @Component({
-  selector: 'app-signup-page',
-  standalone: true,
-  imports: [CommonModule, FormsModule, InputTextModule, PasswordModule, ButtonModule, CardModule],
+  selector: 'app-signup-page',imports: [CommonModule, FormsModule, InputTextModule, PasswordModule, ButtonModule, CardModule],
   template: `
     <div class="flex flex-col min-h-screen bg-surface-100 dark:bg-surface-900">
       <header class="flex flex-col items-center pt-12 pb-4">

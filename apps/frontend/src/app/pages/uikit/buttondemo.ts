@@ -5,9 +5,7 @@ import { ButtonGroupModule } from 'primeng/buttongroup';
 import { SplitButtonModule } from 'primeng/splitbutton';
 
 @Component({
-  selector: 'app-button-demo',
-  standalone: true,
-  imports: [ButtonModule, ButtonGroupModule, SplitButtonModule],
+  selector: 'app-button-demo',imports: [ButtonModule, ButtonGroupModule, SplitButtonModule],
   template: `<div class="flex flex-col md:flex-row gap-8">
     <div class="md:w-1/2">
       <div class="card flex flex-col gap-4">
