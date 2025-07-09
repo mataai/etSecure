@@ -48,3 +48,6 @@ Thumbs.db
 .env
 
 /uploads/*
+
+docker-services/traefik/certs/*
+docker-services/traefik/**/*.log

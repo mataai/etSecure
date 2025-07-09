@@ -1,0 +1,34 @@
+services:
+  traefik:
+    image: "traefik:latest"
+    container_name: "traefik"
+    restart: unless-stopped
+    networks:
+      - traefik
+    ports:
+      - 80:80
+      - 443:443
+      - 8080:8080
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - ./certs:/etc/certs
+      - ./config:/etc/traefik
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    env_file:
+      - .env
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.etsecure.xyz`)"
+      - "traefik.http.routers.dashboard.entrypoints=https"
+      - "traefik.http.routers.dashboard.tls.certresolver=production"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.tls.domains[0].main=etsecure.xyz"
+      - "traefik.http.routers.dashboard.tls.domains[0].sans=*.etsecure.xyz"
+      
+networks:
+  traefik:
+    driver: bridge
+    name: traefik
+      
