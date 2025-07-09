@@ -1,0 +1,55 @@
+global:
+  checkNewVersion: true
+  sendAnonymousUsage: false
+
+api:
+  dashboard: true
+  insecure: true
+
+log:
+  filePath: /etc/traefik/log.log
+  level: INFO
+  
+entryPoints:
+  http:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: https
+          scheme: https
+  https:
+    address: ":443"
+    transport:
+      respondingTimeouts:
+        readTimeout: 600s
+        idleTimeout: 600s
+        writeTimeout: 600s
+
+  secure:
+    address: ":9999"
+
+certificatesResolvers:
+  staging:
+    acme:
+      email: mat4school@gmail.com
+      caServer: https://acme-staging-v02.api.letsencrypt.org/directory
+      storage: /etc/certs/acme.stage.json
+      dnsChallenge:
+        provider: cloudflare
+  production:
+    acme:
+      email: mat4school@gmail.com
+      caServer: https://acme-v02.api.letsencrypt.org/directory
+      storage: /etc/certs/acme.prod.json
+      dnsChallenge:
+        provider: cloudflare
+
+providers:
+  docker:
+    network: traefik
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+  file:
+    directory: /etc/traefik/services/
+    watch: true

@@ -3,6 +3,8 @@ services:
   postgresql:
     image: docker.io/library/postgres:16-alpine
     restart: unless-stopped
+    networks:
+      - authentik
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}']
       start_period: 20s
@@ -21,6 +23,8 @@ services:
     image: docker.io/library/redis:alpine
     command: --save 60 1 --loglevel warning
     restart: unless-stopped
+    networks:
+      - authentik
     healthcheck:
       test: ['CMD-SHELL', 'redis-cli ping | grep PONG']
       start_period: 20s
@@ -40,6 +44,14 @@ services:
       AUTHENTIK_POSTGRESQL__USER: ${PG_USER:-authentik}
       AUTHENTIK_POSTGRESQL__NAME: ${PG_DB:-authentik}
       AUTHENTIK_POSTGRESQL__PASSWORD: ${PG_PASS}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.authentik.rule=Host(`auth.etsecure.xyz`)"
+      - "traefik.http.routers.authentik.entrypoints=https"
+      - "traefik.http.routers.authentik.tls.certresolver=production"
+    networks:
+      - authentik
+      - traefik
     volumes:
       - ./media:/media
       - ./custom-templates:/templates
@@ -70,6 +82,8 @@ services:
     # Removing `user: root` also prevents the worker from fixing the permissions
     # on the mounted folders, so when removing this make sure the folders have the correct UID/GID
     # (1000:1000 by default)
+    networks:
+      - authentik
     user: root
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -89,3 +103,8 @@ volumes:
     driver: local
   redis:
     driver: local
+networks:
+  traefik:
+    external: true
+  authentik:
+    driver: bridge
