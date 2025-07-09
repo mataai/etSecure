@@ -49,6 +49,22 @@ const mqttClientPlugin: FastifyPluginAsync<MqttClientPluginOptions> = async (
 
   const client = mqtt.connect(url, clientOptions);
 
+  client.subscribe('doors/+/status');
+
+  client.on('message', (topic, message) => {
+    const msg = message.toString();
+
+    if (topic.startsWith('doors/')) {
+      const doorId = topic.split('/')[1];
+      if (topic.endsWith('/status')) {
+        fastify.log.info(`Door ${doorId} status update: ${msg}`);
+        // Here you can handle the door status update, e.g., emit an event or store it
+        return;
+      }
+    }
+      fastify.log.warn(`Received message on unknown topic ${topic}: ${msg}`);
+  });
+
   fastify.decorate('mqttClient', client);
 
   client.on('connect', () => {

@@ -10,6 +10,8 @@ export interface AppOptions {}
 export async function app(fastify: FastifyInstance, opts: AppOptions) {
   // Place here your custom code!
 
+  fastify.register(fastifyMultipart);
+
   // Do not touch the following lines
 
   // This loads all plugins defined in plugins
@@ -26,7 +28,6 @@ export async function app(fastify: FastifyInstance, opts: AppOptions) {
     dir: path.join(__dirname, 'routes'),
     options: { ...opts },
   });
-  fastify.register(fastifyMultipart);
 
   container.register<FastifyInstance>('FastifyInstance', {
     useValue: fastify,
