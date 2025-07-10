@@ -1,11 +1,12 @@
 import { FastifyPluginAsync } from 'fastify';
 import { authPreValidator } from '../request-modifiers/auth.pre-validator';
+import { groupPreValidator } from '../request-modifiers/groups.pre-validator';
 
 const userRoutes: FastifyPluginAsync = async (fastify) => {
   // GET /users - Get all users
   fastify.get(
     '/users',
-    { preValidation: [authPreValidator] },
+    { preValidation: [authPreValidator, groupPreValidator(["etsecure_admin"])] },
     async (request, reply) => {
       // Need Admin Authorization
 
