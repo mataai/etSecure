@@ -58,7 +58,16 @@ const mqttClientPlugin: FastifyPluginAsync<MqttClientPluginOptions> = async (
       const doorId = topic.split('/')[1];
       if (topic.endsWith('/status')) {
         fastify.log.info(`Door ${doorId} status update: ${msg}`);
-        // Here you can handle the door status update, e.g., emit an event or store it
+        // store status in db
+        fastify.mongo.db.collection('doors').updateOne(
+          { _id: doorId },
+          { $set: { status: msg } },
+          { upsert: true }
+        ).then(() => {
+          fastify.log.info(`Updated door ${doorId} status to ${msg}`);
+        }).catch(err => {
+          fastify.log.error(`Failed to update door ${doorId} status: ${err.message}`);
+        });
         return;
       }
     }
