@@ -67,13 +67,13 @@ jobs:
           tags: ghcr.io/${{ github.repository_owner }}/etsecure_backend:latest
           labels: ${{ steps.meta_backend.outputs.labels }}
 
-      - name: Extract metadata for backend
+      - name: Extract metadata for frontend
         id: meta_frontend
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
           images: ${{ env.REGISTRY }}/etsecure_frontend
 
-      - name: Build and push backend image
+      - name: Build and push frontend image
         id: push_frontend
         uses: docker/build-push-action@v5
         with:
