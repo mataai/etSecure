@@ -1,9 +1,7 @@
-# --- Build stage ---
 FROM node:lts-alpine AS build
 
 WORKDIR /app
 
-# On copie les fichiers nécessaires au runtime (build + deps)
 COPY dist/apps/backend .
 COPY package.json package-lock.json ./
 

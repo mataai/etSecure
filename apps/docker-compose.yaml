@@ -2,19 +2,19 @@ version: '3.9'
 
 services:
   backend:
-    image: ghcr.io/mataai/etsecure:latest
-    container_name: etsecure-backend
+    image: ghcr.io/mataai/etsecure_backend:latest
+    container_name: etsecure_backend
     ports:
       - "3000:3000"
     environment:
       NODE_ENV: production
     restart: unless-stopped
 
-  # frontend:
-  #   image: ghcr.io/mataai/frontend:latest
-  #   container_name: frontend
-  #   ports:
-  #     - "80:80"
-  #   depends_on:
-  #     - backend
-  #   restart: unless-stopped
+  frontend:
+    image: ghcr.io/mataai/etsecure_frontend:latest
+    container_name: etsecure_frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
