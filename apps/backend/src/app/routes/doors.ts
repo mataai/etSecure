@@ -36,8 +36,8 @@ const doorsRoutes: FastifyPluginAsync = async (fastify) => {
       return reply.code(400).send({ error: 'At least one field (name, location, status) must be provided' });
     }
 
-    if (doorData.status && !['open', 'closed'].includes(doorData.status)) {
-      return reply.code(400).send({ error: 'Status must be either "open" or "closed"' });
+    if (doorData.status && !['locked', 'unlocked'].includes(doorData.status)) {
+      return reply.code(400).send({ error: 'Status must be either "locked" or "unlocked"' });
     }
 
     if (doorData.status) {
