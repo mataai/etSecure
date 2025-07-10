@@ -4,6 +4,7 @@ import fp from 'fastify-plugin';
 import mqtt, { IClientOptions, MqttClient } from 'mqtt';
 import fs from 'fs';
 import path from 'path';
+import { ObjectId } from 'mongodb';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -60,7 +61,7 @@ const mqttClientPlugin: FastifyPluginAsync<MqttClientPluginOptions> = async (
         fastify.log.info(`Door ${doorId} status update: ${msg}`);
         // store status in db
         fastify.mongo.db.collection('doors').updateOne(
-          { _id: doorId },
+          { _id: new ObjectId(doorId) },
           { $set: { status: msg } },
           { upsert: true }
         ).then(() => {

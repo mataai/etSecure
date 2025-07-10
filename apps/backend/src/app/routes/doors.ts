@@ -60,7 +60,7 @@ const doorsRoutes: FastifyPluginAsync = async (fastify) => {
   // DELETE /doors/:id - Delete a door
   fastify.delete('/doors/:id', async (request, reply) => {
     const { id } = request.params as { id: string };
-    const result = await fastify.mongo.db.collection('doors').deleteOne({ _id: id });
+    const result = await fastify.mongo.db.collection('doors').deleteOne({ _id: new ObjectId(id) });
     if (result.deletedCount === 0) {
       return reply.code(404).send({ error: 'Door not found' });
     }
