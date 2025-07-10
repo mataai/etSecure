@@ -6,8 +6,8 @@ import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
-import { LayoutService } from '../../layout/service/layout.service';
-import { AuthService } from '../../shared/services/auth.service';
+import { AuthService } from '../../../shared/services/auth.service';
+import { LayoutService } from '../../../layout/service/layout.service';
 
 @Component({
   selector: 'app-login-page',
@@ -139,7 +139,6 @@ export class LoginPage {
   private router = inject(Router);
 
   onLogin() {
-
     this.authService.login();
   }
 

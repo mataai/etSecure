@@ -1,13 +1,12 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
-import { LayoutService } from '../../layout/service/layout.service';
-import { AuthService } from '../../shared/services/auth.service';
+import { LayoutService } from '../../../layout/service/layout.service';
+import { AuthService } from '../../../shared/services/auth.service';
 
 @Component({
   selector: 'app-login-page',
@@ -83,6 +82,6 @@ export class CallbackPage implements OnInit {
   private authService = inject(AuthService);
 
   ngOnInit(): void {
-    this.authService.handleCallback();
+    this.authService.logout();
   }
 }

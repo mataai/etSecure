@@ -6,11 +6,10 @@ import { Notfound } from './pages/notfound/notfound';
 import { HomePage } from './pages/home/home.page';
 import { StudentPage } from './pages/student/student.page';
 import { AdminPage } from './pages/admin/admin.page';
-import { LoginPage } from './pages/login/login.page';
-import { SignupPage } from './pages/login/signup.page';
 import { authGuard } from './shared/guards/auth.guard';
-import { CallbackPage } from './pages/login/callback.page';
+import { CallbackPage, LoginPage, SignupPage } from './pages/auth';
 import { NoAuthGuard } from './shared/guards/no-auth.guard';
+import { GroupsGuard } from './shared/guards/groups.guard';
 
 export const appRoutes: Routes = [
   {
@@ -31,6 +30,7 @@ export const appRoutes: Routes = [
     children: [
       {
         path: 'admin',
+        canActivate: [GroupsGuard],
         children: [{ path: 'admin', component: AdminPage }],
       },
       { path: 'home', component: HomePage },
