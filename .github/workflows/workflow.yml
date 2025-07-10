@@ -14,7 +14,6 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   main:
@@ -52,17 +51,34 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
+      - name: Extract metadata for backend
+        id: meta_backend
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-      - name: Build and push Docker image
-        id: push
+          images: ${{ env.REGISTRY }}/etsecure_backend
+
+      - name: Build and push backend image
+        id: push_backend
         uses: docker/build-push-action@v5
         with:
           file: apps/backend/Dockerfile
           context: .
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/backend:latest
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ghcr.io/${{ github.repository_owner }}/etsecure_backend:latest
+          labels: ${{ steps.meta_backend.outputs.labels }}
+
+      - name: Extract metadata for frontend
+        id: meta_frontend
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/etsecure_frontend
+
+      - name: Build and push frontend image
+        id: push_frontend
+        uses: docker/build-push-action@v5
+        with:
+          file: apps/frontend/Dockerfile
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/etsecure_frontend:latest
+          labels: ${{ steps.meta_frontend.outputs.labels }}
