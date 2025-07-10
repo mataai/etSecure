@@ -7,8 +7,4 @@ export class User {
   public preferred_username!: string;
   public nickname!: string;
   public groups!: string[];
-
-  public get id(): string {
-    return this.sub;
-  }
 }

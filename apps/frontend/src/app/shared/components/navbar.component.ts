@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -45,7 +45,7 @@ import { StyleClassModule } from 'primeng/styleclass';
     <div class="layout-topbar-actions">
       <div class="layout-topbar-menu hidden lg:block">
         <div class="layout-topbar-menu-content">
-          @for (item of items; track item.id) {
+          @for (item of items(); track item.id) {
           <button
             type="button"
             class="layout-topbar-action"
@@ -73,23 +73,5 @@ import { StyleClassModule } from 'primeng/styleclass';
   ],
 })
 export class NavbarComponent {
-  public readonly items: MenuItem[] = [
-    {
-      id: 'home-link',
-      icon: 'pi pi-home',
-      routerLink: '/home',
-      queryParams: {},
-      fragment: '',
-    },
-    {
-      id: 'admin-link',
-      icon: 'pi pi-cog',
-      routerLink: '/admin',
-    },
-    {
-      id: 'profile-link',
-      icon: 'pi pi-user',
-      routerLink: '/user/profile',
-    },
-  ];
+  public readonly items = input.required<MenuItem[]>();
 }
