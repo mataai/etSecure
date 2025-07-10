@@ -1,8 +1,6 @@
 import { Component } from '@angular/core';
 
-@Component({
-  standalone: true,
-  selector: 'app-footer',
+@Component({selector: 'app-footer',
   template: `<div class="layout-footer">
     SAKAI by
     <a

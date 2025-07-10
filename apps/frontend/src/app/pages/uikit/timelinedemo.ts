@@ -5,9 +5,7 @@ import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 
 @Component({
-  selector: 'app-timeline-demo',
-  standalone: true,
-  imports: [CommonModule, TimelineModule, ButtonModule, CardModule],
+  selector: 'app-timeline-demo',imports: [CommonModule, TimelineModule, ButtonModule, CardModule],
   template: ` <div class="grid grid-cols-12 gap-8">
     <div class="col-span-6">
       <div class="card">

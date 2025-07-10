@@ -8,9 +8,7 @@ import { MessageModule } from 'primeng/message';
 import { ToastModule } from 'primeng/toast';
 
 @Component({
-  selector: 'app-messages-demo',
-  standalone: true,
-  imports: [
+  selector: 'app-messages-demo',imports: [
     CommonModule,
     ToastModule,
     ButtonModule,

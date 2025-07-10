@@ -6,9 +6,7 @@ import { debounceTime, Subscription } from 'rxjs';
 import { LayoutService } from '../../layout/service/layout.service';
 
 @Component({
-  selector: 'app-chart-demo',
-  standalone: true,
-  imports: [CommonModule, ChartModule, FluidModule],
+  selector: 'app-chart-demo',imports: [CommonModule, ChartModule, FluidModule],
   template: `
     <p-fluid class="grid grid-cols-12 gap-8">
       <div class="col-span-12 xl:col-span-6">

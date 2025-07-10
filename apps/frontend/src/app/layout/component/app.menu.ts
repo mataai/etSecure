@@ -5,9 +5,7 @@ import { MenuItem } from 'primeng/api';
 import { AppMenuitem } from './app.menuitem';
 
 @Component({
-  selector: 'app-menu',
-  standalone: true,
-  imports: [CommonModule, AppMenuitem, RouterModule],
+  selector: 'app-menu',imports: [CommonModule, AppMenuitem, RouterModule],
   template: `<ul class="layout-menu">
     <ng-container *ngFor="let item of model; let i = index">
       <li

@@ -9,9 +9,7 @@ import { RippleModule } from 'primeng/ripple';
 import { AppFloatingConfigurator } from '../../layout/component/app.floatingconfigurator';
 
 @Component({
-  selector: 'app-login',
-  standalone: true,
-  imports: [
+  selector: 'app-login',imports: [
     ButtonModule,
     CheckboxModule,
     InputTextModule,

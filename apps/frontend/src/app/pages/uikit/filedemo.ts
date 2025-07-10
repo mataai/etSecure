@@ -6,9 +6,7 @@ import { FileUploadModule } from 'primeng/fileupload';
 import { ToastModule } from 'primeng/toast';
 
 @Component({
-  selector: 'app-file-demo',
-  standalone: true,
-  imports: [CommonModule, FileUploadModule, ToastModule, ButtonModule],
+  selector: 'app-file-demo',imports: [CommonModule, FileUploadModule, ToastModule, ButtonModule],
   template: `<p-toast />
     <div class="grid grid-cols-12 gap-8">
       <div class="col-span-full lg:col-span-6">

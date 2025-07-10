@@ -10,9 +10,7 @@ import { TagModule } from 'primeng/tag';
 import { Product, ProductService } from '../service/product.service';
 
 @Component({
-  selector: 'app-list-demo',
-  standalone: true,
-  imports: [
+  selector: 'app-list-demo',imports: [
     CommonModule,
     DataViewModule,
     FormsModule,
