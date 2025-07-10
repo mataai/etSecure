@@ -9,13 +9,17 @@ import { AdminPage } from './pages/admin/admin.page';
 import { LoginPage } from './pages/login/login.page';
 import { SignupPage } from './pages/login/signup.page';
 import { authGuard } from './shared/guards/auth.guard';
+import { CallbackPage } from './pages/login/callback.page';
+import { NoAuthGuard } from './shared/guards/no-auth.guard';
 
 export const appRoutes: Routes = [
   {
     path: 'auth',
+    canActivate: [NoAuthGuard],
     children: [
       { path: 'login', component: LoginPage },
       { path: 'signup', component: SignupPage },
+      { path: 'callback', component: CallbackPage },
       { path: '', redirectTo: 'login', pathMatch: 'full' },
     ],
   },

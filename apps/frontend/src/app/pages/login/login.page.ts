@@ -139,6 +139,7 @@ export class LoginPage {
   private router = inject(Router);
 
   onLogin() {
+
     this.authService.login();
   }
 
