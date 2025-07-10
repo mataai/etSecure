@@ -6,6 +6,8 @@ services:
     container_name: etsecure_backend
     environment:
       NODE_ENV: production
+    env_file:
+      - ../.env.example
     restart: unless-stopped
     networks:
       - traefik
@@ -15,6 +17,8 @@ services:
       - "traefik.http.routers.backend.entrypoints=https"
       - "traefik.http.routers.backend.tls.certresolver=production"
       - "traefik.http.services.backend.loadbalancer.server.port=3000"
+    volumes:
+      - ../server.crt:/app/server.crt
 
   frontend:
     image: ghcr.io/mataai/etsecure_frontend:latest
@@ -26,7 +30,7 @@ services:
       - traefik
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`etsecure.xyz`)"
+      - "traefik.http.routers.frontend.rule=Host(`etsecure.xyz`)&&Host(`www.etsecure.xyz`)"
       - "traefik.http.routers.frontend.entrypoints=https"
       - "traefik.http.routers.frontend.tls.certresolver=production"
       - "traefik.http.services.frontend.loadbalancer.server.port=80"
