@@ -7,9 +7,11 @@ import { PasswordModule } from 'primeng/password';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { LayoutService } from '../../layout/service/layout.service';
+import { AuthService } from '../../shared/services/auth.service';
 
 @Component({
-  selector: 'app-login-page',imports: [
+  selector: 'app-login-page',
+  imports: [
     CommonModule,
     FormsModule,
     InputTextModule,
@@ -45,7 +47,7 @@ import { LayoutService } from '../../layout/service/layout.service';
             #loginForm="ngForm"
             class="flex flex-col gap-4 mt-4"
           >
-            <span class="p-float-label">
+            <!-- <span class="p-float-label">
               <input
                 pInputText
                 id="username"
@@ -66,7 +68,7 @@ import { LayoutService } from '../../layout/service/layout.service';
                 class="w-full"
               />
               <label for="password">Password</label>
-            </span>
+            </span> -->
             <button pButton type="submit" class="w-full mt-2">Login</button>
             <button
               pButton
@@ -87,14 +89,14 @@ import { LayoutService } from '../../layout/service/layout.service';
         *ngIf="false"
       >
         <div class="flex flex-col items-center gap-2">
-          <span
-            >Need help?
-            <a href="mailto:admin@example.com" class="text-primary underline"
-              >Contact admin</a
-            ></span
-          >
-          <span class="text-xs"
-            >&copy; 2025 etSecure. All rights reserved.</span
+          <span>
+            Need help?
+            <a href="mailto:admin@example.com" class="text-primary underline">
+              Contact admin
+            </a>
+          </span>
+          <span class="text-xs">
+            &copy; 2025 etSecure. All rights reserved.</span
           >
         </div>
       </footer>
@@ -129,6 +131,7 @@ import { LayoutService } from '../../layout/service/layout.service';
   ],
 })
 export class LoginPage {
+  private authService = inject(AuthService);
   username = '';
   password = '';
   loginError = false;
@@ -136,12 +139,7 @@ export class LoginPage {
   private router = inject(Router);
 
   onLogin() {
-    // Simple demo logic; replace with real authentication
-    if (this.username === 'admin' && this.password === 'admin') {
-      this.router.navigate(['/home']);
-    } else {
-      this.loginError = true;
-    }
+    this.authService.login();
   }
 
   goToSignup() {

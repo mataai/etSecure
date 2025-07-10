@@ -18,7 +18,13 @@ export default async function (fastify: FastifyInstance) {
           return res.status(401).send({ error: 'Unauthorized' });
         }
         console.log(`Request received: ${req.method} ${req.url}`);
-        res.redirect(uri);
+        if (req.query['auto']) {
+          res.redirect(uri);
+        } else {
+          res.status(200).send({
+            uri,
+          });
+        }
       }
     );
   });
@@ -73,14 +79,14 @@ export default async function (fastify: FastifyInstance) {
       }
     }
 
-    const data =  await req.file();
+    const data = await req.file();
 
     if (!data) {
       console.log(req);
       return res.status(400).send({ error: 'No file uploaded' });
     }
 
-    const file =  data.file;
+    const file = data.file;
 
     if (!file) {
       return res.status(400).send({ error: 'File upload failed' });
@@ -90,11 +96,11 @@ export default async function (fastify: FastifyInstance) {
 
     const savePath = `./uploads/${userInfo.sub}.jpg`;
     const writeStream = fs.createWriteStream(savePath);
-    
+
     // Use a Promise to wait for the stream to finish
     await new Promise<void>((resolve, reject) => {
       file.pipe(writeStream);
-      
+
       writeStream.on('finish', resolve);
       writeStream.on('error', reject);
     }).catch((err) => {
@@ -108,6 +114,7 @@ export default async function (fastify: FastifyInstance) {
     });
 
     return res.status(200).send({
-      message: 'File uploaded successfully'});
+      message: 'File uploaded successfully',
+    });
   });
 }
