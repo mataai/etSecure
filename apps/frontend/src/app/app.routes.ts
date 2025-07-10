@@ -1,17 +1,14 @@
 import { Routes } from '@angular/router';
-import { AppLayout } from './layout/component/app.layout';
-import { Dashboard } from './pages/dashboard/dashboard';
-import { Documentation } from './pages/documentation/documentation';
-import { Notfound } from './pages/notfound/notfound';
+import { AppLayout, Dashboard, Documentation, Notfound } from './templates';
 import { HomePage } from './pages/home/home.page';
 import { StudentPage } from './pages/student/student.page';
-import { AdminPage } from './pages/admin/admin.page';
-import { authGuard } from './shared/guards/auth.guard';
-import { CallbackPage, LoginPage, SignupPage } from './pages/auth';
-import { GroupsGuard } from './shared/guards/groups.guard';
-import { LogoutPage } from './pages/auth/logout/logout.page';
+import { AdminPage } from './pages/admin/admin-home.page';
+import { LogoutPage, CallbackPage, LoginPage, SignupPage } from './pages/auth';
+import { authGuard, groupsGuard } from './shared/guards';
+import { UserShellComponent, AdminShellComponent } from './shared/components';
 
 export const appRoutes: Routes = [
+  { path: 'notfound', component: Notfound },
   {
     path: 'auth',
     children: [
@@ -30,19 +27,22 @@ export const appRoutes: Routes = [
     ],
   },
   {
-    path: '',
-    canActivateChild: [
-      authGuard(), // Ensure user is authenticated before accessing these routes
-    ],
+    path: 'admin',
+    component: AdminShellComponent,
+    canActivate: [authGuard(), groupsGuard],
     children: [
-      {
-        path: 'admin',
-        canActivate: [GroupsGuard],
-        children: [{ path: 'admin', component: AdminPage }],
-      },
+      { path: '', component: AdminPage },
+      { path: '**', redirectTo: '/notfound', pathMatch: 'full' },
+    ],
+  },
+  {
+    path: '',
+    component: UserShellComponent,
+    canActivateChild: [authGuard()],
+    children: [
       { path: 'home', component: HomePage },
       { path: 'student', component: StudentPage },
-      { path: '**', redirectTo: '/auth/login', pathMatch: 'full' },
+      { path: '**', redirectTo: '/notfound', pathMatch: 'full' },
     ],
   },
   {
@@ -50,15 +50,16 @@ export const appRoutes: Routes = [
     component: AppLayout,
     children: [
       { path: 'dashboard', component: Dashboard },
+      { path: 'documentation', component: Documentation },
       {
         path: 'uikit',
-        loadChildren: () => import('./pages/uikit/uikit.routes'),
+        loadChildren: () => import('./templates/pages/uikit/uikit.routes'),
       },
-      { path: 'documentation', component: Documentation },
-      { path: 'pages', loadChildren: () => import('./pages/pages.routes') },
-      { path: '**', redirectTo: 'notfound' },
+      {
+        path: 'pages',
+        loadChildren: () => import('./templates/pages/pages.routes'),
+      },
+      { path: '**', redirectTo: '/notfound' },
     ],
   },
-  { path: 'notfound', component: Notfound },
-  { path: '**', redirectTo: 'notfound' },
 ];

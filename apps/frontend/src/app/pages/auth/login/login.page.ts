@@ -1,25 +1,14 @@
 import { Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { InputTextModule } from 'primeng/inputtext';
-import { PasswordModule } from 'primeng/password';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { AuthService } from '../../../shared/services/auth.service';
-import { LayoutService } from '../../../layout/service/layout.service';
 
 @Component({
   selector: 'app-login-page',
-  imports: [
-    CommonModule,
-    FormsModule,
-    InputTextModule,
-    PasswordModule,
-    ButtonModule,
-    CardModule,
-  ],
-  providers: [LayoutService],
+  imports: [CommonModule, FormsModule, ButtonModule, CardModule, RouterModule],
   template: `
     <div class="flex flex-col min-h-screen bg-surface-100 dark:bg-surface-900">
       <header class="flex flex-col items-center pt-12 pb-4">
@@ -74,32 +63,14 @@ import { LayoutService } from '../../../layout/service/layout.service';
               pButton
               type="button"
               class="w-full mt-2 p-button-outlined"
-              (click)="goToSignup()"
+              [routerLink]="['/auth/register']"
+              routerLinkActive="router-link-active"
             >
               Sign Up with Referral
             </button>
           </form>
-          <div *ngIf="loginError" class="text-red-500 text-center mt-4">
-            Invalid credentials
-          </div>
         </p-card>
       </main>
-      <footer
-        class="w-full text-center py-6 mt-8 text-surface-500 dark:text-surface-300 bg-surface-0 dark:bg-surface-800 border-t border-surface-200 dark:border-surface-700"
-        *ngIf="false"
-      >
-        <div class="flex flex-col items-center gap-2">
-          <span>
-            Need help?
-            <a href="mailto:admin@example.com" class="text-primary underline">
-              Contact admin
-            </a>
-          </span>
-          <span class="text-xs">
-            &copy; 2025 etSecure. All rights reserved.</span
-          >
-        </div>
-      </footer>
     </div>
   `,
   styles: [
@@ -132,17 +103,8 @@ import { LayoutService } from '../../../layout/service/layout.service';
 })
 export class LoginPage {
   private authService = inject(AuthService);
-  username = '';
-  password = '';
-  loginError = false;
-
-  private router = inject(Router);
 
   onLogin() {
     this.authService.login();
-  }
-
-  goToSignup() {
-    this.router.navigate(['/signup']);
   }
 }

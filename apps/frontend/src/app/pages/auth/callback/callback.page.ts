@@ -1,24 +1,8 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { InputTextModule } from 'primeng/inputtext';
-import { PasswordModule } from 'primeng/password';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { LayoutService } from '../../../layout/service/layout.service';
 import { AuthService } from '../../../shared/services/auth.service';
 
 @Component({
-  selector: 'app-login-page',
-  imports: [
-    CommonModule,
-    FormsModule,
-    InputTextModule,
-    PasswordModule,
-    ButtonModule,
-    CardModule,
-  ],
-  providers: [LayoutService],
+  selector: 'app-callback-page',
   template: `
     <div class="flex flex-col min-h-screen bg-surface-100 dark:bg-surface-900">
       <header class="flex flex-col items-center pt-12 pb-4">
@@ -32,22 +16,6 @@ import { AuthService } from '../../../shared/services/auth.service';
           Please wait while we process your login
         </p>
       </header>
-      <footer
-        class="w-full text-center py-6 mt-8 text-surface-500 dark:text-surface-300 bg-surface-0 dark:bg-surface-800 border-t border-surface-200 dark:border-surface-700"
-        *ngIf="false"
-      >
-        <div class="flex flex-col items-center gap-2">
-          <span>
-            Need help?
-            <a href="mailto:admin@example.com" class="text-primary underline">
-              Contact admin
-            </a>
-          </span>
-          <span class="text-xs">
-            &copy; 2025 etSecure. All rights reserved.</span
-          >
-        </div>
-      </footer>
     </div>
   `,
   styles: [

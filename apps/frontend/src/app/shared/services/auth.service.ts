@@ -46,10 +46,13 @@ export class AuthService {
     return !!(await this.getProfile());
   }
 
-  public getProfile(): Promise<User | null> {
+  public getProfile(): Promise<User> {
     return this.userManager.getUser().then((user) => {
       const profile = (user?.profile as unknown as User) || null;
       console.log('User profile:', profile);
+      if (!profile) {
+        throw new Error('User profile not found');
+      }
       return profile;
     });
   }
