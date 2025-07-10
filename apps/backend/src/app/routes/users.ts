@@ -1,13 +1,17 @@
 import { FastifyPluginAsync } from 'fastify';
+import { authPreValidator } from '../request-modifiers/auth.pre-validator';
+import { groupPreValidator } from '../request-modifiers/groups.pre-validator';
 
 const userRoutes: FastifyPluginAsync = async (fastify) => {
   // GET /users - Get all users
-  fastify.get('/users', async (request, reply) => {
-    // Need Admin Authorization
-
-    const users = await fastify.mongo.db.collection('users').find().toArray();
-    return reply.send(users);
-  });
+  fastify.get(
+    '/users',
+    { preValidation: [authPreValidator, groupPreValidator(["etsecure_admin"])] },
+    async (request, reply) => {
+      const users = await fastify.mongo.db.collection('users').find().toArray();
+      return reply.send(users);
+    }
+  );
 
   // GET /users/:id - Get user by ID
   fastify.get('/users/:id', async (request, reply) => {
