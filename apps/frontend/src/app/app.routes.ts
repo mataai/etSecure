@@ -8,24 +8,31 @@ import { StudentPage } from './pages/student/student.page';
 import { AdminPage } from './pages/admin/admin.page';
 import { authGuard } from './shared/guards/auth.guard';
 import { CallbackPage, LoginPage, SignupPage } from './pages/auth';
-import { NoAuthGuard } from './shared/guards/no-auth.guard';
 import { GroupsGuard } from './shared/guards/groups.guard';
+import { LogoutPage } from './pages/auth/logout/logout.page';
 
 export const appRoutes: Routes = [
   {
     path: 'auth',
-    canActivate: [NoAuthGuard],
     children: [
-      { path: 'login', component: LoginPage },
-      { path: 'signup', component: SignupPage },
-      { path: 'callback', component: CallbackPage },
-      { path: '', redirectTo: 'login', pathMatch: 'full' },
+      { path: 'logout', component: LogoutPage },
+      { path: 'login', canActivate: [authGuard(false)], component: LoginPage },
+      {
+        path: 'signup',
+        canActivate: [authGuard(false)],
+        component: SignupPage,
+      },
+      {
+        path: 'callback',
+        canActivate: [authGuard(false)],
+        component: CallbackPage,
+      },
     ],
   },
   {
     path: '',
     canActivateChild: [
-      authGuard, // Ensure user is authenticated before accessing these routes
+      authGuard(), // Ensure user is authenticated before accessing these routes
     ],
     children: [
       {

@@ -1,7 +1,7 @@
+import { User } from '@etsecure/data-contracts';
 import { preValidationMetaHookHandler } from 'fastify/types/hooks';
 import { FastifyInstance } from 'fastify';
 import { container } from 'tsyringe';
-import { User } from '../models/User';
 
 declare module 'fastify' {
   interface FastifyRequest {
