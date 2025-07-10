@@ -8,8 +8,6 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
     '/users',
     { preValidation: [authPreValidator, groupPreValidator(["etsecure_admin"])] },
     async (request, reply) => {
-      // Need Admin Authorization
-
       const users = await fastify.mongo.db.collection('users').find().toArray();
       return reply.send(users);
     }
