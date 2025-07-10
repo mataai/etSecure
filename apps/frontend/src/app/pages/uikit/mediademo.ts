@@ -9,9 +9,7 @@ import { PhotoService } from '../service/photo.service';
 import { Product, ProductService } from '../service/product.service';
 
 @Component({
-  selector: 'app-media-demo',
-  standalone: true,
-  imports: [
+  selector: 'app-media-demo',imports: [
     CommonModule,
     CarouselModule,
     ButtonModule,

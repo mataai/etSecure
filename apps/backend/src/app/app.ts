@@ -3,13 +3,17 @@ import { FastifyInstance } from 'fastify';
 import AutoLoad from '@fastify/autoload';
 import { container } from 'tsyringe';
 import fastifyMultipart from '@fastify/multipart';
+import cors from '@fastify/cors'
 
 /* eslint-disable-next-line */
 export interface AppOptions {}
 
 export async function app(fastify: FastifyInstance, opts: AppOptions) {
   // Place here your custom code!
-
+  await fastify.register(cors, {
+    // put your options here
+    origin: '*', // Allow all origins, adjust as needed for security
+  });
   fastify.register(fastifyMultipart);
 
   // Do not touch the following lines

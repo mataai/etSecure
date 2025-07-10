@@ -28,9 +28,9 @@ interface MenuChangeEvent {
 export class LayoutService {
   _config: layoutConfig = {
     preset: 'Aura',
-    primary: 'emerald',
+    primary: 'rose',
     surface: null,
-    darkTheme: false,
+    darkTheme: true,
     menuMode: 'static',
   };
 
@@ -83,6 +83,9 @@ export class LayoutService {
   private initialized = false;
 
   constructor() {
+    if (this.initialized) return;
+    console.log('LayoutService initialized');
+
     effect(() => {
       const config = this.layoutConfig();
       if (config) {
@@ -90,16 +93,13 @@ export class LayoutService {
       }
     });
 
-    effect(() => {
-      const config = this.layoutConfig();
+    const config = this.layoutConfig();
+    this.handleDarkModeTransition(config);
 
-      if (!this.initialized || !config) {
-        this.initialized = true;
-        return;
-      }
-
-      this.handleDarkModeTransition(config);
-    });
+    if (!this.initialized || !config) {
+      this.initialized = true;
+      return;
+    }
   }
 
   private handleDarkModeTransition(config: layoutConfig): void {
@@ -113,6 +113,7 @@ export class LayoutService {
 
   private startViewTransition(config: layoutConfig): void {
     const transition = (document as any).startViewTransition(() => {
+      console.log('Transition started');
       this.toggleDarkMode(config);
     });
 

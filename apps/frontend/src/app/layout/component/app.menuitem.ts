@@ -118,7 +118,6 @@ import { LayoutService } from '../service/layout.service';
       ),
     ]),
   ],
-  providers: [LayoutService],
 })
 export class AppMenuitem implements OnInit, OnDestroy {
   @Input() item!: MenuItem;

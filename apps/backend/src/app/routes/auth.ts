@@ -18,7 +18,13 @@ export default async function (fastify: FastifyInstance) {
           return res.status(401).send({ error: 'Unauthorized' });
         }
         console.log(`Request received: ${req.method} ${req.url}`);
-        res.redirect(uri);
+        if (req.query['auto']) {
+          res.redirect(uri);
+        } else {
+          res.status(200).send({
+            uri,
+          });
+        }
       }
     );
   });

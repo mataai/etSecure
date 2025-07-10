@@ -5,9 +5,7 @@ import { RippleModule } from 'primeng/ripple';
 import { AppFloatingConfigurator } from '../../layout/component/app.floatingconfigurator';
 
 @Component({
-  selector: 'app-access',
-  standalone: true,
-  imports: [
+  selector: 'app-access',imports: [
     ButtonModule,
     RouterModule,
     RippleModule,
