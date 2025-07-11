@@ -11,7 +11,11 @@ import {
   User,
 } from '@etsecure/data-contracts';
 import { ButtonModule } from 'primeng/button';
-import { DynamicDialogRef } from 'primeng/dynamicdialog';
+import {
+  DialogService,
+  DynamicDialogConfig,
+  DynamicDialogRef,
+} from 'primeng/dynamicdialog';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputText } from 'primeng/inputtext';
 import { MultiSelectModule } from 'primeng/multiselect';
@@ -39,11 +43,11 @@ interface GroupOption {
             type="text"
             pInputText
             id="name"
-            formControlName="name"
+            [formControl]="this.formGroup.controls.name"
             required
           />
         </p-floatlabel>
-        @if(this.formGroup.touched) { @if
+        @if(this.formGroup.controls.name.touched) { @if
         (this.formGroup.controls.name.errors?.['required']){
         <small class="text-red-500"> Name is required. </small>
         }}
@@ -59,7 +63,7 @@ interface GroupOption {
             [formControl]="formGroup.controls.email"
           />
         </p-floatlabel>
-        @if (this.formGroup.touched) { @if
+        @if (this.formGroup.controls.email.touched) { @if
         (this.formGroup.controls.email.errors?.['required']) {
         <small class="text-red-500">Email is required.</small>
         } @if (this.formGroup.controls.email.errors?.['email']) {
@@ -67,7 +71,7 @@ interface GroupOption {
         } }
       </div>
     </div>
-    <div class="flex flex-row gap-4 my-2">
+    <!-- <div class="flex flex-row gap-4 my-2">
       <div>
         <p-floatlabel>
           <label for="groups" class="block font-bold mb-3"> Groups </label>
@@ -81,7 +85,7 @@ interface GroupOption {
           />
         </p-floatlabel>
       </div>
-    </div>
+    </div> -->
     <div class="flex justify-end">
       <p-button
         label="Submit"
@@ -98,7 +102,9 @@ interface GroupOption {
   </form>`,
 })
 export class UserFormComponent {
-  public user = input<User | null>(null);
+  public user = input<User | null>(
+    inject(DynamicDialogConfig)?.data?.user || null
+  );
   private dialogRef = inject(DynamicDialogRef);
   private _userService = inject(UsersService);
   private _messageService = inject(MessageService);
@@ -107,26 +113,27 @@ export class UserFormComponent {
 
   public formGroup = new FormGroup({
     name: new FormControl(this.user()?.name || '', Validators.required),
-    username: new FormControl(this.user()?.username || '', Validators.required),
     email: new FormControl(this.user()?.email || '', [
       Validators.required,
       Validators.email,
     ]),
-    groups: new FormControl<GroupOption[]>(
-      this.user()
-        ?.groups.map((uGroup: string) =>
-          this.groups.find((oGroup) => oGroup.value === uGroup)
-        )
-        .filter((grp) => !!grp) || []
-    ),
+    // groups: new FormControl<GroupOption[]>(
+    //   this.user()
+    //     ?.groups?.map((uGroup: string) =>
+    //       this.groups.find((oGroup) => oGroup.value === uGroup)
+    //     )
+    //     .filter((grp) => !!grp) || []
+    // ),
   });
 
   constructor() {
-    this.formGroup.controls.email.valueChanges.subscribe(() => {
-      this.formGroup.controls.username.setValue(
-        this.formGroup.value.email?.split('@')[0] || ''
-      );
-    });
+    // Remove focus from the group frield that is focused by default for some reason
+    setTimeout(() => {
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+    }, 90);
+
   }
 
   public submit() {
@@ -139,7 +146,7 @@ export class UserFormComponent {
       name: this.formGroup.value.name!,
       email: this.formGroup.value.email!,
       username: this.formGroup.value.email?.split('@')[0] || '',
-      groups: this.formGroup.value.groups?.map((x) => x.value) || [],
+      // groups: this.formGroup.value.groups?.map((x) => x.value) || [],
     };
     const resp = !this.user()?.authentik_id
       ? this._userService.createUser(user as CreateUserRequest)
