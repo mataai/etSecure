@@ -79,18 +79,18 @@ const roomsRoutes: FastifyPluginAsync = async (fastify) => {
     return reply.code(204).send();
   })
 
-  fastify.get('/rooms/:id/members', async (request, reply) => {
+  fastify.get('/rooms/:id/users', async (request, reply) => {
     const { id } = request.params as { id: string };
     const room = await fastify.mongo.db.collection('rooms').findOne({ _id: new ObjectId(id) });
     if (!room) {
       return reply.code(404).send({ error: 'room not found' });
     }
 
-    const members = await fastify.mongo.db.collection('users').find({ _id: { $in: room.members || [] } }).toArray();
-    return reply.code(200).send(members);
+    const users = await fastify.mongo.db.collection('users').find({ _id: { $in: room.users || [] } }).toArray();
+    return reply.code(200).send(users);
   })
 
-  fastify.post('/rooms/:id/members',
+  fastify.post('/rooms/:id/users',
     //{ preValidation: [authPreValidator, groupPreValidator(["etsecure_admin"])] },
     async (request, reply) => {
       const { id } = request.params as { id: string };
@@ -110,32 +110,83 @@ const roomsRoutes: FastifyPluginAsync = async (fastify) => {
         return reply.code(404).send({ error: 'User not found' });
       }
 
-      if (!room.members) {
-        room.members = [];
+      if (!room.users) {
+        room.users = [];
       }
 
-      if (room.members.includes(user._id)) {
+      if (room.users.includes(user._id)) {
         return reply.code(400).send({ error: 'User is already a member of this room' });
       }
 
-      room.members.push(user._id);
-      await fastify.mongo.db.collection('rooms').updateOne({ _id: new ObjectId(id) }, { $set: { members: room.members } });
+      room.users.push(user._id);
+      await fastify.mongo.db.collection('rooms').updateOne({ _id: new ObjectId(id) }, { $set: { users: room.users } });
 
       return reply.code(200).send({ message: 'User added to room successfully' });
   });
 
-  fastify.delete('/rooms/:id/members/:userId',
+  fastify.delete('/rooms/:id/users/:userId',
     //{ preValidation: [authPreValidator, groupPreValidator(["etsecure_admin"])] },
     async (request, reply) => {
       const { id, userId } = request.params as { id: string; userId: string };
 
-      const user = await fastify.mongo.db.collection('rooms').findOneAndDelete({ _id: new ObjectId(id), members: { $in: [new ObjectId(userId)] } });
+      const user = await fastify.mongo.db.collection('rooms').findOneAndDelete({ _id: new ObjectId(id), users: { $in: [new ObjectId(userId)] } });
 
       if (!user) {
         return reply.code(404).send({ error: 'room or user not found' });
       }
 
       return reply.code(200).send({ message: 'User removed from room successfully' });
+  });
+
+  fastify.get('/rooms/:id/attendances',
+    { preValidation: [authPreValidator, groupPreValidator(["etsecure_admin"])] },
+    async (request, reply) => {
+      const { id } = request.params as { id: string };
+      const room = await fastify.mongo.db.collection('rooms').findOne({ _id: new ObjectId(id) });
+      if (!room) {
+        return reply.code(404).send({ error: 'room not found' });
+      }
+
+      const attendances = await fastify.mongo.db.collection('attendances').aggregate([
+        {
+          $lookup: {
+            from: 'users', // collection name to join with
+            localField: 'userId', // field in attendances
+            foreignField: '_id', // field in users (must be ObjectId)
+            as: 'user' // result will be an array in 'user' field
+          }
+        },
+        {
+          $unwind: '$user' // flatten the array to just an object
+        }
+      ]).toArray();
+
+      return reply.code(200).send(attendances);
+  });
+
+  fastify.post('/rooms/:id/attendances',
+    { preValidation: [authPreValidator, groupPreValidator(["etsecure_admin"])] },
+    async (request, reply) => {
+      const { id } = request.params as { id: string };
+      const { userId } = request.body as { userId: string};
+
+      if (!userId) {
+        return reply.code(400).send({ error: 'User ID is required' });
+      }
+
+      const room = await fastify.mongo.db.collection('rooms').findOne({ _id: new ObjectId(id) });
+      if (!room) {
+        return reply.code(404).send({ error: 'room not found' });
+      }
+
+      const attendance = {
+        roomId: new ObjectId(id),
+        userId: new ObjectId(userId),
+        timestamp: new Date(),
+      };
+
+      await fastify.mongo.db.collection('attendances').insertOne(attendance);
+      return reply.code(201).send({ message: 'Attendance recorded successfully', attendance });
   });
 }
 

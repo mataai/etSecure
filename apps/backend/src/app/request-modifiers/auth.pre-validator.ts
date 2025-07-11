@@ -5,7 +5,7 @@ import { container } from 'tsyringe';
 
 declare module 'fastify' {
   interface FastifyRequest {
-    user: UserAuthentik;
+    user: User & UserAuthentik;
   }
 }
 
@@ -31,14 +31,21 @@ export const authPreValidator: preValidationMetaHookHandler = (
 
   fastify.customOauth2
     .userinfo(token)
-    .then((userInfo: UserAuthentik) => {
+    .then((userInfo: User & UserAuthentik) => {
       if (!userInfo) {
         req.log.error('User info not found');
         res.status(401).send({ error: 'Unauthorized' });
         return done(new Error('Unauthorized'));
       }
       // todo: get local user from database
-      req.user = userInfo;
+
+      const dbUser = fastify.mongo.db.collection<User>('users').findOne({
+        authentik_id: userInfo.sub,
+      });
+
+
+
+      req.user = {...dbUser, ...userInfo};
       done();
     })
     .catch((err: Error) => {
