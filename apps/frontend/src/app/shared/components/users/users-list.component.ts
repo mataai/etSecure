@@ -195,6 +195,10 @@ export class UsersListComponent implements OnInit {
     this._userFormDialogRef = this._dialogService.open(UserFormComponent, {
       header: 'Create User',
       style: { 'max-height': '90vh', height: 'auto', width: 'fit-content' },
+      dismissableMask: true,
+      modal: true,
+      closable: true,
+      closeOnEscape: false,
     });
 
     this._userFormCloseSub = this._userFormDialogRef.onClose.subscribe(
@@ -211,11 +215,15 @@ export class UsersListComponent implements OnInit {
     if (this._userFormDialogRef) {
       return;
     }
-
+    console.log('Editing user:', user);
     this._userFormDialogRef = this._dialogService.open(UserFormComponent, {
       header: 'Update User',
       style: { 'max-height': '90vh', height: 'auto' },
-      inputValues: {
+      dismissableMask: true,
+      modal: true,
+      closable: true,
+      closeOnEscape: false,
+      data: {
         user,
       },
     });
