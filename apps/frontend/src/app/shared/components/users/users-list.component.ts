@@ -1,4 +1,11 @@
-import { Component, inject, OnInit, signal, Signal, ViewChild } from '@angular/core';
+import {
+  Component,
+  inject,
+  OnInit,
+  signal,
+  Signal,
+  ViewChild,
+} from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Table, TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
@@ -186,8 +193,7 @@ export class UsersListComponent implements OnInit {
 
     this._userFormDialogRef = this._dialogService.open(UserFormComponent, {
       header: 'Create User',
-      width: '50%',
-      style: { 'max-height': '90vh', height: 'auto' },
+      style: { 'max-height': '90vh', height: 'auto', width: 'fit-content' },
     });
 
     if (this._userFormCloseSub) {

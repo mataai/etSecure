@@ -6,6 +6,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { User } from '@etsecure/data-contracts';
+import { ButtonModule } from 'primeng/button';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputText } from 'primeng/inputtext';
@@ -20,6 +21,7 @@ interface GroupOption {
     ReactiveFormsModule,
     MultiSelectModule,
     FloatLabelModule,
+    ButtonModule,
     InputText,
   ],
   template: ` <form class="flex flex-col gap-4 mt-3" [formGroup]="formGroup">
@@ -72,8 +74,20 @@ interface GroupOption {
         />
       </p-floatlabel>
     </div>
+    <div class="flex justify-end">
+      <p-button
+        label="Submit"
+        [disabled]="formGroup.invalid"
+        (click)="this.submit()"
+      />
+      <p-button
+        label="Cancel"
+        class="ml-2"
+        [outlined]="true"
+        (click)="this.close()"
+      />
+    </div>
   </form>`,
-  styles: [``],
 })
 export class UserFormComponent {
   public user = input<User | null>(null);
@@ -116,5 +130,9 @@ export class UserFormComponent {
       groups: this.formGroup.value.groups?.map((x) => x.value) || [],
     };
     this.dialogRef.close(user);
+  }
+
+  public close() {
+    this.dialogRef.close();
   }
 }
