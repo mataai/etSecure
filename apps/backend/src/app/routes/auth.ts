@@ -77,7 +77,7 @@ export default async function (fastify: FastifyInstance) {
 
     fs.mkdirSync('./uploads', { recursive: true });
 
-    const savePath = `./uploads/${req.user.id}.jpg`;
+    const savePath = `./uploads/${req.user.sub}.jpg`;
     const writeStream = fs.createWriteStream(savePath);
 
     // Use a Promise to wait for the stream to finish
