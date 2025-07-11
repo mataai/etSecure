@@ -51,7 +51,7 @@ export class AuthService {
       const profile = (user?.profile as unknown as User) || null;
       console.log('User profile:', profile);
       if (!profile) {
-        throw new Error('User profile not found');
+        console.error('User profile not found');
       }
       return profile;
     });
