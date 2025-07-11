@@ -175,7 +175,31 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
         return reply.code(404).send({ error: 'User not found' });
       }
 
-      const attendances = await fastify.mongo.db.collection('attendances').find({ userId: user._id }).toArray();
+      const attendances = await fastify.mongo.db.collection('attendances').aggregate([
+        {
+          $match: { userId: new ObjectId(id) }
+        },
+        {
+          $lookup: {
+            from: 'rooms',
+            localField: 'roomId',
+            foreignField: '_id',
+            as: 'room'
+          }
+        },
+        {
+          $unwind: '$room'
+        },
+        {
+          $project: {
+            _id: 1,
+            'timestamp': 1,
+            'room.name': 1,
+            'room.location': 1
+          }
+        }
+      ]).toArray();
+
       return reply.code(200).send(attendances);
     }
   );

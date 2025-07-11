@@ -147,7 +147,20 @@ const roomsRoutes: FastifyPluginAsync = async (fastify) => {
         return reply.code(404).send({ error: 'room not found' });
       }
 
-      const attendances = await fastify.mongo.db.collection('attendances').find({ roomId: new ObjectId(id) }).toArray();
+      const attendances = await fastify.mongo.db.collection('attendances').aggregate([
+        {
+          $lookup: {
+            from: 'users', // collection name to join with
+            localField: 'userId', // field in attendances
+            foreignField: '_id', // field in users (must be ObjectId)
+            as: 'user' // result will be an array in 'user' field
+          }
+        },
+        {
+          $unwind: '$user' // flatten the array to just an object
+        }
+      ]).toArray();
+
       return reply.code(200).send(attendances);
   });
 
