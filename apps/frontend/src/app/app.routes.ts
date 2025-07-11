@@ -44,7 +44,7 @@ export const appRoutes: Routes = [
     children: [
       { path: 'home', component: HomePage },
       { path: 'student', component: StudentPage },
-      { path: '**', redirectTo: '/notfound', pathMatch: 'full' },
+      { path: '**', redirectTo: '/home', pathMatch: 'full' },
     ],
   },
   {

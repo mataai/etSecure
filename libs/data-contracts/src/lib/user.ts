@@ -10,9 +10,23 @@ export class UserAuthentik {
 }
 
 export class User {
-  public _id!: string;
-  public authentik_id!: string; // ID from Authentik
+  public _id?: string;
+  public authentik_id?: string; // ID from Authentik
   public name!: string;
   public email!: string;
-  public username!: string;
+  public username?: string;
+  public groups: string[] = [];
+}
+
+export interface CreateUserRequest {
+  name: string;
+  username: string;
+  email: string;
+}
+
+export interface UpdateUserRequest {
+  id?: string;
+  name?: string;
+  email?: string;
+  groups?: string[];
 }

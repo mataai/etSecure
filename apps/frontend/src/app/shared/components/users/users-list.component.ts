@@ -1,4 +1,11 @@
-import { Component, inject, OnInit, Signal, ViewChild } from '@angular/core';
+import {
+  Component,
+  inject,
+  OnInit,
+  signal,
+  Signal,
+  ViewChild,
+} from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Table, TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
@@ -7,26 +14,22 @@ import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
-import { RatingModule } from 'primeng/rating';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { SelectModule } from 'primeng/select';
 import { RadioButtonModule } from 'primeng/radiobutton';
-import { InputNumberModule } from 'primeng/inputnumber';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { DialogModule } from 'primeng/dialog';
-import { TagModule } from 'primeng/tag';
 import { InputIconModule } from 'primeng/inputicon';
 import { IconFieldModule } from 'primeng/iconfield';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { UsersService } from '../../services/users.service';
-import { User } from '@etsecure/data-contracts';
-import { UserFormComponent } from './user-create.component';
+import { ChipModule } from 'primeng/chip';
+import { Subscription } from 'rxjs';
 
-interface Column {
-  field: string;
-  header: string;
-  customExportHeader?: string;
-}
+import { User } from '@etsecure/data-contracts';
+
+import { UsersService } from '../../services/users.service';
+import { UserFormComponent } from './user-create.component';
 
 @Component({
   selector: 'app-users-list',
@@ -37,20 +40,18 @@ interface Column {
     ButtonModule,
     RippleModule,
     ToastModule,
+    ChipModule,
     ToolbarModule,
-    RatingModule,
     InputTextModule,
     TextareaModule,
     SelectModule,
     RadioButtonModule,
-    InputNumberModule,
     DialogModule,
-    TagModule,
     InputIconModule,
     IconFieldModule,
     ConfirmDialogModule,
-    UserFormComponent,
   ],
+  providers: [MessageService, UsersService, ConfirmationService, DialogService],
   template: `
     <p-toolbar styleClass="mb-6">
       <ng-template #start>
@@ -66,9 +67,8 @@ interface Column {
 
     <p-table
       #dt
-      [value]="users()"
+      [value]="users() || []"
       [rows]="10"
-      [columns]="cols"
       [paginator]="true"
       [globalFilterFields]="[
         'name',
@@ -98,64 +98,40 @@ interface Column {
           </p-iconfield>
         </div>
       </ng-template>
-      <!-- <ng-template #header>
+      <ng-template #header>
         <tr>
           <th style="width: 3rem">
             <p-tableHeaderCheckbox />
           </th>
-          <th style="min-width: 16rem">Code</th>
+          <th style="min-width: 16rem">ID</th>
           <th pSortableColumn="name" style="min-width:16rem">
             Name
-            <p-sortIcon field="name" />
+            <p-sortIcon field="email" />
           </th>
-          <th>Image</th>
-          <th pSortableColumn="price" style="min-width: 8rem">
-            Price
-            <p-sortIcon field="price" />
-          </th>
-          <th pSortableColumn="category" style="min-width:10rem">
-            Category
-            <p-sortIcon field="category" />
-          </th>
-          <th pSortableColumn="rating" style="min-width: 12rem">
-            Reviews
-            <p-sortIcon field="rating" />
-          </th>
-          <th pSortableColumn="inventoryStatus" style="min-width: 12rem">
-            Status
-            <p-sortIcon field="inventoryStatus" />
+          <th pSortableColumn="email">Email</th>
+          <th pSortableColumn="groups" style="min-width: 8rem">
+            Groups
+            <p-sortIcon field="groups" />
           </th>
           <th style="min-width: 12rem"></th>
         </tr>
-      </ng-template> -->
+      </ng-template>
       <ng-template #body let-user>
         <tr>
           <td style="width: 3rem">
             <p-tableCheckbox [value]="user" />
           </td>
-          <td style="min-width: 12rem">{{ user.code }}</td>
+          <td style="min-width: 12rem">{{ user.authentik_id }}</td>
           <td style="min-width: 16rem">{{ user.name }}</td>
-          <td>
-            <img
-              [src]="
-                'https://primefaces.org/cdn/primeng/images/demo/user/' +
-                user.image
-              "
-              [alt]="user.name"
-              style="width: 64px"
-              class="rounded"
+          <td style="min-width: 16rem">{{ user.email }}</td>
+          <td style="min-width: 16rem">
+            @for(group of user.groups; track group) {
+            <p-chip
+              [label]="group.name"
+              [styleClass]="'mr-2'"
+              [removable]="false"
             />
-          </td>
-          <td>{{ user.price | currency : 'USD' }}</td>
-          <td>{{ user.category }}</td>
-          <td>
-            <p-rating [(ngModel)]="user.rating" [readonly]="true" />
-          </td>
-          <td>
-            <p-tag
-              [value]="user.inventoryStatus"
-              [severity]="getSeverity(user.inventoryStatus)"
-            />
+            }
           </td>
           <td>
             <p-button
@@ -177,54 +153,24 @@ interface Column {
       </ng-template>
     </p-table>
 
-    <p-dialog
-      [(visible)]="userDialog"
-      [style]="{ width: '450px', height: 'auto', maxHeight: '90vh' }"
-      header="User Details"
-      [modal]="true"
-    >
-      <ng-template #content>
-        <app-user-form></app-user-form>
-      </ng-template>
-
-      <ng-template #footer>
-        <p-button
-          label="Cancel"
-          icon="pi pi-times"
-          text
-          (click)="hideDialog()"
-        />
-        <p-button label="Save" icon="pi pi-check" (click)="saveUser()" />
-      </ng-template>
-    </p-dialog>
-
     <p-confirmdialog [style]="{ width: '450px' }" />
   `,
-  providers: [MessageService, UsersService, ConfirmationService],
 })
 export class UsersListComponent implements OnInit {
-  userDialog = false;
-  users!: Signal<User[]>;
-  user?: User;
+  users: Signal<User[]> = signal<User[]>([]);
   selectedUsers?: User[];
   submitted = false;
 
   @ViewChild('dt') dt!: Table;
 
-  cols: Column[] = [
-    { field: 'sub', header: 'Id' },
-    { field: 'name', header: 'Name' },
-    { field: 'image', header: 'Image' },
-    { field: 'price', header: 'Price' },
-    { field: 'category', header: 'Category' },
-    { field: 'rating', header: 'Reviews' },
-    { field: 'inventoryStatus', header: 'Status' },
-  ];
-
   private _usersService: UsersService = inject(UsersService);
   private messageService: MessageService = inject(MessageService);
   private confirmationService: ConfirmationService =
     inject(ConfirmationService);
+  private _dialogService = inject(DialogService);
+
+  private _userFormDialogRef: DynamicDialogRef | null = null;
+  private _userFormCloseSub: Subscription | null = null;
 
   ngOnInit() {
     this.loadData();
@@ -241,19 +187,46 @@ export class UsersListComponent implements OnInit {
   }
 
   openNew() {
-    this.user = undefined;
-    this.submitted = false;
-    this.userDialog = true;
+    if (this._userFormDialogRef) {
+      return;
+    }
+
+    this._userFormDialogRef = this._dialogService.open(UserFormComponent, {
+      header: 'Create User',
+      style: { 'max-height': '90vh', height: 'auto', width: 'fit-content' },
+    });
+
+    if (this._userFormCloseSub) {
+      this._userFormCloseSub.unsubscribe();
+    }
+    this._userFormCloseSub = this._userFormDialogRef.onClose.subscribe(
+      async (user: User | null) => {
+        console.log('User form closed with data:', user);
+      }
+    );
   }
 
   editUser(user: User) {
-    this.user = { ...user };
-    this.userDialog = true;
-  }
+    if (this._userFormDialogRef) {
+      return;
+    }
 
-  hideDialog() {
-    this.userDialog = false;
-    this.submitted = false;
+    this._userFormDialogRef = this._dialogService.open(UserFormComponent, {
+      header: 'Update User',
+      style: { 'max-height': '90vh', height: 'auto' },
+      inputValues: {
+        user,
+      },
+    });
+
+    if (this._userFormCloseSub) {
+      this._userFormCloseSub.unsubscribe();
+    }
+    this._userFormCloseSub = this._userFormDialogRef.onClose.subscribe(
+      async (user: User | null) => {
+        console.log('User form closed with data:', user);
+      }
+    );
   }
 
   deleteUser(user: User) {
@@ -262,11 +235,8 @@ export class UsersListComponent implements OnInit {
       header: 'Confirm',
       icon: 'pi pi-exclamation-triangle',
       accept: async () => {
-        // TODO delete user from the backend
         this._usersService.deleteUser(user);
-
         await this.loadData();
-        this.user = undefined;
         this.messageService.add({
           severity: 'success',
           summary: 'Successful',
@@ -312,30 +282,30 @@ export class UsersListComponent implements OnInit {
     }
   }
 
-  saveUser() {
-    this.submitted = true;
-    if (!this.user) {
-      return;
-    }
+  // saveUser() {
+  //   this.submitted = true;
+  //   if (!this.user) {
+  //     return;
+  //   }
 
-    if (this.users().find((u) => u._id === this.user?._id)) {
-      // Update
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Successful',
-        detail: `User ${this.user.name} Updated`,
-        life: 3000,
-      });
-    } else {
-      // Create
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Successful',
-        detail: `User ${this.user.name} Created`,
-        life: 3000,
-      });
-    }
-    this.userDialog = false;
-    this.user = undefined;
-  }
+  //   if (this.users().find((u) => u._id === this.user?._id)) {
+  //     // Update
+  //     this.messageService.add({
+  //       severity: 'success',
+  //       summary: 'Successful',
+  //       detail: `User ${this.user.name} Updated`,
+  //       life: 3000,
+  //     });
+  //   } else {
+  //     // Create
+  //     this.messageService.add({
+  //       severity: 'success',
+  //       summary: 'Successful',
+  //       detail: `User ${this.user.name} Created`,
+  //       life: 3000,
+  //     });
+  //   }
+  //   this.userDialog = false;
+  //   this.user = undefined;
+  // }
 }
