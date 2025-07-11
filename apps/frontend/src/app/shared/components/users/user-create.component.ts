@@ -39,11 +39,11 @@ interface GroupOption {
             type="text"
             pInputText
             id="name"
-            formControlName="name"
+            [formControl]="this.formGroup.controls.name"
             required
           />
         </p-floatlabel>
-        @if(this.formGroup.touched) { @if
+        @if(this.formGroup.controls.name.touched) { @if
         (this.formGroup.controls.name.errors?.['required']){
         <small class="text-red-500"> Name is required. </small>
         }}
@@ -59,7 +59,7 @@ interface GroupOption {
             [formControl]="formGroup.controls.email"
           />
         </p-floatlabel>
-        @if (this.formGroup.touched) { @if
+        @if (this.formGroup.controls.email.touched) { @if
         (this.formGroup.controls.email.errors?.['required']) {
         <small class="text-red-500">Email is required.</small>
         } @if (this.formGroup.controls.email.errors?.['email']) {
@@ -107,7 +107,6 @@ export class UserFormComponent {
 
   public formGroup = new FormGroup({
     name: new FormControl(this.user()?.name || '', Validators.required),
-    username: new FormControl(this.user()?.username || '', Validators.required),
     email: new FormControl(this.user()?.email || '', [
       Validators.required,
       Validators.email,
@@ -122,11 +121,13 @@ export class UserFormComponent {
   });
 
   constructor() {
-    this.formGroup.controls.email.valueChanges.subscribe(() => {
-      this.formGroup.controls.username.setValue(
-        this.formGroup.value.email?.split('@')[0] || ''
-      );
-    });
+    // Set focus to the name field when the component initializes
+    setTimeout(() => {
+      /* No focus logic needed */
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+    }, 90);
   }
 
   public submit() {
