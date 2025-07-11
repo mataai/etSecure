@@ -1,6 +1,7 @@
 import { OAuth2Namespace } from '@fastify/oauth2';
 import { FastifyInstance } from 'fastify';
 import fs from 'fs';
+import { authPreValidator } from '../request-modifiers/auth.pre-validator';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -59,25 +60,7 @@ export default async function (fastify: FastifyInstance) {
     }
   });
 
-  fastify.post('/auth/picture', async function (req, res) {
-    const token: string = req.headers.authorization?.split(' ')[1];
-
-    if (!token) {
-      return res.status(401).send({ error: 'Unauthorized' });
-    }
-
-    let userInfo;
-
-    try {
-      userInfo = await fastify.customOauth2.userinfo(token);
-    } catch (err) {
-      if (err instanceof Error && err.message.includes('Unauthorized')) {
-        return res.status(401).send({ error: 'Unauthorized' });
-      } else {
-        console.error('Error fetching user info:', err);
-        return res.status(500).send({ error: 'Internal Server Error' });
-      }
-    }
+  fastify.post('/auth/picture', {preValidation: [authPreValidator]}, async function (req, res) {
 
     const data = await req.file();
 
@@ -94,7 +77,7 @@ export default async function (fastify: FastifyInstance) {
 
     fs.mkdirSync('./uploads', { recursive: true });
 
-    const savePath = `./uploads/${userInfo.sub}.jpg`;
+    const savePath = `./uploads/${req.user.id}.jpg`;
     const writeStream = fs.createWriteStream(savePath);
 
     // Use a Promise to wait for the stream to finish
