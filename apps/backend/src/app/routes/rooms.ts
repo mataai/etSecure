@@ -2,7 +2,7 @@ import { FastifyPluginAsync } from 'fastify'
 import { ObjectId } from 'mongodb';
 import { authPreValidator } from '../request-modifiers/auth.pre-validator';
 import { groupPreValidator } from '../request-modifiers/groups.pre-validator';
-import { CreateRoomRequest } from '@etsecure/data-contracts';
+import { CreateRoomRequest, CreateAttendanceRequest } from '@etsecure/data-contracts';
 
 const roomsRoutes: FastifyPluginAsync = async (fastify) => {
   // GET /rooms - Get all rooms
@@ -94,7 +94,7 @@ const roomsRoutes: FastifyPluginAsync = async (fastify) => {
     //{ preValidation: [authPreValidator, groupPreValidator(["etsecure_admin"])] },
     async (request, reply) => {
       const { id } = request.params as { id: string };
-      const { userId } = request.body as { userId: string };
+      const { userId } = request.body as CreateAttendanceRequest;
 
       if (!userId) {
         return reply.code(400).send({ error: 'User ID is required' });
@@ -168,7 +168,7 @@ const roomsRoutes: FastifyPluginAsync = async (fastify) => {
     { preValidation: [authPreValidator, groupPreValidator(["etsecure_admin"])] },
     async (request, reply) => {
       const { id } = request.params as { id: string };
-      const { userId } = request.body as { userId: string};
+      const { userId } = request.body as CreateAttendanceRequest;
 
       if (!userId) {
         return reply.code(400).send({ error: 'User ID is required' });
