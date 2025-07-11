@@ -58,7 +58,7 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
 
       const userData = {
         ...request.body,
-        authentik_uid: pk, // Store the authentik UID
+        authentik_id: pk, // Store the authentik UID
       };
 
       const dbres = fastify.mongo.db.collection('users').insertOne(userData);
@@ -110,7 +110,7 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
       return reply.code(404).send({ error: 'User not found' });
     }
 
-    const response = await fetch(`${process.env.AUTHENTIK_API_URL}/api/v3/core/users/${user.authentik_uid}/`, {
+    const response = await fetch(`${process.env.AUTHENTIK_API_URL}/api/v3/core/users/${user.authentik_id}/`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
