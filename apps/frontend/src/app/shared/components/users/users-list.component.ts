@@ -61,14 +61,6 @@ interface Column {
           class="mr-2"
           (onClick)="openNew()"
         />
-        <p-button
-          severity="secondary"
-          label="Delete"
-          icon="pi pi-trash"
-          outlined
-          (onClick)="deleteSelectedUsers()"
-          [disabled]="!selectedUsers || !selectedUsers.length"
-        />
       </ng-template>
     </p-toolbar>
 
@@ -257,28 +249,6 @@ export class UsersListComponent implements OnInit {
   editUser(user: User) {
     this.user = { ...user };
     this.userDialog = true;
-  }
-
-  deleteSelectedUsers() {
-    if (!!this.selectedUsers && this.selectedUsers.length >= 0)
-      this.confirmationService.confirm({
-        message: 'Are you sure you want to delete the selected users?',
-        header: 'Confirm',
-        icon: 'pi pi-exclamation-triangle',
-        accept: () => {
-          if (!this.selectedUsers) {
-            return;
-          }
-          this._usersService.deleteUsers(this.selectedUsers);
-          this.selectedUsers = undefined;
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Successful',
-            detail: 'Users Deleted',
-            life: 3000,
-          });
-        },
-      });
   }
 
   hideDialog() {
