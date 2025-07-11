@@ -18,21 +18,42 @@ export class UsersService {
     ).then((users) => this._usersList.set(users));
     return this.users;
   }
+
+  public async updateUser(user: User) {
+    await firstValueFrom(
+      this.httpClient.put<User>(
+        environment.backendUrl + '/users/' + user._id,
+        user
+      )
+    ).then(() => this.getUsers());
+    return this.users;
+  }
+
+  public async updateSelfPicture(photo: File) {
+    const formData = new FormData();
+    formData.append('file', photo);
+
+    await firstValueFrom(
+      this.httpClient.put<User>(
+        environment.backendUrl + '/auth/picture',
+        formData
+      )
+    ).then(() => this.getUsers());
+
+    return this.users;
+  }
+
+  public async createUser(user: User) {
+    await firstValueFrom(
+      this.httpClient.post<User>(environment.backendUrl + '/users', user)
+    ).then(() => this.getUsers());
+
+    return this.users;
+  }
+
   public async deleteUser(user: User) {
     await firstValueFrom(
       this.httpClient.delete(environment.backendUrl + '/users/' + user._id)
-    ).catch((error) => {
-      // Handle error appropriately, e.g., show a notification
-      console.error('Error deleting user:', error);
-    });
-
-    await this.getUsers();
-  }
-  public async deleteUsers(users: User[]) {
-    await firstValueFrom(
-      this.httpClient.delete(environment.backendUrl + '/users', {
-        body: { users },
-      })
     ).catch((error) => {
       // Handle error appropriately, e.g., show a notification
       console.error('Error deleting user:', error);

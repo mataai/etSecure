@@ -1,5 +1,4 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environment/environment';
 import { Router } from '@angular/router';
 import { UserManager, WebStorageStateStore } from 'oidc-client-ts'; // Ensure you have oidc-client-ts installed
@@ -65,7 +64,6 @@ export class AuthService {
   public login(): void {
     this.userManager.signinRedirect().catch((error) => {
       console.error('Error during login:', error);
-      // Handle error appropriately, e.g., show a notification or redirect to an error page
     });
   }
 
