@@ -76,11 +76,6 @@ export class HomePage {
       routerLink: '/home',
     },
     {
-      id: 'settings-link',
-      icon: 'pi pi-cog',
-      routerLink: '/admin/settings',
-    },
-    {
       id: 'profile',
       icon: 'pi pi-user',
       routerLink: '/profile',
@@ -96,6 +91,25 @@ export class HomePage {
     effect(() => {
       this._authService.getProfile().then((profile) => {
         this.name = profile.name || 'User';
+        // Only show the gear icon if user is in admin group
+        const isAdmin = Array.isArray(profile.groups) && profile.groups.includes('etsecure_admin');
+        this.navbarItems = [
+          {
+            id: 'dashboard-link',
+            icon: 'pi pi-home',
+            routerLink: '/home',
+          },
+          ...(isAdmin ? [{
+            id: 'settings-link',
+            icon: 'pi pi-cog',
+            routerLink: '/admin', // redirect to admin-home.page.ts
+          }] : []),
+          {
+            id: 'profile',
+            icon: 'pi pi-user',
+            routerLink: '/profile',
+          },
+        ];
       });
     });
   }
