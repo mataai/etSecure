@@ -7,4 +7,4 @@ export interface Room {
   users: User[];
 }
 
-export type CreateRoomRequest = Pick<Room, 'name' | 'location'>;
+export type RoomUpsertRequest = Pick<Room, 'name' | 'location'>;

@@ -2,11 +2,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../..//environment/environment';
 import { firstValueFrom } from 'rxjs';
-import {
-  CreateUserRequest,
-  UpdateUserRequest,
-  User,
-} from '@etsecure/data-contracts';
+import { UserUpsertRequest, User } from '@etsecure/data-contracts';
 
 @Injectable({ providedIn: 'root' })
 export class UsersService {
@@ -23,11 +19,28 @@ export class UsersService {
     return this.users;
   }
 
-  public async updateUser(user: UpdateUserRequest) {
+  public async createUser(user: UserUpsertRequest) {
+    try {
+      await firstValueFrom(
+        this.httpClient.post<{ message: string }>(
+          environment.backendUrl + '/users',
+          user
+        )
+      );
+      await this.getUsers();
+    } catch (error) {
+      console.error('Error creating user:', error);
+      throw error; // Re-throw the error to handle it in the component
+    }
+
+    return;
+  }
+
+  public async updateUser(id: string, user: UserUpsertRequest) {
     try {
       await firstValueFrom(
         this.httpClient.put<{ message: string }>(
-          environment.backendUrl + '/users/' + user.id,
+          environment.backendUrl + '/users/' + id,
           user
         )
       );
@@ -52,23 +65,6 @@ export class UsersService {
       await this.getUsers();
     } catch (error) {
       console.error('Error updating user picture:', error);
-    }
-
-    return;
-  }
-
-  public async createUser(user: CreateUserRequest) {
-    try {
-      await firstValueFrom(
-        this.httpClient.post<{ message: string }>(
-          environment.backendUrl + '/users',
-          user
-        )
-      );
-      await this.getUsers();
-    } catch (error) {
-      console.error('Error creating user:', error);
-      throw error; // Re-throw the error to handle it in the component
     }
 
     return;

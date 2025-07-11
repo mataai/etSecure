@@ -7,6 +7,7 @@ import { LogoutPage, CallbackPage, LoginPage, SignupPage } from './pages/auth';
 import { authGuard, groupsGuard } from './shared/guards';
 import { UserShellComponent, AdminShellComponent } from './shared/components';
 import { UsersListPage } from './pages/admin/user-list.page';
+import { RoomsListPage } from './pages/admin/room-list.page';
 
 export const appRoutes: Routes = [
   { path: 'notfound', component: Notfound },
@@ -34,6 +35,7 @@ export const appRoutes: Routes = [
     children: [
       { path: '', component: AdminPage },
       { path: 'users', children: [{ path: '', component: UsersListPage }] },
+      { path: 'rooms', children: [{ path: '', component: RoomsListPage }] },
       { path: '**', redirectTo: '/notfound', pathMatch: 'full' },
     ],
   },

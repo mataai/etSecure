@@ -18,15 +18,8 @@ export interface User {
   groups: string[];
 }
 
-export interface CreateUserRequest {
+export interface UserUpsertRequest {
   name: string;
   username: string;
   email: string;
-}
-
-export interface UpdateUserRequest {
-  id?: string;
-  name?: string;
-  email?: string;
-  groups?: string[];
 }

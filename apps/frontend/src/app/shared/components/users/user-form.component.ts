@@ -5,17 +5,9 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import {
-  CreateUserRequest,
-  UpdateUserRequest,
-  User,
-} from '@etsecure/data-contracts';
+import { UserUpsertRequest, User } from '@etsecure/data-contracts';
 import { ButtonModule } from 'primeng/button';
-import {
-  DialogService,
-  DynamicDialogConfig,
-  DynamicDialogRef,
-} from 'primeng/dynamicdialog';
+import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputText } from 'primeng/inputtext';
 import { MultiSelectModule } from 'primeng/multiselect';
@@ -133,7 +125,6 @@ export class UserFormComponent {
         document.activeElement.blur();
       }
     }, 90);
-
   }
 
   public submit() {
@@ -141,16 +132,16 @@ export class UserFormComponent {
       this.formGroup.markAllAsTouched();
       return;
     }
-    const user: CreateUserRequest | UpdateUserRequest = {
-      id: this.user()?.authentik_id,
+    const user: UserUpsertRequest = {
       name: this.formGroup.value.name!,
       email: this.formGroup.value.email!,
       username: this.formGroup.value.email?.split('@')[0] || '',
       // groups: this.formGroup.value.groups?.map((x) => x.value) || [],
     };
-    const resp = !this.user()?.authentik_id
-      ? this._userService.createUser(user as CreateUserRequest)
-      : this._userService.updateUser(user as UpdateUserRequest);
+    const id = this.user()?.authentik_id;
+    const resp = !id
+      ? this._userService.createUser(user)
+      : this._userService.updateUser(id, user);
     resp
       .then((res) => {
         console.log('User saved successfully:', res);
@@ -182,7 +173,7 @@ export class UserFormComponent {
       });
   }
 
-  public close(data: CreateUserRequest | UpdateUserRequest | null = null) {
+  public close(data: UserUpsertRequest | null = null) {
     this.dialogRef.close(data);
   }
 }

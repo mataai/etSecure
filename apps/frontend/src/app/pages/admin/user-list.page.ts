@@ -7,7 +7,7 @@ import { ToastModule } from 'primeng/toast';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { User } from '@etsecure/data-contracts';
-import { UserFormComponent } from '../../shared/components/users/user-create.component';
+import { UserFormComponent } from '../../shared/components/users/user-form.component';
 import { UsersListComponent } from '../../shared/components/users/users-list.component';
 import { UsersService } from '../../shared/services/users.service';
 
