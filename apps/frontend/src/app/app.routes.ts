@@ -1,41 +1,50 @@
 import { Routes } from '@angular/router';
-import { AppLayout } from './layout/component/app.layout';
-import { Dashboard } from './pages/dashboard/dashboard';
-import { Documentation } from './pages/documentation/documentation';
-import { Notfound } from './pages/notfound/notfound';
+import { AppLayout, Dashboard, Documentation, Notfound } from './templates';
 import { HomePage } from './pages/home/home.page';
 import { StudentPage } from './pages/student/student.page';
-import { AdminPage } from './pages/admin/admin.page';
-import { LoginPage } from './pages/login/login.page';
-import { SignupPage } from './pages/login/signup.page';
-import { authGuard } from './shared/guards/auth.guard';
-import { CallbackPage } from './pages/login/callback.page';
-import { NoAuthGuard } from './shared/guards/no-auth.guard';
+import { AdminPage } from './pages/admin/admin-home.page';
+import { LogoutPage, CallbackPage, LoginPage, SignupPage } from './pages/auth';
+import { authGuard, groupsGuard } from './shared/guards';
+import { UserShellComponent, AdminShellComponent } from './shared/components';
+import { UsersListPage } from './pages/admin/user-list.page';
 
 export const appRoutes: Routes = [
+  { path: 'notfound', component: Notfound },
   {
     path: 'auth',
-    canActivate: [NoAuthGuard],
     children: [
-      { path: 'login', component: LoginPage },
-      { path: 'signup', component: SignupPage },
-      { path: 'callback', component: CallbackPage },
-      { path: '', redirectTo: 'login', pathMatch: 'full' },
+      { path: 'logout', component: LogoutPage },
+      { path: 'login', canActivate: [authGuard(false)], component: LoginPage },
+      {
+        path: 'signup',
+        canActivate: [authGuard(false)],
+        component: SignupPage,
+      },
+      {
+        path: 'callback',
+        canActivate: [authGuard(false)],
+        component: CallbackPage,
+      },
+    ],
+  },
+  {
+    path: 'admin',
+    component: AdminShellComponent,
+    canActivate: [authGuard(), groupsGuard],
+    children: [
+      { path: '', component: AdminPage },
+      { path: 'users', children: [{ path: '', component: UsersListPage }] },
+      { path: '**', redirectTo: '/notfound', pathMatch: 'full' },
     ],
   },
   {
     path: '',
-    canActivateChild: [
-      authGuard, // Ensure user is authenticated before accessing these routes
-    ],
+    component: UserShellComponent,
+    canActivateChild: [authGuard()],
     children: [
-      {
-        path: 'admin',
-        children: [{ path: 'admin', component: AdminPage }],
-      },
       { path: 'home', component: HomePage },
       { path: 'student', component: StudentPage },
-      { path: '**', redirectTo: '/auth/login', pathMatch: 'full' },
+      { path: '**', redirectTo: '/notfound', pathMatch: 'full' },
     ],
   },
   {
@@ -43,15 +52,16 @@ export const appRoutes: Routes = [
     component: AppLayout,
     children: [
       { path: 'dashboard', component: Dashboard },
+      { path: 'documentation', component: Documentation },
       {
         path: 'uikit',
-        loadChildren: () => import('./pages/uikit/uikit.routes'),
+        loadChildren: () => import('./templates/pages/uikit/uikit.routes'),
       },
-      { path: 'documentation', component: Documentation },
-      { path: 'pages', loadChildren: () => import('./pages/pages.routes') },
-      { path: '**', redirectTo: 'notfound' },
+      {
+        path: 'pages',
+        loadChildren: () => import('./templates/pages/pages.routes'),
+      },
+      { path: '**', redirectTo: '/notfound' },
     ],
   },
-  { path: 'notfound', component: Notfound },
-  { path: '**', redirectTo: 'notfound' },
 ];

@@ -1,13 +1,30 @@
-import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, effect, inject } from '@angular/core';
+import { AuthService } from '../../shared/services/auth.service';
 
 @Component({
-  selector: 'app-home',imports: [RouterLink],
+  selector: 'app-home',
   template: `
     <h1>Home</h1>
-    <p>Welcome! Choose your role:</p>
-    <button routerLink="student">I am a Student</button>
-    <button routerLink="admin">I am an Admin</button>
+    <p>Welcome {{ name }}!</p>
+    @switch (groups[0]) { @case ('etsecure_admin') {
+    <p>You are an Admin. You can manage the system.</p>
+    } @default {
+    <p>You are a Student. You can access your courses.</p>
+    } }
   `,
 })
-export class HomePage {}
+export class HomePage {
+  private _authService = inject(AuthService);
+
+  public groups: string[] = [];
+  public name = '';
+
+  constructor() {
+    effect(() => {
+      this._authService.getProfile().then((profile) => {
+        this.groups = profile.groups || [];
+        this.name = profile.name || 'User';
+      });
+    });
+  }
+}

@@ -13,7 +13,7 @@ const server = Fastify({
 const mqttOptions = {
   url: 'mqtts://cloud-ind520',
   options: {
-    clientId: process.env.MQTT_CLIENT_ID || 'server121212',
+    clientId: process.env.MQTT_CLIENT_ID || Math.random().toString(16).slice(2),
     username: process.env.MQTT_USERNAME || 'client',
     password: process.env.MQTT_PASSWORD || 'REDACTED',
     ca: process.env.MQTT_CA || './server.crt',

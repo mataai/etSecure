@@ -2,7 +2,8 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environment/environment';
 import { Router } from '@angular/router';
-import { User, UserManager } from 'oidc-client-ts'; // Ensure you have oidc-client-ts installed
+import { UserManager, WebStorageStateStore } from 'oidc-client-ts'; // Ensure you have oidc-client-ts installed
+import { User } from '@etsecure/data-contracts';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -14,14 +15,14 @@ export class AuthService {
     response_type: 'code',
     scope: 'openid profile email offline_access',
     automaticSilentRenew: true,
+    userStore: new WebStorageStateStore({
+      store: localStorage,
+    }),
   });
 
   private httpClient: HttpClient = inject(HttpClient);
   private router = inject(Router);
 
-  /**
-   *
-   */
   constructor() {
     this.userManager
       .getUser()
@@ -39,18 +40,21 @@ export class AuthService {
       });
   }
 
-  public isAuthenticated(): boolean {
+  public async isAuthenticated(): Promise<boolean> {
     // Implement your logic to check if the user is authenticated
     // This could be checking a token in local storage or a service call
-    return !!localStorage.getItem('authToken');
+    return !!(await this.getProfile());
   }
 
-  public getProfile() {
-    const userInfo = localStorage.getItem('userInfo');
-    if (userInfo) {
-      return JSON.parse(userInfo);
-    }
-    return null;
+  public getProfile(): Promise<User> {
+    return this.userManager.getUser().then((user) => {
+      const profile = (user?.profile as unknown as User) || null;
+      console.log('User profile:', profile);
+      if (!profile) {
+        throw new Error('User profile not found');
+      }
+      return profile;
+    });
   }
 
   public login(): void {
@@ -69,20 +73,28 @@ export class AuthService {
           return;
         }
         console.log('Login successful:', user);
-        const authToken = user.access_token;
-        const userInfo = user.profile;
-        const refreshToken = user.refresh_token;
-
-        // Store the tokens and user information in local storage or a service
-        localStorage.setItem('authToken', authToken);
-        localStorage.setItem('userInfo', JSON.stringify(userInfo));
-        localStorage.setItem('refreshToken', refreshToken || '');
 
         // Redirect to the home page or any other page after successful login
         this.router.navigate(['/home']);
       })
       .catch((error) => {
         console.error('Login failed:', error);
+        // Handle error appropriately, e.g., show a notification or redirect to an error page
+      });
+  }
+
+  public logout(): void {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('userInfo');
+    localStorage.removeItem('refreshToken');
+    this.userManager
+      .signoutRedirect()
+      .then(() => {
+        // Clear local storage or any other state management after logout
+        this.router.navigate(['/auth/login']);
+      })
+      .catch((error) => {
+        console.error('Logout failed:', error);
         // Handle error appropriately, e.g., show a notification or redirect to an error page
       });
   }
