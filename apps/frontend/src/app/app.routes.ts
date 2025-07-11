@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 import { AppLayout, Dashboard, Documentation, Notfound } from './templates';
 import { HomePage } from './pages/home/home.page';
-import { StudentPage } from './pages/student/student.page';
 import { AdminPage } from './pages/admin/admin-home.page';
 import { LogoutPage, CallbackPage, LoginPage, SignupPage } from './pages/auth';
 import { authGuard, groupsGuard } from './shared/guards';
@@ -45,7 +44,6 @@ export const appRoutes: Routes = [
     canActivateChild: [authGuard()],
     children: [
       { path: 'home', component: HomePage },
-      { path: 'student', component: StudentPage },
       { path: '**', redirectTo: '/home', pathMatch: 'full' },
     ],
   },

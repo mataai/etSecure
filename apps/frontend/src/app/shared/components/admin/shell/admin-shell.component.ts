@@ -14,12 +14,12 @@ export class AdminShellComponent {
     {
       id: 'dashboard-link',
       icon: 'pi pi-home',
-      routerLink: '/admin',
+      routerLink: '/home',
     },
     {
       id: 'settings-link',
       icon: 'pi pi-cog',
-      routerLink: '/admin/settings',
+      routerLink: '/admin',
     },
     {
       id: 'profile',
