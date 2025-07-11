@@ -134,6 +134,29 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
 
     return reply.code(200).send({ message: 'User deleted successfully' });
   });
+
+  fastify.get('/users/:id/rooms',
+    { preValidation: [authPreValidator] },
+    async (request, reply) => {
+      const { id } = request.params as { id: string };
+
+      if (!id) {
+        return reply.code(400).send({ error: 'User ID is required' });
+      }
+
+      if (request.user._id !== id && !request.user.groups.includes('etsecure_admin')) {
+        return reply.code(403).send({ error: 'Forbidden: You do not have permission to access this resource' });
+      }
+
+      const user = await fastify.mongo.db.collection('users').findOne({ _id: new ObjectId(id) });
+      if (!user) {
+        return reply.code(404).send({ error: 'User not found' });
+      }
+
+      const rooms = await fastify.mongo.db.collection('rooms').find({ users: user._id }).toArray();
+      return reply.code(200).send(rooms);
+    }
+  )
 };
 
 export default userRoutes;
