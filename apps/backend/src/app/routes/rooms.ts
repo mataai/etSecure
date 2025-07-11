@@ -139,15 +139,65 @@ const roomsRoutes: FastifyPluginAsync = async (fastify) => {
   });
 
   fastify.get('/rooms/:id/attendances',
-    { preValidation: [authPreValidator, groupPreValidator(["etsecure_admin"])] },
+    { preValidation: [authPreValidator, groupPreValidator(['etsecure_admin'])] },
     async (request, reply) => {
-      const { id } = request.params as { id: string };
-      const room = await fastify.mongo.db.collection('rooms').findOne({ _id: new ObjectId(id) });
+      const { id } = request.params as { id: string }
+
+      if (!ObjectId.isValid(id)) {
+        return reply.code(400).send({ error: 'Invalid room ID' })
+      }
+
+      const roomId = new ObjectId(id)
+
+      const room = await fastify.mongo.db.collection('rooms').findOne({ _id: roomId })
       if (!room) {
-        return reply.code(404).send({ error: 'room not found' });
+        return reply.code(404).send({ error: 'Room not found' })
       }
 
       const attendances = await fastify.mongo.db.collection('attendances').aggregate([
+        {
+          $match: { roomId: new ObjectId(id) } // Filter only attendances for this room
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'userId',
+            foreignField: '_id',
+            as: 'user'
+          }
+        },
+        { $unwind: '$user' },
+        {
+          $lookup: {
+            from: 'rooms',
+            localField: 'roomId',
+            foreignField: '_id',
+            as: 'room'
+          }
+        },
+        { $unwind: '$room' },
+      ]).toArray()
+
+      return reply.code(200).send(attendances)
+    }
+  )
+
+
+  fastify.get('/rooms/attendances',
+    { preValidation: [authPreValidator, groupPreValidator(["etsecure_admin"])] },
+    async (request, reply) => {    
+      const attendances = await fastify.mongo.db.collection('attendances').aggregate([
+        {
+          $lookup: {
+            from: 'rooms', // collection name to join with
+            localField: 'roomId', // field in attendances
+            foreignField: '_id', // field in rooms (must be ObjectId)
+            as: 'room' // result will be an array in 'room' field
+          }
+        },
+        {
+          $unwind: '$room' // flatten the array to just an object
+        },
         {
           $lookup: {
             from: 'users', // collection name to join with
@@ -162,7 +212,10 @@ const roomsRoutes: FastifyPluginAsync = async (fastify) => {
       ]).toArray();
 
       return reply.code(200).send(attendances);
+
+      
   });
+
 
   fastify.post('/rooms/:id/attendances',
     { preValidation: [authPreValidator, groupPreValidator(["etsecure_admin"])] },
