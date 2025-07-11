@@ -310,7 +310,7 @@ export class UsersListComponent implements OnInit {
   findIndexById(id: string): number {
     let index = -1;
     for (let i = 0; i < this.users().length; i++) {
-      if (this.users()[i].sub === id) {
+      if (this.users()[i]._id === id) {
         index = i;
         break;
       }
@@ -348,7 +348,7 @@ export class UsersListComponent implements OnInit {
       return;
     }
 
-    if (this.users().find((u) => u.sub === this.user?.sub)) {
+    if (this.users().find((u) => u._id === this.user?._id)) {
       // Update
       this.messageService.add({
         severity: 'success',

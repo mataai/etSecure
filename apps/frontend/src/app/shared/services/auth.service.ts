@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environment/environment';
 import { Router } from '@angular/router';
 import { UserManager, WebStorageStateStore } from 'oidc-client-ts'; // Ensure you have oidc-client-ts installed
-import { User } from '@etsecure/data-contracts';
+import { UserAuthentik } from '@etsecure/data-contracts';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -51,9 +51,9 @@ export class AuthService {
     return !!(await this.getProfile());
   }
 
-  public getProfile(): Promise<User> {
+  public getProfile(): Promise<UserAuthentik> {
     return this.userManager.getUser().then((user) => {
-      const profile = (user?.profile as unknown as User) || null;
+      const profile = (user?.profile as unknown as UserAuthentik) || null;
       console.log('User profile:', profile);
       if (!profile) {
         console.error('User profile not found');
