@@ -40,7 +40,7 @@ const roomsRoutes: FastifyPluginAsync = async (fastify) => {
 
   // PUT /rooms/:id - Update a room
   fastify.put('/rooms/:id',
-    //{ preValidation: [authPreValidator, groupPreValidator(["etsecure_admin"])] },
+    { preValidation: [authPreValidator, groupPreValidator(["etsecure_admin"])] },
     async (request, reply) => {
       const { id } = request.params as { id: string };
       const roomData = request.body as { name?: string; location?: string; status?: string };
@@ -91,7 +91,7 @@ const roomsRoutes: FastifyPluginAsync = async (fastify) => {
   })
 
   fastify.post('/rooms/:id/users',
-    //{ preValidation: [authPreValidator, groupPreValidator(["etsecure_admin"])] },
+    { preValidation: [authPreValidator, groupPreValidator(["etsecure_admin"])] },
     async (request, reply) => {
       const { id } = request.params as { id: string };
       const { userId } = request.body as CreateAttendanceRequest;
@@ -125,7 +125,7 @@ const roomsRoutes: FastifyPluginAsync = async (fastify) => {
   });
 
   fastify.delete('/rooms/:id/users/:userId',
-    //{ preValidation: [authPreValidator, groupPreValidator(["etsecure_admin"])] },
+    { preValidation: [authPreValidator, groupPreValidator(["etsecure_admin"])] },
     async (request, reply) => {
       const { id, userId } = request.params as { id: string; userId: string };
 
