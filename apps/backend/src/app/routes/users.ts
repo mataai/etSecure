@@ -35,8 +35,14 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
     //{ preValidation: [authPreValidator, groupPreValidator(["etsecure_admin"])] },
     async (request, reply) => {
 
-      if (!request.body || typeof request.body !== 'object') {
-        return reply.code(400).send({ error: 'Invalid user data' });
+      const data = request.body as {
+        name: string;
+        username: string;
+        email: string;
+      };
+
+      if (!data.name || !data.username || !data.email) {
+        return reply.code(400).send({ error: 'Name, username, and email are required' });
       }
 
       const response = await fetch(process.env.AUTHENTIK_API_URL + '/api/v3/core/users/', {
@@ -57,7 +63,7 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
       const { pk } = await response.json()
 
       const userData = {
-        ...request.body,
+        ...data,
         authentik_id: pk, // Store the authentik UID
       };
 
