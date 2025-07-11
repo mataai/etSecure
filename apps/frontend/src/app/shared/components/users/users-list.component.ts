@@ -60,7 +60,7 @@ import { UserFormComponent } from './user-create.component';
           icon="pi pi-plus"
           severity="secondary"
           class="mr-2"
-          (onClick)="openNew()"
+          (onClick)="createNew()"
         />
       </ng-template>
     </p-toolbar>
@@ -186,7 +186,7 @@ export class UsersListComponent implements OnInit {
     table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
   }
 
-  openNew() {
+  createNew() {
     if (this._userFormDialogRef) {
       return;
     }
@@ -196,12 +196,12 @@ export class UsersListComponent implements OnInit {
       style: { 'max-height': '90vh', height: 'auto', width: 'fit-content' },
     });
 
-    if (this._userFormCloseSub) {
-      this._userFormCloseSub.unsubscribe();
-    }
     this._userFormCloseSub = this._userFormDialogRef.onClose.subscribe(
       async (user: User | null) => {
         console.log('User form closed with data:', user);
+        this._userFormCloseSub?.unsubscribe();
+        this._userFormDialogRef = null;
+        this._userFormCloseSub = null;
       }
     );
   }
@@ -219,12 +219,12 @@ export class UsersListComponent implements OnInit {
       },
     });
 
-    if (this._userFormCloseSub) {
-      this._userFormCloseSub.unsubscribe();
-    }
     this._userFormCloseSub = this._userFormDialogRef.onClose.subscribe(
       async (user: User | null) => {
         console.log('User form closed with data:', user);
+        this._userFormCloseSub?.unsubscribe();
+        this._userFormDialogRef = null;
+        this._userFormCloseSub = null;
       }
     );
   }

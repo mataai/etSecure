@@ -2,10 +2,11 @@ import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { NavbarComponent } from '../../navbar.component';
 import { AppAdminSidebar } from '../admin-sidebar.component';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'app-admin-shell',
-  imports: [RouterModule, NavbarComponent, AppAdminSidebar],
+  imports: [RouterModule, NavbarComponent, AppAdminSidebar, ToastModule],
   templateUrl: './admin-shell.component.html',
   styleUrls: ['./admin-shell.component.scss'],
 })
