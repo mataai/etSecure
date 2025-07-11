@@ -10,7 +10,7 @@ export class UsersService {
 
   public getUsers() {
     return firstValueFrom(
-      this.httpClient.get<User[]>(environment.backendUrl + '/api/users')
+      this.httpClient.get<User[]>(environment.backendUrl + '/users')
     );
   }
 }

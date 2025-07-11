@@ -13,6 +13,9 @@ export async function app(fastify: FastifyInstance, opts: AppOptions) {
   await fastify.register(cors, {
     // put your options here
     origin: '*', // Allow all origins, adjust as needed for security
+    methods: ["POST", "GET", "PUT", "DELETE", "OPTIONS"], // Allow specific methods
+    allowedHeaders: ["Content-Type", "Authorization"], // Allow specific headers
+    credentials: true, // Allow credentials if needed
   });
   fastify.register(fastifyMultipart);
 
