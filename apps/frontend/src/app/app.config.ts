@@ -1,4 +1,8 @@
-import { provideHttpClient, withFetch } from '@angular/common/http';
+import {
+  provideHttpClient,
+  withFetch,
+  withInterceptors,
+} from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
@@ -9,13 +13,14 @@ import {
   provideZoneChangeDetection,
 } from '@angular/core';
 import { definePreset } from '@primeuix/themes';
+import { tokenInterceptor } from './shared/token.injector';
 
 export const appConfig = {
   providers: [
     provideRouter(appRoutes),
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideHttpClient(withFetch()),
+    provideHttpClient(withFetch(), withInterceptors([tokenInterceptor])),
     provideAnimationsAsync(),
     providePrimeNG({
       theme: {

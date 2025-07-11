@@ -30,7 +30,7 @@ export const appRoutes: Routes = [
   {
     path: 'admin',
     component: AdminShellComponent,
-    canActivate: [authGuard(), groupsGuard],
+    canActivate: [authGuard(), groupsGuard(['etsecure_admin'])],
     children: [
       { path: '', component: AdminPage },
       { path: 'users', children: [{ path: '', component: UsersListPage }] },

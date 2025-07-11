@@ -20,8 +20,13 @@ export class AuthService {
     }),
   });
 
-  private httpClient: HttpClient = inject(HttpClient);
   private router = inject(Router);
+
+  public get asyncToken(): Promise<string | null> {
+    return this.userManager
+      .getUser()
+      .then((user) => user?.access_token || null);
+  }
 
   constructor() {
     this.userManager
