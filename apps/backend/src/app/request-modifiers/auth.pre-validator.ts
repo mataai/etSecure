@@ -1,11 +1,11 @@
-import { User } from '@etsecure/data-contracts';
+import { User, UserAuthentik } from '@etsecure/data-contracts';
 import { preValidationMetaHookHandler } from 'fastify/types/hooks';
 import { FastifyInstance } from 'fastify';
 import { container } from 'tsyringe';
 
 declare module 'fastify' {
   interface FastifyRequest {
-    user: User;
+    user: UserAuthentik;
   }
 }
 
@@ -31,7 +31,7 @@ export const authPreValidator: preValidationMetaHookHandler = (
 
   fastify.customOauth2
     .userinfo(token)
-    .then((userInfo: User) => {
+    .then((userInfo: UserAuthentik) => {
       if (!userInfo) {
         req.log.error('User info not found');
         res.status(401).send({ error: 'Unauthorized' });
