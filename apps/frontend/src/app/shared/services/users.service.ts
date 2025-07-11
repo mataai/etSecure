@@ -61,7 +61,7 @@ export class UsersService {
     try {
       await firstValueFrom(
         this.httpClient.post<{ message: string }>(
-          environment.backendUrl + '/userss',
+          environment.backendUrl + '/users',
           user
         )
       );

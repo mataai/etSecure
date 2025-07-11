@@ -35,11 +35,11 @@ import { UserFormComponent } from './user-create.component';
   selector: 'app-users-list',
   imports: [
     CommonModule,
+    ToastModule,
     TableModule,
     FormsModule,
     ButtonModule,
     RippleModule,
-    ToastModule,
     ChipModule,
     ToolbarModule,
     InputTextModule,
@@ -53,6 +53,7 @@ import { UserFormComponent } from './user-create.component';
   ],
   providers: [MessageService, UsersService, ConfirmationService, DialogService],
   template: `
+    <p-toast />
     <p-toolbar styleClass="mb-6">
       <ng-template #start>
         <p-button
