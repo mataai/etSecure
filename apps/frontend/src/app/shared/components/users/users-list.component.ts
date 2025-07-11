@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, Signal, ViewChild } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Table, TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
@@ -20,16 +20,12 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { UsersService } from '../../services/users.service';
 import { User } from '@etsecure/data-contracts';
+import { UserFormComponent } from './user-create.component';
 
 interface Column {
   field: string;
   header: string;
   customExportHeader?: string;
-}
-
-interface ExportColumn {
-  title: string;
-  dataKey: string;
 }
 
 @Component({
@@ -53,6 +49,7 @@ interface ExportColumn {
     InputIconModule,
     IconFieldModule,
     ConfirmDialogModule,
+    UserFormComponent,
   ],
   template: `
     <p-toolbar styleClass="mb-6">
@@ -71,15 +68,6 @@ interface ExportColumn {
           outlined
           (onClick)="deleteSelectedUsers()"
           [disabled]="!selectedUsers || !selectedUsers.length"
-        />
-      </ng-template>
-
-      <ng-template #end>
-        <p-button
-          label="Export"
-          icon="pi pi-upload"
-          severity="secondary"
-          (onClick)="exportCSV()"
         />
       </ng-template>
     </p-toolbar>
@@ -118,7 +106,7 @@ interface ExportColumn {
           </p-iconfield>
         </div>
       </ng-template>
-      <ng-template #header>
+      <!-- <ng-template #header>
         <tr>
           <th style="width: 3rem">
             <p-tableHeaderCheckbox />
@@ -147,7 +135,7 @@ interface ExportColumn {
           </th>
           <th style="min-width: 12rem"></th>
         </tr>
-      </ng-template>
+      </ng-template> -->
       <ng-template #body let-user>
         <tr>
           <td style="width: 3rem">
@@ -199,114 +187,12 @@ interface ExportColumn {
 
     <p-dialog
       [(visible)]="userDialog"
-      [style]="{ width: '450px' }"
+      [style]="{ width: '450px', height: 'auto', maxHeight: '90vh' }"
       header="User Details"
       [modal]="true"
     >
       <ng-template #content>
-        <div class="flex flex-col gap-6">
-          <div>
-            @if(user?.name){
-            <label for="name" class="block font-bold mb-3">Name</label>
-            <input
-              type="text"
-              pInputText
-              id="name"
-              [(ngModel)]="user!.name"
-              required
-              fluid
-            />
-            <small class="text-red-500" *ngIf="submitted && !user?.name">
-              Name is required.
-            </small>
-            }
-          </div>
-          <div>
-            <!-- <label for="description" class="block font-bold mb-3"
-              >Description</label
-            >
-            <textarea
-              id="description"
-              pTextarea
-              [(ngModel)]="user.description"
-              required
-              rows="3"
-              cols="20"
-              fluid
-            ></textarea> -->
-          </div>
-
-          <div>
-            <label for="inventoryStatus" class="block font-bold mb-3"
-              >Inventory Status</label
-            >
-            <!-- <p-select
-              [(ngModel)]="user.inventoryStatus"
-              inputId="inventoryStatus"
-              [options]="statuses"
-              optionLabel="label"
-              optionValue="label"
-              placeholder="Select a Status"
-              fluid
-            /> -->
-          </div>
-
-          <div>
-            <!-- <span class="block font-bold mb-4">Category</span>
-            <div class="grid grid-cols-12 gap-4">
-              <div class="flex items-center gap-2 col-span-6">
-                <p-radiobutton
-                  id="category1"
-                  name="category"
-                  value="Accessories"
-                  [(ngModel)]="user.category"
-                />
-                <label for="category1">Accessories</label>
-              </div>
-              <div class="flex items-center gap-2 col-span-6">
-                <p-radiobutton
-                  id="category2"
-                  name="category"
-                  value="Clothing"
-                  [(ngModel)]="user.category"
-                />
-                <label for="category2">Clothing</label>
-              </div>
-              <div class="flex items-center gap-2 col-span-6">
-                <p-radiobutton
-                  id="category3"
-                  name="category"
-                  value="Electronics"
-                  [(ngModel)]="user.category"
-                />
-                <label for="category3">Electronics</label>
-              </div>
-              <div class="flex items-center gap-2 col-span-6">
-                <p-radiobutton
-                  id="category4"
-                  name="category"
-                  value="Fitness"
-                  [(ngModel)]="user.category"
-                />
-                <label for="category4">Fitness</label>
-              </div>
-            </div> -->
-          </div>
-
-          <div class="grid grid-cols-12 gap-4">
-            <!-- <div class="col-span-6">
-              <label for="price" class="block font-bold mb-3">Price</label>
-              <p-inputnumber
-                id="price"
-                [(ngModel)]="user.price"
-                mode="currency"
-                currency="USD"
-                locale="en-US"
-                fluid
-              />
-            </div> -->
-          </div>
-        </div>
+        <app-user-form></app-user-form>
       </ng-template>
 
       <ng-template #footer>
@@ -326,50 +212,36 @@ interface ExportColumn {
 })
 export class UsersListComponent implements OnInit {
   userDialog = false;
-  users = signal<User[]>([]);
+  users!: Signal<User[]>;
   user?: User;
   selectedUsers?: User[];
   submitted = false;
-  statuses: any[] = [
-    { label: 'INSTOCK', value: 'instock' },
-    { label: 'LOWSTOCK', value: 'lowstock' },
-    { label: 'OUTOFSTOCK', value: 'outofstock' },
-  ];
 
   @ViewChild('dt') dt!: Table;
 
-  exportColumns!: ExportColumn[];
-
-  cols!: Column[];
+  cols: Column[] = [
+    { field: 'sub', header: 'Id' },
+    { field: 'name', header: 'Name' },
+    { field: 'image', header: 'Image' },
+    { field: 'price', header: 'Price' },
+    { field: 'category', header: 'Category' },
+    { field: 'rating', header: 'Reviews' },
+    { field: 'inventoryStatus', header: 'Status' },
+  ];
 
   private _usersService: UsersService = inject(UsersService);
   private messageService: MessageService = inject(MessageService);
   private confirmationService: ConfirmationService =
     inject(ConfirmationService);
 
-  exportCSV() {
-    this.dt.exportCSV();
-  }
-
   ngOnInit() {
-    this.loadDemoData();
+    this.loadData();
   }
 
-  loadDemoData() {
-    this._usersService.getUsers().then((data) => {
-      this.users.set(data);
+  private async loadData() {
+    await this._usersService.getUsers().then((data) => {
+      this.users = data;
     });
-
-    this.statuses = this.cols = [
-      { field: 'id', header: 'User Id' },
-      { field: 'name', header: 'Name' },
-      { field: 'category', header: 'Category' },
-    ];
-
-    this.exportColumns = this.cols.map((col) => ({
-      title: col.header,
-      dataKey: col.field,
-    }));
   }
 
   onGlobalFilter(table: Table, event: Event) {
@@ -388,23 +260,25 @@ export class UsersListComponent implements OnInit {
   }
 
   deleteSelectedUsers() {
-    this.confirmationService.confirm({
-      message: 'Are you sure you want to delete the selected users?',
-      header: 'Confirm',
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        this.users.set(
-          this.users().filter((val) => !this.selectedUsers?.includes(val))
-        );
-        this.selectedUsers = undefined;
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Successful',
-          detail: 'Users Deleted',
-          life: 3000,
-        });
-      },
-    });
+    if (!!this.selectedUsers && this.selectedUsers.length >= 0)
+      this.confirmationService.confirm({
+        message: 'Are you sure you want to delete the selected users?',
+        header: 'Confirm',
+        icon: 'pi pi-exclamation-triangle',
+        accept: () => {
+          if (!this.selectedUsers) {
+            return;
+          }
+          this._usersService.deleteUsers(this.selectedUsers);
+          this.selectedUsers = undefined;
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Successful',
+            detail: 'Users Deleted',
+            life: 3000,
+          });
+        },
+      });
   }
 
   hideDialog() {
@@ -414,13 +288,15 @@ export class UsersListComponent implements OnInit {
 
   deleteUser(user: User) {
     this.confirmationService.confirm({
-      message: 'Are you sure you want to delete ' + user.name + '?',
+      message: 'Are you sure you want to delete user ' + user.name + '?',
       header: 'Confirm',
       icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        this.users.set(this.users().filter((val) => val.sub !== user.sub));
-        this.user = undefined;
+      accept: async () => {
         // TODO delete user from the backend
+        this._usersService.deleteUser(user);
+
+        await this.loadData();
+        this.user = undefined;
         this.messageService.add({
           severity: 'success',
           summary: 'Successful',
@@ -468,34 +344,28 @@ export class UsersListComponent implements OnInit {
 
   saveUser() {
     this.submitted = true;
-    const _users = this.users();
     if (!this.user) {
       return;
     }
 
-    if (this.user.name?.trim()) {
-      if (this.user.sub) {
-        _users[this.findIndexById(this.user.sub)] = this.user;
-        this.users.set([..._users]);
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Successful',
-          detail: 'User Updated',
-          life: 3000,
-        });
-      } else {
-        this.user.sub = this.createId();
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Successful',
-          detail: 'User Created',
-          life: 3000,
-        });
-        this.users.set([..._users, this.user]);
-      }
-
-      this.userDialog = false;
-      this.user = undefined;
+    if (this.users().find((u) => u.sub === this.user?.sub)) {
+      // Update
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Successful',
+        detail: `User ${this.user.name} Updated`,
+        life: 3000,
+      });
+    } else {
+      // Create
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Successful',
+        detail: `User ${this.user.name} Created`,
+        life: 3000,
+      });
     }
+    this.userDialog = false;
+    this.user = undefined;
   }
 }

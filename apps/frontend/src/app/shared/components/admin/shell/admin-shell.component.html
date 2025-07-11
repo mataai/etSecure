@@ -1,7 +1,9 @@
-<div class="admin-shell">
+<div class="layout-wrapper layout-static">
   <app-navbar [items]="items"></app-navbar>
   <app-admin-sidebar></app-admin-sidebar>
-  <div class="admin-content">
-    <router-outlet></router-outlet>
+  <div class="layout-main-container">
+    <div class="layout-main">
+      <router-outlet></router-outlet>
+    </div>
   </div>
 </div>

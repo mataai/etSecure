@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../..//environment/environment';
 import { firstValueFrom } from 'rxjs';
@@ -8,9 +8,36 @@ import { User } from '@etsecure/data-contracts';
 export class UsersService {
   private httpClient: HttpClient = inject(HttpClient);
 
-  public getUsers() {
-    return firstValueFrom(
+  private _usersList = signal<User[]>([]);
+
+  public users = this._usersList.asReadonly();
+
+  public async getUsers() {
+    await firstValueFrom(
       this.httpClient.get<User[]>(environment.backendUrl + '/users')
-    );
+    ).then((users) => this._usersList.set(users));
+    return this.users;
+  }
+  public async deleteUser(user: User) {
+    await firstValueFrom(
+      this.httpClient.delete(environment.backendUrl + '/users/' + user.sub)
+    ).catch((error) => {
+      // Handle error appropriately, e.g., show a notification
+      console.error('Error deleting user:', error);
+    });
+
+    await this.getUsers();
+  }
+  public async deleteUsers(users: User[]) {
+    await firstValueFrom(
+      this.httpClient.delete(environment.backendUrl + '/users', {
+        body: { users },
+      })
+    ).catch((error) => {
+      // Handle error appropriately, e.g., show a notification
+      console.error('Error deleting user:', error);
+    });
+
+    await this.getUsers();
   }
 }

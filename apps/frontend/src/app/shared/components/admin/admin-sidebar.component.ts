@@ -4,12 +4,14 @@ import { AppMenu } from '../app.menu';
 @Component({
   selector: 'app-admin-sidebar',
   imports: [AppMenu],
-  template: ` <div class="layout-sidebar">
-    <app-menu></app-menu>
-  </div>`,
+  template: `
+    <div class="layout-sidebar">
+      <app-menu [menuItems]="items"></app-menu>
+    </div>
+  `,
   styles: [
     `
-      :host{
+      :host {
         display: block;
         height: 100%;
         width: fit-content;
@@ -17,4 +19,47 @@ import { AppMenu } from '../app.menu';
     `,
   ],
 })
-export class AppAdminSidebar {}
+export class AppAdminSidebar {
+  public items = [
+    {
+      label: 'Home',
+      items: [
+        {
+          label: 'Dashboard',
+          icon: 'pi pi-fw pi-table',
+          routerLink: ['/admin'],
+        },
+      ],
+    },
+    {
+      label: 'Users',
+      items: [
+        {
+          label: 'List',
+          icon: 'pi pi-fw pi-users',
+          routerLink: ['users'],
+        },
+      ],
+    },
+    {
+      label: 'Rooms',
+      items: [
+        {
+          label: 'List',
+          icon: 'pi pi-fw pi-home',
+          routerLink: ['rooms'],
+        },
+      ],
+    },
+    {
+      label: 'Logs',
+      items: [
+        {
+          label: 'List',
+          icon: 'pi pi-fw pi-list',
+          routerLink: ['logs'],
+        },
+      ],
+    },
+  ];
+}
