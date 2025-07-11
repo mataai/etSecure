@@ -1,89 +1,35 @@
-import {
-  Component,
-  inject,
-  OnInit,
-  signal,
-  Signal,
-  ViewChild,
-} from '@angular/core';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { Component, input, output, ViewChild } from '@angular/core';
 import { Table, TableModule } from 'primeng/table';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
-import { RippleModule } from 'primeng/ripple';
-import { ToastModule } from 'primeng/toast';
-import { ToolbarModule } from 'primeng/toolbar';
 import { InputTextModule } from 'primeng/inputtext';
-import { TextareaModule } from 'primeng/textarea';
-import { SelectModule } from 'primeng/select';
-import { RadioButtonModule } from 'primeng/radiobutton';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { DialogModule } from 'primeng/dialog';
 import { InputIconModule } from 'primeng/inputicon';
 import { IconFieldModule } from 'primeng/iconfield';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ChipModule } from 'primeng/chip';
-import { Subscription } from 'rxjs';
 
 import { User } from '@etsecure/data-contracts';
-
-import { UsersService } from '../../services/users.service';
-import { UserFormComponent } from './user-create.component';
 
 @Component({
   selector: 'app-users-list',
   imports: [
-    CommonModule,
-    ToastModule,
     TableModule,
-    FormsModule,
     ButtonModule,
-    RippleModule,
     ChipModule,
-    ToolbarModule,
     InputTextModule,
-    TextareaModule,
-    SelectModule,
-    RadioButtonModule,
-    DialogModule,
     InputIconModule,
     IconFieldModule,
-    ConfirmDialogModule,
   ],
-  providers: [MessageService, UsersService, ConfirmationService, DialogService],
   template: `
-    <p-toast />
-    <p-toolbar styleClass="mb-6">
-      <ng-template #start>
-        <p-button
-          label="New"
-          icon="pi pi-plus"
-          severity="secondary"
-          class="mr-2"
-          (onClick)="createNew()"
-        />
-      </ng-template>
-    </p-toolbar>
-
     <p-table
       #dt
+      dataKey="id"
       [value]="users() || []"
       [rows]="10"
       [paginator]="true"
-      [globalFilterFields]="[
-        'name',
-        'country.name',
-        'representative.name',
-        'status'
-      ]"
+      [globalFilterFields]="['name', 'email', 'groups']"
       [tableStyle]="{ 'min-width': '75rem' }"
       [(selection)]="selectedUsers"
       [rowHover]="true"
-      dataKey="id"
-      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} users"
-      [showCurrentPageReport]="true"
-      [rowsPerPageOptions]="[10, 20, 30]"
+      [paginator]="false"
     >
       <ng-template #caption>
         <div class="flex items-center justify-between">
@@ -102,7 +48,7 @@ import { UserFormComponent } from './user-create.component';
       <ng-template #header>
         <tr>
           <th style="width: 3rem">
-            <p-tableHeaderCheckbox />
+            <!-- <p-tableHeaderCheckbox /> -->
           </th>
           <th style="min-width: 16rem">ID</th>
           <th pSortableColumn="name" style="min-width:16rem">
@@ -120,7 +66,7 @@ import { UserFormComponent } from './user-create.component';
       <ng-template #body let-user>
         <tr>
           <td style="width: 3rem">
-            <p-tableCheckbox [value]="user" />
+            <!-- <p-tableCheckbox [value]="user.id" /> -->
           </td>
           <td style="min-width: 12rem">{{ user.authentik_id }}</td>
           <td style="min-width: 16rem">{{ user.name }}</td>
@@ -140,123 +86,35 @@ import { UserFormComponent } from './user-create.component';
               class="mr-2"
               [rounded]="true"
               [outlined]="true"
-              (click)="editUser(user)"
+              (click)="editUser.emit(user)"
             />
             <p-button
               icon="pi pi-trash"
               severity="danger"
               [rounded]="true"
               [outlined]="true"
-              (click)="deleteUser(user)"
+              (click)="deleteUser.emit(user)"
             />
           </td>
         </tr>
       </ng-template>
     </p-table>
-
-    <p-confirmdialog [style]="{ width: '450px' }" />
   `,
 })
-export class UsersListComponent implements OnInit {
-  users: Signal<User[]> = signal<User[]>([]);
-  selectedUsers?: User[];
-  submitted = false;
+export class UsersListComponent {
+  public selectedUsers?: User[];
+  public submitted = false;
+  users = input<User[]>([]);
+  public editUser = output<User>();
+  public deleteUser = output<User>();
 
   @ViewChild('dt') dt!: Table;
 
-  private _usersService: UsersService = inject(UsersService);
-  private messageService: MessageService = inject(MessageService);
-  private confirmationService: ConfirmationService =
-    inject(ConfirmationService);
-  private _dialogService = inject(DialogService);
-
-  private _userFormDialogRef: DynamicDialogRef | null = null;
-  private _userFormCloseSub: Subscription | null = null;
-
-  ngOnInit() {
-    this.loadData();
-  }
-
-  private async loadData() {
-    await this._usersService.getUsers().then((data) => {
-      this.users = data;
-    });
-  }
-
-  onGlobalFilter(table: Table, event: Event) {
+  public onGlobalFilter(table: Table, event: Event) {
     table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
   }
 
-  createNew() {
-    if (this._userFormDialogRef) {
-      return;
-    }
-
-    this._userFormDialogRef = this._dialogService.open(UserFormComponent, {
-      header: 'Create User',
-      style: { 'max-height': '90vh', height: 'auto', width: 'fit-content' },
-      dismissableMask: true,
-      modal: true,
-      closable: true,
-      closeOnEscape: false,
-    });
-
-    this._userFormCloseSub = this._userFormDialogRef.onClose.subscribe(
-      async (user: User | null) => {
-        console.log('User form closed with data:', user);
-        this._userFormCloseSub?.unsubscribe();
-        this._userFormDialogRef = null;
-        this._userFormCloseSub = null;
-      }
-    );
-  }
-
-  editUser(user: User) {
-    if (this._userFormDialogRef) {
-      return;
-    }
-    console.log('Editing user:', user);
-    this._userFormDialogRef = this._dialogService.open(UserFormComponent, {
-      header: 'Update User',
-      style: { 'max-height': '90vh', height: 'auto' },
-      dismissableMask: true,
-      modal: true,
-      closable: true,
-      closeOnEscape: false,
-      data: {
-        user,
-      },
-    });
-
-    this._userFormCloseSub = this._userFormDialogRef.onClose.subscribe(
-      async (user: User | null) => {
-        console.log('User form closed with data:', user);
-        this._userFormCloseSub?.unsubscribe();
-        this._userFormDialogRef = null;
-        this._userFormCloseSub = null;
-      }
-    );
-  }
-
-  deleteUser(user: User) {
-    this.confirmationService.confirm({
-      message: 'Are you sure you want to delete user ' + user.name + '?',
-      header: 'Confirm',
-      icon: 'pi pi-exclamation-triangle',
-      accept: async () => {
-        this._usersService.deleteUser(user);
-        await this.loadData();
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Successful',
-          detail: 'User Deleted',
-          life: 3000,
-        });
-      },
-    });
-  }
-
-  findIndexById(id: string): number {
+  public findIndexById(id: string): number {
     let index = -1;
     for (let i = 0; i < this.users().length; i++) {
       if (this.users()[i]._id === id) {
@@ -267,54 +125,4 @@ export class UsersListComponent implements OnInit {
 
     return index;
   }
-
-  createId(): string {
-    let id = '';
-    const chars =
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    for (let i = 0; i < 5; i++) {
-      id += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return id;
-  }
-
-  getSeverity(status: string) {
-    switch (status) {
-      case 'INSTOCK':
-        return 'success';
-      case 'LOWSTOCK':
-        return 'warn';
-      case 'OUTOFSTOCK':
-        return 'danger';
-      default:
-        return 'info';
-    }
-  }
-
-  // saveUser() {
-  //   this.submitted = true;
-  //   if (!this.user) {
-  //     return;
-  //   }
-
-  //   if (this.users().find((u) => u._id === this.user?._id)) {
-  //     // Update
-  //     this.messageService.add({
-  //       severity: 'success',
-  //       summary: 'Successful',
-  //       detail: `User ${this.user.name} Updated`,
-  //       life: 3000,
-  //     });
-  //   } else {
-  //     // Create
-  //     this.messageService.add({
-  //       severity: 'success',
-  //       summary: 'Successful',
-  //       detail: `User ${this.user.name} Created`,
-  //       life: 3000,
-  //     });
-  //   }
-  //   this.userDialog = false;
-  //   this.user = undefined;
-  // }
 }
