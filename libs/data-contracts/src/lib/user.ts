@@ -17,3 +17,16 @@ export class User {
   public username?: string;
   public groups: string[] = [];
 }
+
+export interface CreateUserRequest {
+  name: string;
+  username: string;
+  email: string;
+}
+
+export interface UpdateUserRequest {
+  id?: string;
+  name?: string;
+  email?: string;
+  groups?: string[];
+}

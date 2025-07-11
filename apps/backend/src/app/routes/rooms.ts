@@ -2,6 +2,7 @@ import { FastifyPluginAsync } from 'fastify'
 import { ObjectId } from 'mongodb';
 import { authPreValidator } from '../request-modifiers/auth.pre-validator';
 import { groupPreValidator } from '../request-modifiers/groups.pre-validator';
+import { CreateRoomRequest } from '@etsecure/data-contracts';
 
 const roomsRoutes: FastifyPluginAsync = async (fastify) => {
   // GET /rooms - Get all rooms
@@ -24,7 +25,7 @@ const roomsRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.post('/rooms',
     { preValidation: [authPreValidator, groupPreValidator(["etsecure_admin"])] },
     async (request, reply) => {
-      const roomData = request.body as { name: string; location: string};
+      const roomData = request.body as CreateRoomRequest;
 
       if (!roomData || typeof roomData !== 'object') {
         return reply.code(400).send({ error: 'Invalid room data' });
@@ -56,7 +57,7 @@ const roomsRoutes: FastifyPluginAsync = async (fastify) => {
           fastify.log.info(`Published status ${roomData.status} for room ${id}`);
       }
 
-      const result = await fastify.mongo.db.collection('rooms').updateOne({ _id: new ObjectId(id) }, 
+      const result = await fastify.mongo.db.collection('rooms').updateOne({ _id: new ObjectId(id) },
         { $set: roomData }
       );
       if (result.matchedCount === 0) {
