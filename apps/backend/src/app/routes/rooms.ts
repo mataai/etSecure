@@ -5,24 +5,34 @@ import { groupPreValidator } from '../request-modifiers/groups.pre-validator';
 import {
   RoomUpsertRequest,
   CreateAttendanceRequest,
+  RoomAccessUpdateRequest,
 } from '@etsecure/data-contracts';
 
 const roomsRoutes: FastifyPluginAsync = async (fastify) => {
   // GET /rooms - Get all rooms
   fastify.get('/rooms', async (request, reply) => {
     const rooms = await fastify.mongo.db.collection('rooms').find().toArray();
+
+    const roomUserIds = rooms
+      .flatMap((room) => room?.users as ObjectId)
+      .filter(Boolean);
     const users = await fastify.mongo.db
       .collection('users')
-      .find({ _id: { $in: rooms.flatMap((room) => room.users as ObjectId[] || []) } })
+      .find({
+        _id: { $in: roomUserIds || [] },
+      })
       .toArray();
+
     rooms.forEach((room) => {
       if (room.users) {
-        room.users = room.users.map((userId) => {
-          const user = users.find(
-            (u) => u._id.toString() === userId.toString()
-          );
-          return user;
-        }).filter(Boolean);
+        room.users = room.users
+          .map((userId) => {
+            const user = users.find(
+              (u) => u._id.toString() === userId.toString()
+            );
+            return { id: user._id, name: user?.name };
+          })
+          .filter(Boolean);
       }
     });
     return reply.code(200).send(rooms);
@@ -42,7 +52,7 @@ const roomsRoutes: FastifyPluginAsync = async (fastify) => {
         .collection('users')
         .find({ _id: { $in: room.users || [] } })
         .toArray()
-    ).map((user) => user.name as string);
+    ).map((user) => ({ id: user._id, name: user.name as string }));
     return reply.code(200).send({ ...room, users: roomUsers });
   });
 
@@ -150,19 +160,21 @@ const roomsRoutes: FastifyPluginAsync = async (fastify) => {
       .collection('users')
       .find({ _id: { $in: room.users || [] } })
       .toArray();
+
     return reply.code(200).send(users);
   });
 
-  fastify.post(
+  // Update users access to a room
+  fastify.put(
     '/rooms/:id/users',
     {
       preValidation: [authPreValidator, groupPreValidator(['etsecure_admin'])],
     },
     async (request, reply) => {
       const { id } = request.params as { id: string };
-      const { userId } = request.body as CreateAttendanceRequest;
+      const userIds = (request.body as RoomAccessUpdateRequest).userIds;
 
-      if (!userId) {
+      if (!userIds) {
         return reply.code(400).send({ error: 'User ID is required' });
       }
 
@@ -173,10 +185,11 @@ const roomsRoutes: FastifyPluginAsync = async (fastify) => {
         return reply.code(404).send({ error: 'room not found' });
       }
 
-      const user = await fastify.mongo.db
+      const users = await fastify.mongo.db
         .collection('users')
-        .findOne({ _id: new ObjectId(userId) });
-      if (!user) {
+        .find({ _id: { $in: userIds.map((id) => new ObjectId(id)) } })
+        .toArray();
+      if (!users || users.length <= 0) {
         return reply.code(404).send({ error: 'User not found' });
       }
 
@@ -184,43 +197,18 @@ const roomsRoutes: FastifyPluginAsync = async (fastify) => {
         room.users = [];
       }
 
-      if (room.users.includes(user._id)) {
-        return reply
-          .code(400)
-          .send({ error: 'User is already a member of this room' });
-      }
+      // Add new users to room and ensure no duplicates
 
-      room.users.push(user._id);
       await fastify.mongo.db
         .collection('rooms')
-        .updateOne({ _id: new ObjectId(id) }, { $set: { users: room.users } });
+        .updateOne(
+          { _id: new ObjectId(id) },
+          { $set: { users: users.map((user) => user._id) } }
+        );
 
       return reply
         .code(200)
         .send({ message: 'User added to room successfully' });
-    }
-  );
-
-  fastify.delete(
-    '/rooms/:id/users/:userId',
-    {
-      preValidation: [authPreValidator, groupPreValidator(['etsecure_admin'])],
-    },
-    async (request, reply) => {
-      const { id, userId } = request.params as { id: string; userId: string };
-
-      const user = await fastify.mongo.db.collection('rooms').findOneAndDelete({
-        _id: new ObjectId(id),
-        users: { $in: [new ObjectId(userId)] },
-      });
-
-      if (!user) {
-        return reply.code(404).send({ error: 'room or user not found' });
-      }
-
-      return reply
-        .code(200)
-        .send({ message: 'User removed from room successfully' });
     }
   );
 

@@ -72,7 +72,7 @@ import { Room } from '@etsecure/data-contracts';
           <td style="min-width: 16rem">
             @for(user of room.users; track user) {
             <p-chip
-              [label]="user"
+              [label]="user.name"
               [styleClass]="'mr-2'"
               [removable]="false"
             />

@@ -1,6 +1,3 @@
-import { User } from './user';
-import { Room } from './room';
-
 export interface Attendance {
   _id?: string; // Optional ID for the attendance record
   userId: string; // ID of the user attending
@@ -8,4 +5,6 @@ export interface Attendance {
   timestamp: Date; // Timestamp of when the attendance was recorded
 }
 
-export interface CreateAttendanceRequest{ userId: string};
+export interface CreateAttendanceRequest {
+  userId: string;
+}

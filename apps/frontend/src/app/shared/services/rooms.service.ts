@@ -2,8 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import {
-  CreateAttendanceRequest,
   Room,
+  RoomAccessUpdateRequest,
   RoomUpsertRequest,
 } from '@etsecure/data-contracts';
 import { Service } from './service';
@@ -35,14 +35,15 @@ export class RoomsService extends Service<Room> {
     });
   }
 
-  public async allowUserToRoom(
+  public async setAllowedUsersInRoom(
     roomId: string,
-    request: CreateAttendanceRequest
+    request: RoomAccessUpdateRequest
   ) {
     return await firstValueFrom(
-      this._http.post<void>(`${environment.backendUrl}/rooms/${roomId}/users`, {
-        request,
-      })
+      this._http.put<void>(
+        `${environment.backendUrl}/rooms/${roomId}/users`,
+        request
+      )
     );
   }
 

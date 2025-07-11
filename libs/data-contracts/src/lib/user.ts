@@ -18,6 +18,11 @@ export interface User {
   groups: string[];
 }
 
+export interface UserShort {
+  id: User['_id'];
+  name: User['name'];
+}
+
 export interface UserUpsertRequest {
   name: string;
   username: string;
