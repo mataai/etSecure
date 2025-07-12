@@ -2,8 +2,9 @@ import { ObjectId } from 'mongodb';
 
 export interface UserModel {
   _id: ObjectId;
-  authentik_id: number;
+  authentik_id: string;
   name: string;
   username: string;
   email: string;
+  bypassLeft: number;
 }

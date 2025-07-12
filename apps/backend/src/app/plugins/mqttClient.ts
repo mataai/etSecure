@@ -50,24 +50,24 @@ const mqttClientPlugin: FastifyPluginAsync<MqttClientPluginOptions> = async (
 
   const client = mqtt.connect(url, clientOptions);
 
-  client.subscribe('doors/+/status');
+  client.subscribe('rooms/+/status');
 
   client.on('message', (topic, message) => {
     const msg = message.toString();
 
-    if (topic.startsWith('doors/')) {
-      const doorId = topic.split('/')[1];
+    if (topic.startsWith('rooms/')) {
+      const roomId = topic.split('/')[1];
       if (topic.endsWith('/status')) {
-        fastify.log.info(`Door ${doorId} status update: ${msg}`);
+        fastify.log.info(`room ${roomId} status update: ${msg}`);
         // store status in db
-        fastify.mongo.db.collection('doors').updateOne(
-          { _id: new ObjectId(doorId) },
+        fastify.mongo.db.collection('rooms').updateOne(
+          { _id: new ObjectId(roomId) },
           { $set: { status: msg } },
           { upsert: true }
         ).then(() => {
-          fastify.log.info(`Updated door ${doorId} status to ${msg}`);
+          fastify.log.info(`Updated room ${roomId} status to ${msg}`);
         }).catch(err => {
-          fastify.log.error(`Failed to update door ${doorId} status: ${err.message}`);
+          fastify.log.error(`Failed to update room ${roomId} status: ${err.message}`);
         });
         return;
       }

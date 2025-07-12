@@ -3,6 +3,8 @@ import { FastifyInstance } from 'fastify';
 import fs from 'fs';
 import { authPreValidator } from '../request-modifiers/auth.pre-validator';
 import { ObjectId } from 'mongodb';
+import { RoomModel } from '../models/room.model';
+import { UserModel } from '../models/user.model';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -119,27 +121,33 @@ export default async function (fastify: FastifyInstance) {
         return reply.code(400).send({ error: 'User not found' });
       }
 
-      if (user.bypassLeft <= 0) {
-        return reply.code(403).send({ error: 'No bypasses left' });
+      if (user.bypassLeft <= 0 || user.bypassLeft === undefined) {
+        return reply.code(403).send({ error: 'No bypasses left, Contact Admin' });
       }
 
       const room = await fastify.mongo.db
-        .collection('rooms')
-        .findOne({ _id: new ObjectId(data.roomId) });
+        .collection<RoomModel>('rooms')
+        .findOne({
+          _id: new ObjectId(data.roomId),
+          users: new ObjectId(userId), // ensure this is also ObjectId
+      });
+
 
       if (!room) {
-        return reply.code(404).send({ error: 'Room not found' });
+        return reply.code(404).send({ error: 'Room not found or User not in room' });
       }
 
-      if (!room.users.includes(userId)) {
-        return reply.code(403).send({ error: 'User not a member of this group' });
-      }
-
-      const updatedUser = await fastify.mongo.db.collection('users').findOneAndUpdate(
+      const updatedUser = await fastify.mongo.db.collection<UserModel>('users').findOneAndUpdate(
         { _id: new ObjectId(userId) },
         { $inc: { bypassLeft: -1 } },
         { returnDocument: 'after' }
       );
+
+      if (!updatedUser) {
+        return reply.code(500).send({ error: 'Failed to update user' });
+      }
+
+      fastify.mqttClient.publish(`rooms/${data.roomId}/command`, 'unlock');
 
       reply.code(200).send({
         message: 'Bypass used successfully',

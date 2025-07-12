@@ -82,7 +82,7 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
 
       const userData = {
         ...data,
-        authentik_id: pk, // Store the authentik UID
+        authentik_id: pk.toString(), // Store the authentik UID
       };
 
       const dbres = usersCollection.insertOne(userData as UserModel);

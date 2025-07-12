@@ -9,48 +9,50 @@ declare module 'fastify' {
   }
 }
 
-export const authPreValidator: preValidationMetaHookHandler = (
+export const authPreValidator: preValidationMetaHookHandler = async (
   req,
-  res,
-  done
+  res
 ) => {
   req.log.info('authPreValidator called');
+
   const authHeader = req.headers.authorization;
   if (!authHeader) {
-    res.status(401).send({ error: 'Unauthorized' });
-    return done(new Error('Unauthorized'));
+    res.status(401).send({ error: 'Unauthorized: Missing token' });
+    throw new Error('Unauthorized');
   }
 
   const token = authHeader.split(' ')[1];
   if (!token) {
-    res.status(401).send({ error: 'Unauthorized' });
-    return done(new Error('Unauthorized'));
+    res.status(401).send({ error: 'Unauthorized: Invalid token format' });
+    throw new Error('Unauthorized');
   }
 
   const fastify: FastifyInstance = container.resolve('FastifyInstance');
 
-  fastify.customOauth2
-    .userinfo(token)
-    .then((userInfo: User & UserAuthentik) => {
-      if (!userInfo) {
-        req.log.error('User info not found');
-        res.status(401).send({ error: 'Unauthorized' });
-        return done(new Error('Unauthorized'));
-      }
-      // todo: get local user from database
+  try {
+    const userInfo = (await fastify.customOauth2.userinfo(token)) as UserAuthentik;
+    if (!userInfo || !userInfo.sub) {
+      req.log.error('No user info returned from OAuth provider');
+      res.status(401).send({ error: 'Unauthorized: Invalid user info' });
+      throw new Error('Unauthorized');
+    }
 
-      const dbUser = fastify.mongo.db.collection<User>('users').findOne({
-        authentik_id: userInfo.sub,
-      });
+    const dbUser = await fastify.mongo.db
+      .collection<User>('users')
+      .findOne({ authentik_id: userInfo.sub });
 
+    if (!dbUser) {
+      req.log.error(`No local user found for authentik_id ${userInfo.sub}`);
+      res.status(401).send({ error: 'Unauthorized: User not found in DB' });
+      throw new Error('Unauthorized');
+    }
 
+    // Combine local user and Authentik data
+    req.user = { ...dbUser, ...userInfo };
 
-      req.user = {...dbUser, ...userInfo};
-      done();
-    })
-    .catch((err: Error) => {
-      req.log.error('Error fetching user info:', err);
-      res.status(401).send({ error: 'Unauthorized' });
-      return done(new Error('Unauthorized'));
-    });
+  } catch (err) {
+    req.log.error({ err }, 'Authentication failed');
+    res.status(401).send({ error: 'Unauthorized: Auth error' });
+    throw new Error('Unauthorized');
+  }
 };

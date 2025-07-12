@@ -43,7 +43,7 @@ export class UsersService {
     return;
   }
 
-  public async updateUser(id: string, user: UserUpsertRequest) {
+  public async updateUser(id: User["_id"], user: UserUpsertRequest) {
     try {
       await firstValueFrom(
         this.httpClient.put<{ message: string }>(
