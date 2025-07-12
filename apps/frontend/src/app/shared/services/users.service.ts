@@ -64,7 +64,7 @@ export class UsersService {
     formData.append('file', photo);
     try {
       await firstValueFrom(
-        this.httpClient.put<User>(
+        this.httpClient.post<User>(
           environment.backendUrl + '/auth/picture',
           formData
         )
