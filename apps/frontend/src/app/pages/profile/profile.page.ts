@@ -19,12 +19,19 @@ import { AuthService } from '../../shared/services/auth.service';
         </ng-template>
         <div class="flex flex-col items-center gap-4 mt-4">
           <ng-container *ngIf="profile; else loading">
-            <img *ngIf="profile.photo; else photoSkeleton" [src]="profile.photo" alt="Profile Photo" class="w-24 h-24 rounded-full object-cover border" />
+            <img
+              *ngIf="profile.photo; else photoSkeleton"
+              [src]="profile.photo"
+              alt="Profile Photo"
+              class="w-24 h-24 rounded-full object-cover border"
+            />
             <ng-template #photoSkeleton>
               <p-skeleton shape="circle" size="6rem"></p-skeleton>
             </ng-template>
             <div class="text-center">
-              <div class="text-lg font-semibold">{{ profile.name }} {{ profile.lastName }}</div>
+              <div class="text-lg font-semibold">
+                {{ profile.name }} {{ profile.lastName }}
+              </div>
             </div>
           </ng-container>
           <ng-template #loading>
@@ -35,7 +42,7 @@ import { AuthService } from '../../shared/services/auth.service';
       </p-card>
     </div>
   `,
-  styles: [``]
+  styles: [``],
 })
 export class ProfilePage {
   private _authService = inject(AuthService);

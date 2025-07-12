@@ -10,6 +10,7 @@ import { User } from '@etsecure/data-contracts';
 import { UserFormComponent } from '../../shared/components/users/user-form.component';
 import { UsersListComponent } from '../../shared/components/users/users-list.component';
 import { UsersService } from '../../shared/services/users.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-users-list-page',
@@ -35,6 +36,7 @@ import { UsersService } from '../../shared/services/users.service';
     </p-toolbar>
     <app-users-list
       [users]="this.users()"
+      (viewUser)="this.openUserDetails($event)"
       (createUser)="this.createUser()"
       (editUser)="this.editUser($event)"
       (deleteUser)="this.deleteUser($event)"
@@ -46,6 +48,7 @@ import { UsersService } from '../../shared/services/users.service';
   `,
 })
 export class UsersListPage implements OnInit {
+  private _router = inject(Router);
   private _usersService = inject(UsersService);
   public users = this._usersService.users;
   private messageService: MessageService = inject(MessageService);
@@ -128,6 +131,10 @@ export class UsersListPage implements OnInit {
         });
       },
     });
+  }
+
+  public openUserDetails(user: User) {
+    this._router.navigate(['admin', 'users', user._id]);
   }
 
   private async loadData() {

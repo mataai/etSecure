@@ -56,10 +56,6 @@ import { User } from '@etsecure/data-contracts';
             <p-sortIcon field="email" />
           </th>
           <th pSortableColumn="email">Email</th>
-          <th pSortableColumn="groups" style="min-width: 8rem">
-            Groups
-            <p-sortIcon field="groups" />
-          </th>
           <th style="min-width: 12rem"></th>
         </tr>
       </ng-template>
@@ -71,16 +67,14 @@ import { User } from '@etsecure/data-contracts';
           <td style="min-width: 12rem">{{ user.authentik_id }}</td>
           <td style="min-width: 16rem">{{ user.name }}</td>
           <td style="min-width: 16rem">{{ user.email }}</td>
-          <td style="min-width: 16rem">
-            @for(group of user.groups; track group) {
-            <p-chip
-              [label]="group.name"
-              [styleClass]="'mr-2'"
-              [removable]="false"
-            />
-            }
-          </td>
           <td>
+            <p-button
+              icon="pi pi-eye"
+              class="mr-2"
+              [rounded]="true"
+              [outlined]="true"
+              (click)="viewUser.emit(user)"
+            />
             <p-button
               icon="pi pi-pencil"
               class="mr-2"
@@ -103,12 +97,10 @@ import { User } from '@etsecure/data-contracts';
 })
 export class UsersListComponent {
   public selectedUsers?: User[];
-  public submitted = false;
   users = input<User[]>([]);
+  public viewUser = output<User>();
   public editUser = output<User>();
   public deleteUser = output<User>();
-
-  @ViewChild('dt') dt!: Table;
 
   public onGlobalFilter(table: Table, event: Event) {
     table.filterGlobal((event.target as HTMLInputElement).value, 'contains');

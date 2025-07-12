@@ -7,6 +7,7 @@ import { authGuard, groupsGuard } from './shared/guards';
 import { UserShellComponent, AdminShellComponent } from './shared/components';
 import { UsersListPage } from './pages/admin/user-list.page';
 import { RoomsListPage } from './pages/admin/room-list.page';
+import { UserDetailsPage } from './pages/admin/user-details.page';
 
 export const appRoutes: Routes = [
   { path: 'notfound', component: Notfound },
@@ -33,7 +34,13 @@ export const appRoutes: Routes = [
     canActivate: [authGuard(), groupsGuard(['etsecure_admin'])],
     children: [
       { path: '', component: AdminPage },
-      { path: 'users', children: [{ path: '', component: UsersListPage }] },
+      {
+        path: 'users',
+        children: [
+          { path: '', component: UsersListPage },
+          { path: ':id', component: UserDetailsPage },
+        ],
+      },
       { path: 'rooms', children: [{ path: '', component: RoomsListPage }] },
       { path: '**', redirectTo: '/notfound', pathMatch: 'full' },
     ],
