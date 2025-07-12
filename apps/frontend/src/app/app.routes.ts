@@ -60,6 +60,7 @@ export const appRoutes: Routes = [
     children: [
       { path: 'home', component: HomePage },
       { path: 'profile', component: ProfilePage },
+      { path: 'bypass', loadComponent: () => import('./pages/bypass/bypass.page').then(m => m.BypassPage) },
       { path: '**', redirectTo: '/home', pathMatch: 'full' },
     ],
   },

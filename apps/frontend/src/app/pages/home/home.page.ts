@@ -1,6 +1,7 @@
 
 import { Component, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { NavbarComponent } from '../../shared/components/navbar.component';
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
@@ -10,11 +11,11 @@ import { AuthService } from '../../shared/services/auth.service';
 
 @Component({
   selector: 'app-home',
-  imports: [CommonModule, CardModule, TableModule, ButtonModule, SkeletonModule, NavbarComponent],
+  imports: [CommonModule, RouterModule, CardModule, TableModule, ButtonModule, SkeletonModule, NavbarComponent],
   standalone: true,
   template: `
     <app-navbar [items]="navbarItems"></app-navbar>
-    <div class="flex flex-col gap-8 max-w-5xl mx-auto py-8 mt-24">
+    <div class="flex flex-col gap-8 max-w-5xl mx-auto py-8 mt-24 relative">
       <div class="text-center mb-4">
         <span class="text-3xl font-extrabold tracking-tight text-primary">Welcome </span>
         <span class="text-3xl font-extrabold tracking-tight text-white">{{ name }}</span>
@@ -57,6 +58,9 @@ import { AuthService } from '../../shared/services/auth.service';
           </ng-template>
         </p-table>
       </p-card>
+      <div class="flex justify-end mt-8">
+        <a [routerLink]="['/bypass']" href="/bypass" role="button" tabindex="0" class="px-6 py-3 bg-primary text-white rounded-lg shadow-lg hover:bg-primary-700 transition-all font-semibold text-lg cursor-pointer">Backup Unlock Request</a>
+      </div>
     </div>
   `,
   styles: [`
@@ -66,6 +70,7 @@ import { AuthService } from '../../shared/services/auth.service';
     }
   `],
 })
+
 export class HomePage {
   public navbarItems = [
     {
@@ -84,6 +89,7 @@ export class HomePage {
   public name = '';
   logins = [
   ];
+
 
   constructor() {
     effect(() => {
