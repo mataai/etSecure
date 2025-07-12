@@ -7,7 +7,6 @@ import { TimelineModule } from 'primeng/timeline';
 import { CommonModule } from '@angular/common';
 import { CardModule } from 'primeng/card';
 
-
 @Component({
   selector: 'app-user-details',
   imports: [TimelineModule, CommonModule, CardModule],
@@ -44,7 +43,7 @@ import { CardModule } from 'primeng/card';
               </small>
             </ng-template>
             <ng-template #content let-event>
-              {{ this.user()!.name }} - {{ event.room.name }}
+              {{ event.room.name }}
             </ng-template>
           </p-timeline>
         </div>

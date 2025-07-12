@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { AppLayout, Dashboard, Documentation, Notfound } from './templates';
+import { Notfound } from './templates';
 import { HomePage } from './pages/home/home.page';
 import { AdminPage } from './pages/admin/admin-home.page';
 import { LogoutPage, CallbackPage, LoginPage, SignupPage } from './pages/auth';
@@ -8,6 +8,7 @@ import { UserShellComponent, AdminShellComponent } from './shared/components';
 import { UsersListPage } from './pages/admin/user-list.page';
 import { RoomsListPage } from './pages/admin/room-list.page';
 import { UserDetailsPage } from './pages/admin/user-details.page';
+import { RoomDetailsPage } from './pages/admin/room-details.page';
 
 export const appRoutes: Routes = [
   { path: 'notfound', component: Notfound },
@@ -41,7 +42,13 @@ export const appRoutes: Routes = [
           { path: ':id', component: UserDetailsPage },
         ],
       },
-      { path: 'rooms', children: [{ path: '', component: RoomsListPage }] },
+      {
+        path: 'rooms',
+        children: [
+          { path: '', component: RoomsListPage },
+          { path: ':id', component: RoomDetailsPage },
+        ],
+      },
       { path: '**', redirectTo: '/notfound', pathMatch: 'full' },
     ],
   },
@@ -52,23 +59,6 @@ export const appRoutes: Routes = [
     children: [
       { path: 'home', component: HomePage },
       { path: '**', redirectTo: '/home', pathMatch: 'full' },
-    ],
-  },
-  {
-    path: '',
-    component: AppLayout,
-    children: [
-      { path: 'dashboard', component: Dashboard },
-      { path: 'documentation', component: Documentation },
-      {
-        path: 'uikit',
-        loadChildren: () => import('./templates/pages/uikit/uikit.routes'),
-      },
-      {
-        path: 'pages',
-        loadChildren: () => import('./templates/pages/pages.routes'),
-      },
-      { path: '**', redirectTo: '/notfound' },
     ],
   },
 ];
