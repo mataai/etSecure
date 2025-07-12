@@ -2,6 +2,7 @@ import { OAuth2Namespace } from '@fastify/oauth2';
 import { FastifyInstance } from 'fastify';
 import fs from 'fs';
 import { authPreValidator } from '../request-modifiers/auth.pre-validator';
+import { ObjectId } from 'mongodb';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -94,5 +95,24 @@ export default async function (fastify: FastifyInstance) {
     return res.status(200).send({
       message: 'File uploaded successfully',
     });
+  });
+
+  fastify.post('/auth/bypass', 
+    {preValidation: [authPreValidator]},
+    async function (req, res) {
+      const userId = req.user._id;
+      
+      const user = await fastify.mongo.db
+        .collection('users')
+        .findOne({ _id: new ObjectId(userId) });
+      
+      if (!user) {
+        return res.code(400).send({ error: 'User not found' });
+      }
+
+      if (user.bypassLeft <= 0) {
+        return res.code(403).send({ error: 'No bypasses left' });
+      }
+
   });
 }
