@@ -9,14 +9,11 @@ import { AuthService } from '../../shared/services/auth.service';
   standalone: true,
   imports: [CommonModule, CardModule, SkeletonModule],
   template: `
-    <div class="flex flex-col items-center justify-center min-h-[60vh] py-8">
+    <div class="flex flex-col items-center justify-center min-h-[60vh] py-8 mt-24">
+      <div class="text-center mb-4">
+        <span class="text-3xl font-extrabold tracking-tight text-primary">My Profile</span>
+      </div>
       <p-card class="p-6 w-full max-w-md">
-        <ng-template pTemplate="header">
-          <div class="flex items-center gap-3">
-            <i class="pi pi-user text-2xl text-primary"></i>
-            <span class="text-xl font-bold">My Profile</span>
-          </div>
-        </ng-template>
         <div class="flex flex-col items-center gap-4 mt-4">
           <ng-container *ngIf="profile; else loading">
             <img
@@ -28,10 +25,14 @@ import { AuthService } from '../../shared/services/auth.service';
             <ng-template #photoSkeleton>
               <p-skeleton shape="circle" size="6rem"></p-skeleton>
             </ng-template>
-            <div class="text-center">
-              <div class="text-lg font-semibold">
-                {{ profile.name }} {{ profile.lastName }}
-              </div>
+            <div class="w-full mt-4">
+              <label for="profile-name" class="block text-sm font-medium text-surface-500 mb-1">Full Name</label>
+              <input id="profile-name" type="text" class="w-full p-2 rounded bg-surface-100 border border-surface-300 text-black placeholder:text-black" [value]="profile.name" readonly />
+            </div>
+            <div class="w-full mt-2">
+              <label for="profile-upload" class="block text-sm font-medium text-surface-500 mb-1">Change Profile Picture</label>
+              <input id="profile-upload" type="file" accept="image/*" (change)="onFileSelected($event)" class="custom-file-input" />
+              <button class="px-4 py-2 bg-primary text-white rounded block mx-auto mt-6" (click)="uploadPicture()" [disabled]="!selectedFile">Upload</button>
             </div>
           </ng-container>
           <ng-template #loading>
@@ -42,11 +43,23 @@ import { AuthService } from '../../shared/services/auth.service';
       </p-card>
     </div>
   `,
-  styles: [``],
+  styles: [`
+    .custom-file-input {
+      color: white;
+    }
+    .custom-file-input::file-selector-button {
+      color: black;
+      background: #eee;
+      border: 1px solid #888;
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+    }
+  `],
 })
 export class ProfilePage {
   private _authService = inject(AuthService);
   public profile: any = null;
+  public selectedFile: File | null = null;
 
   constructor() {
     effect(() => {
@@ -54,5 +67,36 @@ export class ProfilePage {
         this.profile = profile;
       });
     });
+  }
+
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedFile = input.files[0];
+    } else {
+      this.selectedFile = null;
+    }
+  }
+
+  uploadPicture() {
+    if (!this.selectedFile) return;
+    const formData = new FormData();
+    formData.append('file', this.selectedFile);
+    fetch('/api/auth/picture', {
+      method: 'POST',
+      body: formData,
+      credentials: 'include',
+    })
+      .then(async (res) => {
+        if (res.ok) {
+          // Optionally refresh profile photo
+          this._authService.getProfile().then((profile) => {
+            this.profile = profile;
+          });
+        } else {
+          alert('Failed to upload image');
+        }
+      })
+      .catch(() => alert('Failed to upload image'));
   }
 }

@@ -1,6 +1,7 @@
+
 import { Component, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { NavbarComponent } from '../../shared/components/navbar.component';
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -9,24 +10,14 @@ import { AuthService } from '../../shared/services/auth.service';
 
 @Component({
   selector: 'app-home',
-  imports: [
-    CommonModule,
-    RouterLink,
-    CardModule,
-    TableModule,
-    ButtonModule,
-    SkeletonModule,
-  ],
+  imports: [CommonModule, CardModule, TableModule, ButtonModule, SkeletonModule, NavbarComponent],
   standalone: true,
   template: `
+    <app-navbar [items]="navbarItems"></app-navbar>
     <div class="flex flex-col gap-8 max-w-5xl mx-auto py-8 mt-24">
       <div class="text-center mb-4">
-        <span class="text-3xl font-extrabold tracking-tight text-primary">
-          Welcome
-        </span>
-        <span class="text-3xl font-extrabold tracking-tight text-white">
-          {{ name }}
-        </span>
+        <span class="text-3xl font-extrabold tracking-tight text-primary">Welcome </span>
+        <span class="text-3xl font-extrabold tracking-tight text-white">{{ name }}</span>
       </div>
       <p-card class="p-6">
         <ng-template pTemplate="header">
@@ -48,46 +39,74 @@ import { AuthService } from '../../shared/services/auth.service';
           <ng-template pTemplate="body" let-login>
             <tr>
               <td>
-                <img
-                  *ngIf="login.photo; else photoSkeleton"
-                  [src]="login.photo"
-                  alt="photo"
-                  class="w-12 h-12 rounded-full object-cover border"
-                />
+                <img *ngIf="login.photo; else photoSkeleton" [src]="login.photo" alt="photo" class="w-12 h-12 rounded-full object-cover border" />
                 <ng-template #photoSkeleton>
                   <p-skeleton shape="circle" size="3rem"></p-skeleton>
                 </ng-template>
               </td>
               <td>{{ login.name }}</td>
               <td>{{ login.lastName }}</td>
-              <td>{{ login.timestamp | date : 'short' }}</td>
+              <td>{{ login.timestamp | date:'short' }}</td>
               <td>{{ login.piName }}</td>
             </tr>
           </ng-template>
           <ng-template pTemplate="emptymessage">
             <tr>
-              <td colspan="5" class="text-center text-surface-500">
-                No login data available
-              </td>
+              <td colspan="5" class="text-center text-surface-500">No login data available</td>
             </tr>
           </ng-template>
         </p-table>
       </p-card>
-      <a routerLink="/auth/logout" class="text-primary hover:underline">
-        ← Logout
-      </a>
     </div>
   `,
+  styles: [`
+    :host ::ng-deep .p-card {
+      box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+      border-radius: 1rem;
+    }
+  `],
 })
 export class HomePage {
+  public navbarItems = [
+    {
+      id: 'dashboard-link',
+      icon: 'pi pi-home',
+      routerLink: '/home',
+    },
+    {
+      id: 'profile',
+      icon: 'pi pi-user',
+      routerLink: '/profile',
+    },
+  ];
+
   private _authService = inject(AuthService);
   public name = '';
-  logins = [];
+  logins = [
+  ];
 
   constructor() {
     effect(() => {
       this._authService.getProfile().then((profile) => {
         this.name = profile.name || 'User';
+        const isAdmin = Array.isArray(profile.groups) && profile.groups.includes('etsecure_admin');
+        this.navbarItems = [
+          {
+            id: 'dashboard-link',
+            icon: 'pi pi-home',
+            routerLink: '/home',
+          },
+          ...(isAdmin ? [{
+            id: 'settings-link',
+            icon: 'pi pi-cog',
+            routerLink: '/admin',
+          }] : []),
+          {
+            id: 'profile',
+            icon: 'pi pi-user',
+            routerLink: '/profile',
+          },
+        ];
       });
     });
   }

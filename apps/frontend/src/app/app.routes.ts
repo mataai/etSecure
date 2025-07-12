@@ -9,6 +9,7 @@ import { UsersListPage } from './pages/admin/user-list.page';
 import { RoomsListPage } from './pages/admin/room-list.page';
 import { UserDetailsPage } from './pages/admin/user-details.page';
 import { RoomDetailsPage } from './pages/admin/room-details.page';
+import { ProfilePage } from './pages/profile/profile.page';
 
 export const appRoutes: Routes = [
   { path: 'notfound', component: Notfound },
@@ -58,6 +59,7 @@ export const appRoutes: Routes = [
     canActivateChild: [authGuard()],
     children: [
       { path: 'home', component: HomePage },
+      { path: 'profile', component: ProfilePage },
       { path: '**', redirectTo: '/home', pathMatch: 'full' },
     ],
   },
