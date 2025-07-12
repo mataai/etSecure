@@ -1,19 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, inject, model } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardModule } from 'primeng/card';
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { SkeletonModule } from 'primeng/skeleton';
+import { AttendanceService } from '../../shared/services/attendences.service';
+import { Attendance } from '@etsecure/data-contracts';
+import { AttendancesListComponent } from '../../shared/components/attendances/attendances-list.component';
 
 @Component({
   selector: 'app-admin',
-  imports: [
-    CommonModule,
-    CardModule,
-    TableModule,
-    ButtonModule,
-    SkeletonModule,
-  ],
+  imports: [CommonModule, CardModule, AttendancesListComponent],
   template: `
     <div class="flex flex-col gap-8 max-w-5xl mx-auto py-8">
       <h1
@@ -60,59 +54,29 @@ import { SkeletonModule } from 'primeng/skeleton';
             <span class="text-xl font-bold">Recent Logins</span>
           </div>
         </ng-template>
-        <p-table [value]="logins" class="mt-4" [responsiveLayout]="'scroll'">
-          <ng-template pTemplate="header">
-            <tr>
-              <th>Photo</th>
-              <th>Name</th>
-              <th>Last Name</th>
-              <th>Timestamp</th>
-              <th>PI Name</th>
-            </tr>
-          </ng-template>
-          <ng-template pTemplate="body" let-login>
-            <tr>
-              <td>
-                <img
-                  *ngIf="login.photo; else photoSkeleton"
-                  [src]="login.photo"
-                  alt="photo"
-                  class="w-12 h-12 rounded-full object-cover border"
-                />
-                <ng-template #photoSkeleton>
-                  <p-skeleton shape="circle" size="3rem"></p-skeleton>
-                </ng-template>
-              </td>
-              <td>{{ login.name }}</td>
-              <td>{{ login.lastName }}</td>
-              <td>{{ login.timestamp | date : 'short' }}</td>
-              <td>{{ login.piName }}</td>
-            </tr>
-          </ng-template>
-          <ng-template pTemplate="emptymessage">
-            <tr>
-              <td colspan="5" class="text-center text-surface-500">
-                No login data available
-              </td>
-            </tr>
-          </ng-template>
-        </p-table>
+        <app-attendances-list [attendances]="logins()"> </app-attendances-list>
       </p-card>
     </div>
   `,
-  styles: [
-    `
-      // :host ::ng-deep .p-card {
-      //   box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
-      //   border-radius: 1rem;
-      // }
-    `,
-  ],
 })
 export class AdminPage {
   liveFeedConnected = false; // Set to true when backend is connected
-  logins = [
-    // Example data, replace with backend data
-    // { name: 'John', lastName: 'Doe', timestamp: new Date(), piName: 'PI-1', photo: 'https://randomuser.me/api/portraits/men/1.jpg' },
-  ];
+  logins = model<Attendance[]>([]);
+
+  private _attendanceService = inject(AttendanceService);
+
+  constructor() {
+    // Load attendances when component initializes
+    this._loadAttendances();
+  }
+
+  private async _loadAttendances() {
+    try {
+      const attendances = await this._attendanceService.getAllAttendances();
+      console.log('Loaded attendances:', attendances);
+      this.logins.set(attendances);
+    } catch (error) {
+      console.error('Failed to load attendances:', error);
+    }
+  }
 }

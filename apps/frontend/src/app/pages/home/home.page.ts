@@ -21,12 +21,12 @@ import { AuthService } from '../../shared/services/auth.service';
   template: `
     <div class="flex flex-col gap-8 max-w-5xl mx-auto py-8 mt-24">
       <div class="text-center mb-4">
-        <span class="text-3xl font-extrabold tracking-tight text-primary"
-          >Welcome
+        <span class="text-3xl font-extrabold tracking-tight text-primary">
+          Welcome
         </span>
-        <span class="text-3xl font-extrabold tracking-tight text-white">{{
-          name
-        }}</span>
+        <span class="text-3xl font-extrabold tracking-tight text-white">
+          {{ name }}
+        </span>
       </div>
       <p-card class="p-6">
         <ng-template pTemplate="header">
