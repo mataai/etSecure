@@ -99,20 +99,51 @@ export default async function (fastify: FastifyInstance) {
 
   fastify.post('/auth/bypass', 
     {preValidation: [authPreValidator]},
-    async function (req, res) {
-      const userId = req.user._id;
+    async function (request, reply) {
+      const userId = request.user._id;
+      const data = request.body as { roomId: string };
+
+      if (!data) {
+        return reply.code(400).send({ error: 'No data provided' });
+      }
+
+      if (!data.roomId) {
+        return reply.code(400).send({ error: 'roomId is required' });
+      }
       
       const user = await fastify.mongo.db
         .collection('users')
         .findOne({ _id: new ObjectId(userId) });
       
       if (!user) {
-        return res.code(400).send({ error: 'User not found' });
+        return reply.code(400).send({ error: 'User not found' });
       }
 
       if (user.bypassLeft <= 0) {
-        return res.code(403).send({ error: 'No bypasses left' });
+        return reply.code(403).send({ error: 'No bypasses left' });
       }
+
+      const room = await fastify.mongo.db
+        .collection('rooms')
+        .findOne({ _id: new ObjectId(data.roomId) });
+
+      if (!room) {
+        return reply.code(404).send({ error: 'Room not found' });
+      }
+
+      if (!room.users.includes(userId)) {
+        return reply.code(403).send({ error: 'User not a member of this group' });
+      }
+
+      const updatedUser = await fastify.mongo.db.collection('users').findOneAndUpdate(
+        { _id: new ObjectId(userId) },
+        { $inc: { bypassLeft: -1 } },
+        { returnDocument: 'after' }
+      );
+
+      reply.code(200).send({
+        message: 'Bypass used successfully',
+      });
 
   });
 }
