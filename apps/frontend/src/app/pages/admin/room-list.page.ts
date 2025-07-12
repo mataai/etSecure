@@ -10,6 +10,7 @@ import { Room } from '@etsecure/data-contracts';
 import { RoomFormComponent } from '../../shared/components/rooms/room-form.component';
 import { RoomsListComponent } from '../../shared/components/rooms/rooms-list.component';
 import { RoomsService } from '../../shared/services/rooms.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-rooms-list-page',
@@ -35,6 +36,7 @@ import { RoomsService } from '../../shared/services/rooms.service';
     </p-toolbar>
     <app-rooms-list
       [rooms]="this.rooms()"
+      (viewRoom)="this.openRoomDetails($event)"
       (createRoom)="this.createRoom()"
       (editRoom)="this.editRoom($event)"
       (deleteRoom)="this.deleteRoom($event)"
@@ -49,6 +51,7 @@ export class RoomsListPage implements OnInit {
   private _roomsService = inject(RoomsService);
   public rooms = this._roomsService.data;
   private messageService: MessageService = inject(MessageService);
+  private _router: Router = inject(Router);
   private confirmationService: ConfirmationService =
     inject(ConfirmationService);
   private _dialogService = inject(DialogService);
@@ -128,6 +131,10 @@ export class RoomsListPage implements OnInit {
         });
       },
     });
+  }
+
+  public openRoomDetails(room: Room) {
+    this._router.navigate(['admin', 'rooms', room._id]);
   }
 
   private async loadData() {

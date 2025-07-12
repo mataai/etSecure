@@ -80,6 +80,13 @@ import { Room } from '@etsecure/data-contracts';
           </td>
           <td>
             <p-button
+              icon="pi pi-eye"
+              class="mr-2"
+              [rounded]="true"
+              [outlined]="true"
+              (click)="viewRoom.emit(room)"
+            />
+            <p-button
               icon="pi pi-pencil"
               class="mr-2"
               [rounded]="true"
@@ -102,6 +109,7 @@ import { Room } from '@etsecure/data-contracts';
 export class RoomsListComponent {
   public selectedRooms?: Room[];
   rooms = input<Room[]>([]);
+  public viewRoom = output<Room>();
   public editRoom = output<Room>();
   public deleteRoom = output<Room>();
 

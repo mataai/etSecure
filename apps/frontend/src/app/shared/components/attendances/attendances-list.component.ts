@@ -1,4 +1,4 @@
-import { Component, input, ViewChild } from '@angular/core';
+import { Component, input, model, ViewChild } from '@angular/core';
 import { Table, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -7,6 +7,9 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { ChipModule } from 'primeng/chip';
 
 import { Attendance } from '@etsecure/data-contracts';
+import { CommonModule } from '@angular/common';
+import { DialogModule } from 'primeng/dialog';
+import { AttendancesDetailsDialog } from './attendance-details.dialog';
 
 @Component({
   selector: 'app-attendances-list',
@@ -17,6 +20,9 @@ import { Attendance } from '@etsecure/data-contracts';
     InputTextModule,
     InputIconModule,
     IconFieldModule,
+    CommonModule,
+    DialogModule,
+    AttendancesDetailsDialog,
   ],
   template: `
     <p-table
@@ -31,37 +37,51 @@ import { Attendance } from '@etsecure/data-contracts';
     >
       <ng-template #header>
         <tr>
-          <th style="width: 1rem"></th>
-          <th style="min-width: 4rem">ID</th>
-          <th pSortableColumn="user" style="min-width:12rem">
+          <th pSortableColumn="user">
             User
             <p-sortIcon field="user" />
           </th>
-          <th pSortableColumn="room" style="min-width: 12rem">
+          <th pSortableColumn="room">
             Room
             <p-sortIcon field="room" />
           </th>
-          <th pSortableColumn="timestamp" style="min-width: 8rem">
+          <th pSortableColumn="building">
+            Building
+            <p-sortIcon field="building" />
+          </th>
+          <th pSortableColumn="timestamp">
             Timestamp
             <p-sortIcon field="timestamp" />
           </th>
-          <th style="min-width: 12rem"></th>
         </tr>
       </ng-template>
       <ng-template #body let-attendance>
-        <tr>
-          <td style="width: 3rem"></td>
-          <td style="min-width: 12rem">{{ attendance._id }}</td>
-          <td style="min-width: 16rem">{{ attendance.userId }}</td>
-          <td style="min-width: 16rem">{{ attendance.roomId }}</td>
-          <td style="min-width: 16rem">{{ attendance.timestamp }}</td>
+        <tr (click)="openInfo(attendance)">
+          <td>{{ attendance.user.name }}</td>
+          <td>{{ attendance.room.name }}</td>
+          <td>{{ attendance.room.location }}</td>
+          <td>{{ attendance.timestamp | date : 'medium' }}</td>
         </tr>
       </ng-template>
     </p-table>
+
+    <app-attendances-details-dialog
+      [data]="selectedAttendance()"
+      (closeEvent)="selectedAttendance.set(null)"
+    ></app-attendances-details-dialog>
   `,
 })
 export class AttendancesListComponent {
   attendances = input<Attendance[]>([]);
 
+  selectedAttendance = model<Attendance | null>();
+
   @ViewChild('dt') dt!: Table;
+
+  public openInfo(attendance: Attendance) {
+    // Logic to open a dialog or modal with attendance details
+    console.log('Opening info for attendance:', attendance);
+
+    this.selectedAttendance.set(attendance);
+  }
 }

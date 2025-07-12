@@ -12,6 +12,13 @@ export class UsersService {
 
   public users = this._usersList.asReadonly();
 
+  public async getUserById(id: string) {
+    const user = await firstValueFrom(
+      this.httpClient.get<User>(environment.backendUrl + '/users/' + id)
+    );
+    return user;
+  }
+
   public async getUsers() {
     await firstValueFrom(
       this.httpClient.get<User[]>(environment.backendUrl + '/users')

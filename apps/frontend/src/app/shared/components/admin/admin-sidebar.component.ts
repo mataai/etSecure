@@ -29,35 +29,15 @@ export class AppAdminSidebar {
           icon: 'pi pi-fw pi-table',
           routerLink: ['/admin'],
         },
-      ],
-    },
-    {
-      label: 'Users',
-      items: [
         {
-          label: 'List',
+          label: 'Users',
           icon: 'pi pi-fw pi-users',
           routerLink: ['users'],
         },
-      ],
-    },
-    {
-      label: 'Rooms',
-      items: [
         {
-          label: 'List',
+          label: 'Rooms',
           icon: 'pi pi-fw pi-home',
           routerLink: ['rooms'],
-        },
-      ],
-    },
-    {
-      label: 'Logs',
-      items: [
-        {
-          label: 'List',
-          icon: 'pi pi-fw pi-list',
-          routerLink: ['logs'],
         },
       ],
     },
