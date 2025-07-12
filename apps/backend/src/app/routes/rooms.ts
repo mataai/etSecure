@@ -6,44 +6,50 @@ import {
   RoomUpsertRequest,
   CreateAttendanceRequest,
   RoomAccessUpdateRequest,
+  Room,
 } from '@etsecure/data-contracts';
+import { UserModel } from '../models/user.model';
+import { RoomModel } from '../models/room.model';
 
 const roomsRoutes: FastifyPluginAsync = async (fastify) => {
+  const usersCollection = fastify.mongo.db.collection<UserModel>('users');
+  const roomCollection = fastify.mongo.db.collection<RoomModel>('rooms');
   // GET /rooms - Get all rooms
   fastify.get('/rooms', async (request, reply) => {
-    const rooms = await fastify.mongo.db.collection('rooms').find().toArray();
+    const dbRooms = await roomCollection.find().toArray();
 
-    const roomUserIds = rooms
-      .flatMap((room) => room?.users as ObjectId)
-      .filter(Boolean);
-    const users = await fastify.mongo.db
-      .collection('users')
+    const roomUserIds = dbRooms.flatMap((room) => room?.users).filter(Boolean);
+    const users = await usersCollection
       .find({
         _id: { $in: roomUserIds || [] },
       })
       .toArray();
 
-    rooms.forEach((room) => {
+    const newRooms: Room[] = dbRooms.map((room) => {
       if (room.users) {
-        room.users = room.users
+        const newRoomUsers = room.users
           .map((userId) => {
             const user = users.find(
               (u) => u._id.toString() === userId.toString()
             );
-            return { id: user._id, name: user?.name };
+            return { id: user._id.toString(), name: user?.name };
           })
           .filter(Boolean);
+        return {
+          ...room,
+          _id: room._id.toString(),
+          users: newRoomUsers,
+        } as Room;
       }
+      return room as unknown as Room;
     });
-    return reply.code(200).send(rooms);
+    return reply.code(200).send(newRooms);
   });
 
   // GET /rooms/:id - Get a single room
   fastify.get('/rooms/:id', async (request, reply) => {
     const { id } = request.params as { id: string };
-    const room = await fastify.mongo.db
-      .collection('rooms')
-      .findOne({ _id: new ObjectId(id) });
+    const room = await roomCollection.findOne({ _id: new ObjectId(id) });
     if (!room) {
       return reply.code(404).send({ error: 'room not found' });
     }
@@ -74,9 +80,11 @@ const roomsRoutes: FastifyPluginAsync = async (fastify) => {
           .code(400)
           .send({ error: 'Name and location are required' });
       }
-      const result = await fastify.mongo.db
-        .collection('rooms')
-        .insertOne(roomData);
+
+      const result = await roomCollection.insertOne({
+        ...roomData,
+        users: [],
+      } as RoomModel);
       return reply.code(201).send({ id: result.insertedId, ...roomData });
     }
   );
@@ -116,9 +124,10 @@ const roomsRoutes: FastifyPluginAsync = async (fastify) => {
         fastify.log.info(`Published status ${roomData.status} for room ${id}`);
       }
 
-      const result = await fastify.mongo.db
-        .collection('rooms')
-        .updateOne({ _id: new ObjectId(id) }, { $set: roomData });
+      const result = await roomCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: roomData }
+      );
       if (result.matchedCount === 0) {
         return reply.code(404).send({ error: 'room not found' });
       }
@@ -137,9 +146,7 @@ const roomsRoutes: FastifyPluginAsync = async (fastify) => {
     },
     async (request, reply) => {
       const { id } = request.params as { id: string };
-      const result = await fastify.mongo.db
-        .collection('rooms')
-        .deleteOne({ _id: new ObjectId(id) });
+      const result = await roomCollection.deleteOne({ _id: new ObjectId(id) });
       if (result.deletedCount === 0) {
         return reply.code(404).send({ error: 'room not found' });
       }
@@ -147,11 +154,10 @@ const roomsRoutes: FastifyPluginAsync = async (fastify) => {
     }
   );
 
+  // Get users that have access to a room
   fastify.get('/rooms/:id/users', async (request, reply) => {
     const { id } = request.params as { id: string };
-    const room = await fastify.mongo.db
-      .collection('rooms')
-      .findOne({ _id: new ObjectId(id) });
+    const room = await roomCollection.findOne({ _id: new ObjectId(id) });
     if (!room) {
       return reply.code(404).send({ error: 'room not found' });
     }
@@ -178,9 +184,7 @@ const roomsRoutes: FastifyPluginAsync = async (fastify) => {
         return reply.code(400).send({ error: 'User ID is required' });
       }
 
-      const room = await fastify.mongo.db
-        .collection('rooms')
-        .findOne({ _id: new ObjectId(id) });
+      const room = await roomCollection.findOne({ _id: new ObjectId(id) });
       if (!room) {
         return reply.code(404).send({ error: 'room not found' });
       }
@@ -199,12 +203,10 @@ const roomsRoutes: FastifyPluginAsync = async (fastify) => {
 
       // Add new users to room and ensure no duplicates
 
-      await fastify.mongo.db
-        .collection('rooms')
-        .updateOne(
-          { _id: new ObjectId(id) },
-          { $set: { users: users.map((user) => user._id) } }
-        );
+      await roomCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: { users: users.map((user) => user._id) } }
+      );
 
       return reply
         .code(200)
@@ -212,6 +214,7 @@ const roomsRoutes: FastifyPluginAsync = async (fastify) => {
     }
   );
 
+  // Get attendances for a room
   fastify.get(
     '/rooms/:id/attendances',
     {
@@ -226,9 +229,7 @@ const roomsRoutes: FastifyPluginAsync = async (fastify) => {
 
       const roomId = new ObjectId(id);
 
-      const room = await fastify.mongo.db
-        .collection('rooms')
-        .findOne({ _id: roomId });
+      const room = await roomCollection.findOne({ _id: roomId });
       if (!room) {
         return reply.code(404).send({ error: 'Room not found' });
       }
@@ -264,6 +265,7 @@ const roomsRoutes: FastifyPluginAsync = async (fastify) => {
     }
   );
 
+  // Get all attendances
   fastify.get(
     '/rooms/attendances',
     {
@@ -302,6 +304,7 @@ const roomsRoutes: FastifyPluginAsync = async (fastify) => {
     }
   );
 
+  // Record attendance for a room
   fastify.post(
     '/rooms/:id/attendances',
     {
@@ -315,9 +318,7 @@ const roomsRoutes: FastifyPluginAsync = async (fastify) => {
         return reply.code(400).send({ error: 'User ID is required' });
       }
 
-      const room = await fastify.mongo.db
-        .collection('rooms')
-        .findOne({ _id: new ObjectId(id) });
+      const room = await roomCollection.findOne({ _id: new ObjectId(id) });
       if (!room) {
         return reply.code(404).send({ error: 'room not found' });
       }
