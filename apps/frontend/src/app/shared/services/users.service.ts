@@ -43,7 +43,7 @@ export class UsersService {
     return;
   }
 
-  public async updateUser(id: User["_id"], user: UserUpsertRequest) {
+  public async updateUser(id: User['_id'], user: UserUpsertRequest) {
     try {
       await firstValueFrom(
         this.httpClient.put<{ message: string }>(
@@ -75,6 +75,15 @@ export class UsersService {
     }
 
     return;
+  }
+
+  public async addBypassToUser(user: User) {
+    await firstValueFrom(
+      this.httpClient.post<{ message: string }>(
+        environment.backendUrl + '/users/' + user._id + '/bypass',
+        {}
+      )
+    );
   }
 
   public async deleteUser(user: User) {

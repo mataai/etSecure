@@ -12,7 +12,8 @@ import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputText } from 'primeng/inputtext';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { UsersService } from '../../services/users.service';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 interface GroupOption {
   name: string;
   value: string;
@@ -24,46 +25,49 @@ interface GroupOption {
     MultiSelectModule,
     FloatLabelModule,
     ButtonModule,
+    ConfirmDialogModule,
     InputText,
   ],
-  template: ` <form class="flex flex-col gap-4 mt-3" [formGroup]="formGroup">
-    <div class="flex flex-row gap-4 my-2">
-      <div>
-        <p-floatlabel>
-          <label for="name">Name</label>
-          <input
-            type="text"
-            pInputText
-            id="name"
-            [formControl]="this.formGroup.controls.name"
-            required
-          />
-        </p-floatlabel>
-        @if(this.formGroup.controls.name.touched) { @if
-        (this.formGroup.controls.name.errors?.['required']){
-        <small class="text-red-500"> Name is required. </small>
-        }}
+  providers: [ConfirmationService],
+  template: `
+    <form class="flex flex-col gap-4 mt-3" [formGroup]="formGroup">
+      <div class="flex flex-row gap-4 my-2">
+        <div>
+          <p-floatlabel>
+            <label for="name">Name</label>
+            <input
+              type="text"
+              pInputText
+              id="name"
+              [formControl]="this.formGroup.controls.name"
+              required
+            />
+          </p-floatlabel>
+          @if(this.formGroup.controls.name.touched) { @if
+          (this.formGroup.controls.name.errors?.['required']){
+          <small class="text-red-500"> Name is required. </small>
+          }}
+        </div>
+        <div>
+          <p-floatlabel>
+            <label for="email">Email</label>
+            <input
+              type="email"
+              pInputText
+              id="email"
+              required
+              [formControl]="formGroup.controls.email"
+            />
+          </p-floatlabel>
+          @if (this.formGroup.controls.email.touched) { @if
+          (this.formGroup.controls.email.errors?.['required']) {
+          <small class="text-red-500">Email is required.</small>
+          } @if (this.formGroup.controls.email.errors?.['email']) {
+          <small class="text-red-500">Invalid email address.</small>
+          } }
+        </div>
       </div>
-      <div>
-        <p-floatlabel>
-          <label for="email">Email</label>
-          <input
-            type="email"
-            pInputText
-            id="email"
-            required
-            [formControl]="formGroup.controls.email"
-          />
-        </p-floatlabel>
-        @if (this.formGroup.controls.email.touched) { @if
-        (this.formGroup.controls.email.errors?.['required']) {
-        <small class="text-red-500">Email is required.</small>
-        } @if (this.formGroup.controls.email.errors?.['email']) {
-        <small class="text-red-500">Invalid email address.</small>
-        } }
-      </div>
-    </div>
-    <!-- <div class="flex flex-row gap-4 my-2">
+      <!-- <div class="flex flex-row gap-4 my-2">
       <div>
         <p-floatlabel>
           <label for="groups" class="block font-bold mb-3"> Groups </label>
@@ -78,20 +82,28 @@ interface GroupOption {
         </p-floatlabel>
       </div>
     </div> -->
-    <div class="flex justify-end">
-      <p-button
-        label="Submit"
-        [disabled]="formGroup.invalid"
-        (click)="this.submit()"
-      />
-      <p-button
-        label="Cancel"
-        class="ml-2"
-        [outlined]="true"
-        (click)="this.close()"
-      />
-    </div>
-  </form>`,
+      <div class="flex justify-end">
+        <p-button
+          class="mr-auto"
+          label="Add Bypass"
+          (click)="this.addBypass()"
+        />
+        <p-button
+          label="Submit"
+          [disabled]="formGroup.invalid"
+          (click)="this.submit()"
+        />
+        <p-button
+          label="Cancel"
+          class="ml-2"
+          [outlined]="true"
+          (click)="this.close()"
+        />
+      </div>
+    </form>
+
+    <p-confirmdialog [style]="{ width: '450px' }" />
+  `,
 })
 export class UserFormComponent {
   public user = input<User | null>(
@@ -100,6 +112,8 @@ export class UserFormComponent {
   private dialogRef = inject(DynamicDialogRef);
   private _userService = inject(UsersService);
   private _messageService = inject(MessageService);
+  private _confirmationService: ConfirmationService =
+    inject(ConfirmationService);
   // TODO : Fetch groups from the backend
   public groups: GroupOption[] = [{ name: 'Admin', value: 'etsecure-admin' }];
 
@@ -138,7 +152,7 @@ export class UserFormComponent {
       username: this.formGroup.value.email?.split('@')[0] || '',
       // groups: this.formGroup.value.groups?.map((x) => x.value) || [],
     };
-    const id = this.user()?.authentik_id;
+    const id = this.user()?._id;
     const resp = !id
       ? this._userService.createUser(user)
       : this._userService.updateUser(id, user);
@@ -171,6 +185,55 @@ export class UserFormComponent {
           });
         }
       });
+  }
+
+  public addBypass() {
+    if (!this.user()) {
+      this._messageService.add({
+        severity: 'warn',
+        summary: 'No user selected',
+        detail: 'Please select a user to add a bypass.',
+        life: 3000,
+      });
+      return;
+    }
+
+    this._confirmationService.confirm({
+      message: `Are you sure you want to add a bypass for user ${
+        this.user()?.name
+      }?`,
+      header: 'Confirm',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this._userService
+          .addBypassToUser(this.user()!)
+          .then(() => {
+            this._messageService.add({
+              severity: 'success',
+              summary: 'Bypass added',
+              detail: 'Bypass added successfully.',
+              life: 3000,
+            });
+          })
+          .catch((err) => {
+            console.error('Error adding bypass:', err);
+            this._messageService.add({
+              severity: 'error',
+              summary: 'Failed to add bypass',
+              detail: 'Please try again later.',
+              life: 3000,
+            });
+          });
+      },
+      reject: () => {
+        this._messageService.add({
+          severity: 'info',
+          summary: 'Bypass addition cancelled',
+          detail: 'No changes were made.',
+          life: 3000,
+        });
+      },
+    });
   }
 
   public close(data: UserUpsertRequest | null = null) {

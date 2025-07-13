@@ -80,9 +80,10 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
 
       const { pk } = await response.json();
 
-      const userData = {
+      const userData: Omit<UserModel, '_id'> = {
         ...data,
         authentik_id: pk.toString(), // Store the authentik UID
+        bypassLeft: 0,
       };
 
       const dbres = usersCollection.insertOne(userData as UserModel);
@@ -119,6 +120,8 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
           error: 'At least one field (name, email, groups) must be provided',
         });
       }
+
+      delete userData['bypassLeft'];
 
       const result = await usersCollection.updateOne(
         { _id: new ObjectId(id) },
@@ -192,7 +195,7 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
       }
 
       if (
-        request.user._id !== id &&
+        request.user._id.toString() !== id &&
         !request.user.groups.includes('etsecure_admin')
       ) {
         return reply.code(403).send({
@@ -221,7 +224,7 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
       }
 
       if (
-        request.user._id !== id &&
+        request.user._id.toString() !== id &&
         !request.user.groups.includes('etsecure_admin')
       ) {
         return reply.code(403).send({
@@ -263,6 +266,42 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
         .toArray();
 
       return reply.code(200).send(attendances);
+    }
+  );
+
+  // POST /users/:id/bypass - Add a bypass for user
+  fastify.post(
+    '/users/:id/bypass',
+    {
+      preValidation: [authPreValidator, groupPreValidator(['etsecure_admin'])],
+    },
+    async (request, reply) => {
+      const { id } = request.params as { id: string };
+
+      if (!id) {
+        return reply.code(400).send({ error: 'User ID is required' });
+      }
+
+      const user = await usersCollection.findOne({ _id: new ObjectId(id) });
+      if (!user) {
+        return reply.code(404).send({ error: 'User not found' });
+      }
+
+      try {
+        await usersCollection.updateOne(
+          { _id: new ObjectId(id) },
+          { $inc: { bypassLeft: 1 } }
+        );
+      } catch (error) {
+        console.error('Error updating bypass count:', error);
+        return reply
+          .code(500)
+          .send({ error: 'Failed to update bypass count in database' });
+      }
+
+      return reply
+        .code(200)
+        .send({ message: `Bypass added to ${user.name} sucessfully` });
     }
   );
 };
