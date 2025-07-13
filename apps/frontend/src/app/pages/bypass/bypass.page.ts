@@ -18,8 +18,8 @@ import { ToastModule } from 'primeng/toast';
     >
       <div class="text-center mb-4">
         <span class="text-3xl font-extrabold tracking-tight text-primary">
-          Backup Unlock Request</span
-        >
+          Backup Unlock Request
+        </span>
       </div>
       <form
         (ngSubmit)="submitBypass()"
@@ -37,7 +37,7 @@ import { ToastModule } from 'primeng/toast';
             [(ngModel)]="selectedRoom"
             [ngModelOptions]="{ standalone: true }"
             optionLabel="name"
-            placeholder="Select a City"
+            placeholder="Select a Room"
             class="w-full md:w-56"
           />
         </div>
@@ -50,20 +50,15 @@ import { ToastModule } from 'primeng/toast';
         </button>
         @if (status !== 'idle') {
         <div class="text-center mt-2 min-h-[1.5rem]">
-          @switch (status) {
-            @case ('processing') {
-            <span class="text-surface-500"> Processing... </span>
-            } @case ('success') {
-            <span class="text-green-500"> Unlock request sent! </span>
-            }
-            @case ('error') {
-              @if( errorMessage) {
-              <span class="text-red-500">{{ errorMessage }}</span>
-              } @else {
-              <span class="text-red-500"> Failed to send request. </span>
-              }
-            }
-          }
+          @switch (status) { @case ('processing') {
+          <span class="text-surface-500"> Processing... </span>
+          } @case ('success') {
+          <span class="text-green-500"> Unlock request sent! </span>
+          } @case ('error') { @if( errorMessage) {
+          <span class="text-red-500">{{ errorMessage }}</span>
+          } @else {
+          <span class="text-red-500"> Failed to send request. </span>
+          } } }
         </div>
         }
       </form>
