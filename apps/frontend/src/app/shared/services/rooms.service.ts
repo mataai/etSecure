@@ -71,4 +71,10 @@ export class RoomsService extends Service<Room> {
       this.getRooms();
     });
   }
+
+  public async requestBypass(roomId: string) {
+    await firstValueFrom(
+      this._http.post(`${environment.backendUrl}/auth/bypass`, { roomId })
+    );
+  }
 }
