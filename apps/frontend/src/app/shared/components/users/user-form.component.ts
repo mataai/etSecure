@@ -152,7 +152,7 @@ export class UserFormComponent {
       username: this.formGroup.value.email?.split('@')[0] || '',
       // groups: this.formGroup.value.groups?.map((x) => x.value) || [],
     };
-    const id = this.user()?.authentik_id;
+    const id = this.user()?._id;
     const resp = !id
       ? this._userService.createUser(user)
       : this._userService.updateUser(id, user);
