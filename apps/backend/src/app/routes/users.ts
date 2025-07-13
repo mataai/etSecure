@@ -14,7 +14,7 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
   // GET /users - Get all users
   fastify.get(
     '/users',
-    //{ preValidation: [authPreValidator, groupPreValidator(["etsecure_admin"])] },
+    { preValidation: [authPreValidator, groupPreValidator(["etsecure_admin"])] },
     async (request, reply) => {
       const users = await usersCollection.find().toArray();
       return reply.send(users);
