@@ -56,7 +56,24 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
             ${{ env.REGISTRY }}/${{ github.repository_owner }}/etsecure_frontend
 
+      - name: Check if backend build exists
+        id: has_backend
+        run: |
+          if [ -d dist/apps/backend ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+      - name: Check if frontend build exists
+        id: has_frontend
+        run: |
+          if [ -d dist/apps/backend ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
       - name: Build and push Docker backend image
+        if: steps.has_backend.outputs.exists == 'true'
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -64,10 +81,10 @@ jobs:
           push: true
           tags: |
             ghcr.io/${{ github.repository_owner }}/etsecure_backend:latest
-            ghcr.io/${{ github.repository_owner }}/etsecure_backend:${{ github.sha }}
           labels: ${{ steps.meta_backend.outputs.labels }}
 
       - name: Build and push Docker frontend image
+        if: steps.has_frontend.outputs.exists == 'true'
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -75,5 +92,4 @@ jobs:
           push: true
           tags: |
             ghcr.io/${{ github.repository_owner }}/etsecure_frontend:latest
-            ghcr.io/${{ github.repository_owner }}/etsecure_frontend:${{ github.sha }}
           labels: ${{ steps.meta_frontend.outputs.labels }}
