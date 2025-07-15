@@ -5,10 +5,10 @@ WORKDIR /usr/share/nginx/html
 RUN rm -rf ./*
 
 # Copy custom Nginx config
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY apps/frontend/nginx.conf /etc/nginx/nginx.conf
 
 # Copie le build du frontend depuis l'étape de build
-COPY dist/apps/frontend/browser .
+COPY . .
 
 EXPOSE 80
 
