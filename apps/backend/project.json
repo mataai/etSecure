@@ -57,7 +57,11 @@
     },
     "docker-build": {
       "dependsOn": ["build"],
-      "command": "docker build -f apps/backend/Dockerfile . -t etsecure-backend"
+      "command": "docker build -f apps/backend/Dockerfile . -t ghcr.io/mataai/etsecure_frontend:latest"
+    },
+    "docker-publish": {
+      "dependsOn": ["docker-build"],
+      "command": "docker push ghcr.io/mataai/etsecure_backend:latest"
     }
   }
 }
