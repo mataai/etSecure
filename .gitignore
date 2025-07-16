@@ -49,6 +49,7 @@ Thumbs.db
 
 /uploads/*
 
+venv
 docker-services/traefik/certs/*
 docker-services/traefik/**/*.log
 vite.config.*.timestamp*

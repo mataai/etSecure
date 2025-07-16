@@ -4,6 +4,8 @@ services:
     image: rabbitmq:3-management
     environment:
       RABBITMQ_LOAD_DEFINITIONS: /etc/rabbitmq/definitions.json
+    networks:
+      - traefik
     ports:
       - '5672:5672'
       - '15672:15672'
@@ -19,3 +21,7 @@ services:
     volumes:
       - ./var-log:/var/log/rabbitmq
       - ./rabbitmq:/etc/rabbitmq/
+
+networks:
+  traefik:
+    external: true
