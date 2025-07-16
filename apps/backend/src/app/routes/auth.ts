@@ -22,7 +22,7 @@ export default async function (fastify: FastifyInstance) {
           return res.status(401).send({ error: 'Unauthorized' });
         }
         console.log(`Request received: ${req.method} ${req.url}`);
-        
+
         res.redirect(uri);
       }
     );
@@ -58,49 +58,53 @@ export default async function (fastify: FastifyInstance) {
     }
   });
 
-  fastify.post('/auth/picture', {preValidation: [authPreValidator]}, async function (req, res) {
+  fastify.post(
+    '/auth/picture',
+    { preValidation: [authPreValidator] },
+    async function (req, res) {
+      const data = await req.file();
 
-    const data = await req.file();
+      if (!data) {
+        console.log(req);
+        return res.status(400).send({ error: 'No file uploaded' });
+      }
 
-    if (!data) {
-      console.log(req);
-      return res.status(400).send({ error: 'No file uploaded' });
+      const file = data.file;
+
+      if (!file) {
+        return res.status(400).send({ error: 'File upload failed' });
+      }
+
+      fs.mkdirSync('./uploads', { recursive: true });
+
+      const savePath = `./uploads/${req.user.sub}.jpg`;
+      const writeStream = fs.createWriteStream(savePath);
+
+      // Use a Promise to wait for the stream to finish
+      await new Promise<void>((resolve, reject) => {
+        file.pipe(writeStream);
+
+        writeStream.on('finish', resolve);
+        writeStream.on('error', reject);
+      }).catch((err) => {
+        console.error('Error writing file:', err);
+        return res.status(500).send({ error: 'Failed to save file' });
+      });
+
+      writeStream.on('error', (err) => {
+        console.error('Error writing file:', err);
+        return res.status(500).send({ error: 'Failed to save file' });
+      });
+
+      return res.status(200).send({
+        message: 'File uploaded successfully',
+      });
     }
+  );
 
-    const file = data.file;
-
-    if (!file) {
-      return res.status(400).send({ error: 'File upload failed' });
-    }
-
-    fs.mkdirSync('./uploads', { recursive: true });
-
-    const savePath = `./uploads/${req.user.sub}.jpg`;
-    const writeStream = fs.createWriteStream(savePath);
-
-    // Use a Promise to wait for the stream to finish
-    await new Promise<void>((resolve, reject) => {
-      file.pipe(writeStream);
-
-      writeStream.on('finish', resolve);
-      writeStream.on('error', reject);
-    }).catch((err) => {
-      console.error('Error writing file:', err);
-      return res.status(500).send({ error: 'Failed to save file' });
-    });
-
-    writeStream.on('error', (err) => {
-      console.error('Error writing file:', err);
-      return res.status(500).send({ error: 'Failed to save file' });
-    });
-
-    return res.status(200).send({
-      message: 'File uploaded successfully',
-    });
-  });
-
-  fastify.post('/auth/bypass', 
-    {preValidation: [authPreValidator]},
+  fastify.post(
+    '/auth/bypass',
+    { preValidation: [authPreValidator] },
     async function (request, reply) {
       const userId = request.user._id;
       const data = request.body as { roomId: string };
@@ -112,17 +116,19 @@ export default async function (fastify: FastifyInstance) {
       if (!data.roomId) {
         return reply.code(400).send({ error: 'roomId is required' });
       }
-      
+
       const user = await fastify.mongo.db
         .collection('users')
         .findOne({ _id: new ObjectId(userId) });
-      
+
       if (!user) {
         return reply.code(400).send({ error: 'User not found' });
       }
 
       if (user.bypassLeft <= 0 || user.bypassLeft === undefined) {
-        return reply.code(403).send({ error: 'No bypasses left, Contact Admin' });
+        return reply
+          .code(403)
+          .send({ error: 'No bypasses left, Contact Admin' });
       }
 
       const room = await fastify.mongo.db
@@ -130,18 +136,21 @@ export default async function (fastify: FastifyInstance) {
         .findOne({
           _id: new ObjectId(data.roomId),
           users: new ObjectId(userId), // ensure this is also ObjectId
-      });
-
+        });
 
       if (!room) {
-        return reply.code(404).send({ error: 'Room not found or User not in room' });
+        return reply
+          .code(404)
+          .send({ error: 'Room not found or User not in room' });
       }
 
-      const updatedUser = await fastify.mongo.db.collection<UserModel>('users').findOneAndUpdate(
-        { _id: new ObjectId(userId) },
-        { $inc: { bypassLeft: -1 } },
-        { returnDocument: 'after' }
-      );
+      const updatedUser = await fastify.mongo.db
+        .collection<UserModel>('users')
+        .findOneAndUpdate(
+          { _id: new ObjectId(userId) },
+          { $inc: { bypassLeft: -1 } },
+          { returnDocument: 'after' }
+        );
 
       if (!updatedUser) {
         return reply.code(500).send({ error: 'Failed to update user' });
@@ -149,9 +158,16 @@ export default async function (fastify: FastifyInstance) {
 
       fastify.mqttClient.publish(`rooms/${data.roomId}/command`, 'unlock');
 
+      fastify.mongo.db.collection('attendances').insertOne({
+        userId: new ObjectId(userId),
+        roomId: new ObjectId(data.roomId),
+        timestamp: new Date(),
+        type: 'bypass',
+      });
+
       reply.code(200).send({
         message: 'Bypass used successfully',
       });
-
-  });
+    }
+  );
 }
