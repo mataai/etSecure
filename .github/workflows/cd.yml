@@ -30,7 +30,7 @@ jobs:
           workflow: ${{ github.event.workflow_run.workflow_id }}
           workflow_conclusion: success
           name: etsecure-dist
-          path: dist/apps/
+          path: .
           github_token: ${{secrets.GITHUB_TOKEN}}
 
       - name: Setup Node and install deps

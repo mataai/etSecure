@@ -1,8 +1,10 @@
-FROM node:lts-alpine AS build
+FROM node:lts-alpine
 
 WORKDIR /app
 
-COPY . .
+COPY ./dist/apps/backend .
+COPY ./package.json .
+COPY ./package-lock.json .
 
 # Install only production dependencies
 RUN npm ci --omit=dev
