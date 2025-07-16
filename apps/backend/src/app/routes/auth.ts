@@ -5,6 +5,8 @@ import { authPreValidator } from '../request-modifiers/auth.pre-validator';
 import { ObjectId } from 'mongodb';
 import { RoomModel } from '../models/room.model';
 import { UserModel } from '../models/user.model';
+import { RoomUnlockRequest } from '@etsecure/data-contracts';
+import { AttendanceModel } from '../models/attendance.model';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -13,6 +15,11 @@ declare module 'fastify' {
 }
 
 export default async function (fastify: FastifyInstance) {
+  const usersCollection = fastify.mongo.db.collection<UserModel>('users');
+  const roomsCollection = fastify.mongo.db.collection<RoomModel>('rooms');
+  const attendancesCollection =
+    fastify.mongo.db.collection<AttendanceModel>('attendances');
+
   fastify.get('/auth/login', async function (req, res) {
     fastify.customOauth2.generateAuthorizationUri(
       req,
@@ -117,9 +124,7 @@ export default async function (fastify: FastifyInstance) {
         return reply.code(400).send({ error: 'roomId is required' });
       }
 
-      const user = await fastify.mongo.db
-        .collection('users')
-        .findOne({ _id: new ObjectId(userId) });
+      const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
 
       if (!user) {
         return reply.code(400).send({ error: 'User not found' });
@@ -131,12 +136,10 @@ export default async function (fastify: FastifyInstance) {
           .send({ error: 'No bypasses left, Contact Admin' });
       }
 
-      const room = await fastify.mongo.db
-        .collection<RoomModel>('rooms')
-        .findOne({
-          _id: new ObjectId(data.roomId),
-          users: new ObjectId(userId), // ensure this is also ObjectId
-        });
+      const room = await roomsCollection.findOne({
+        _id: new ObjectId(data.roomId),
+        users: new ObjectId(userId), // ensure this is also ObjectId
+      });
 
       if (!room) {
         return reply
@@ -144,13 +147,11 @@ export default async function (fastify: FastifyInstance) {
           .send({ error: 'Room not found or User not in room' });
       }
 
-      const updatedUser = await fastify.mongo.db
-        .collection<UserModel>('users')
-        .findOneAndUpdate(
-          { _id: new ObjectId(userId) },
-          { $inc: { bypassLeft: -1 } },
-          { returnDocument: 'after' }
-        );
+      const updatedUser = await usersCollection.findOneAndUpdate(
+        { _id: new ObjectId(userId) },
+        { $inc: { bypassLeft: -1 } },
+        { returnDocument: 'after' }
+      );
 
       if (!updatedUser) {
         return reply.code(500).send({ error: 'Failed to update user' });
@@ -158,16 +159,76 @@ export default async function (fastify: FastifyInstance) {
 
       fastify.mqttClient.publish(`rooms/${data.roomId}/command`, 'unlock');
 
-      fastify.mongo.db.collection('attendances').insertOne({
+      const attendance: Omit<AttendanceModel, '_id'> = {
         userId: new ObjectId(userId),
         roomId: new ObjectId(data.roomId),
         timestamp: new Date(),
         type: 'bypass',
-      });
+      };
 
-      reply.code(200).send({
-        message: 'Bypass used successfully',
+      try {
+        attendancesCollection.insertOne(attendance as AttendanceModel);
+
+        reply.code(200).send({
+          message: 'Bypass used successfully',
+        });
+      } catch (error) {
+        console.error('Error inserting attendance:', error);
+        reply.code(500).send({ error: 'Failed to record attendance' });
+      }
+    }
+  );
+
+  fastify.post(
+    '/auth/request-open',
+    // { preValidation: [authPreValidator, groupPreValidator(['etsecure_ai'])] },
+    async function (request, reply) {
+      const data = request.body as RoomUnlockRequest;
+      if (!data || !data.roomId || !data.userId || !data.timestamp) {
+        return reply
+          .code(400)
+          .send({ error: 'roomId, userId, and timestamp are required' });
+      }
+
+      const room = await roomsCollection.findOne({
+        _id: new ObjectId(data.roomId),
       });
+      if (!room) {
+        return reply.code(404).send({ error: 'Room not found' });
+      }
+
+      const user = await usersCollection.findOne({
+        _id: new ObjectId(data.userId),
+      });
+      if (!user) {
+        return reply.code(404).send({ error: 'User not found' });
+      }
+
+      const isUserInRoom = room.users.includes(user._id);
+      if (!isUserInRoom) {
+        return reply.code(403).send({ error: 'User is not in the room' });
+      }
+      if (fastify.mqttClient?.connected) {
+        fastify.mqttClient.publish(`rooms/${data.roomId}/command`, 'unlock');
+      } else {
+        console.error('Unlock command failed: MQTT client not connected');
+      }
+      const attendance: Omit<AttendanceModel, '_id'> = {
+        userId: new ObjectId(data.userId),
+        roomId: new ObjectId(data.roomId),
+        timestamp: data.timestamp,
+        type: 'unlock',
+        // image: data.image, // Assuming image is a Buffer
+      };
+
+      try {
+        await attendancesCollection.insertOne(attendance as AttendanceModel);
+      } catch (error) {
+        console.error('Error inserting attendance:', error);
+        reply.code(500).send({ error: 'Failed to record attendance' });
+      }
+
+      reply.code(200).send({ message: 'Unlock command sent' });
     }
   );
 }

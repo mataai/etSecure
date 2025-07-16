@@ -1,38 +1,31 @@
+from sqlite3 import Date
 import socketio
 import face_recognition
 import cv2
 import numpy as np
 import pickle
-
+import requests
 
 io = socketio.Client()
-
 io.connect("http://laptop-mat:3000")
 
+
 cv_scaler = 4  # Scale down the image to increase performance
-data = {
-    "encodings": [],
-    "names": [],
-}
-# print("[INFO] loading encodings...")
-# with open("encodings.pickle", "rb") as f:
-#     data = pickle.loads(f.read())
+print("[INFO] loading encodings...")
+with open("encodings.pickle", "rb") as f:
+    data = pickle.loads(f.read())
 known_face_encodings = data["encodings"]
 known_face_names = data["names"]
 
 face_locations = []
 face_encodings = []
-face_names = []
-# List of names that will trigger the GPIO pin
-authorized_names = [
-    "john",
-    "alice",
-    "bob",
-]  # Replace with names you wish to authorise THIS IS CASE-SENSITIVE
+faces = []
+
 
 @io.on("connect")
 def on_connect():
     print("Connected to the server.")
+
 
 @io.on("message")
 def catch_all(event):
@@ -40,11 +33,12 @@ def catch_all(event):
     nparr = np.frombuffer(event, np.uint8)
     # Decode the NumPy array as a JPEG image
     frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+
     process_frame(frame)
 
 
 def process_frame(frame):
-    global face_locations, face_encodings, face_names
+    global face_locations, face_encodings, faces
 
     # Resize the frame using cv_scaler to increase performance (less pixels processed, less time spent)
     resized_frame = cv2.resize(frame, (0, 0), fx=(1 / cv_scaler), fy=(1 / cv_scaler))
@@ -58,8 +52,7 @@ def process_frame(frame):
         rgb_resized_frame, face_locations, model="large"
     )
 
-    face_names = []
-    authorized_face_detected = False
+    faces = []
 
     for face_encoding in face_encodings:
         # See if the face is a match for the known face(s)
@@ -74,16 +67,25 @@ def process_frame(frame):
         if matches[best_match_index]:
             name = known_face_names[best_match_index]
             # Check if the detected face is in our authorized list
-            if name in authorized_names:
-                authorized_face_detected = True
-        face_names.append(name)
+            print(f"Detected face: {name}")
+        faces.append(name)
 
-    # Control the GPIO pin based on face detection
-    if authorized_face_detected:
-        print("Authorized face detected, turning on GPIO pin")
+    # TODO send recognized face names to the server
+
+    url = "http://laptop-mat:3000/auth/request-open"
+    headers = {"Authorization": f"Bearer "}
+    payload = {"roomId": "", "userId": faces[0], "timestamp": str(Date.today())}
+
+    try:
+        response = requests.post(url, json=payload, headers=headers)
+        print(
+            f"[INFO] Sent recognized faces: {faces}, Response: {response.status_code}"
+        )
+    except Exception as e:
+        print(f"[ERROR] Failed to send recognized faces: {e}")
 
     return frame
 
 
-print(f"[INFO] Starting video stream listener... {io.connected}")
+print("[INFO] Starting video stream listener...")
 io.wait()

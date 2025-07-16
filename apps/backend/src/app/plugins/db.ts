@@ -22,7 +22,9 @@ const mongoConnector: FastifyPluginAsync = fp(async (fastify, opts) => {
   }
 
   const client = new MongoClient(url);
-  await client.connect();
+  await client.connect().catch((err) => {
+    console.log("FUCKING INTERNET NOT WORKING TBK")
+  });
 
   fastify.log.info('MongoDB connected');
 
