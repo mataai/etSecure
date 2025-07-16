@@ -8,7 +8,7 @@ RUN rm -rf ./*
 COPY apps/frontend/nginx.conf /etc/nginx/nginx.conf
 
 # Copie le build du frontend depuis l'étape de build
-COPY . .
+COPY ./dist/apps/frontend/browser/ .
 
 EXPOSE 80
 
