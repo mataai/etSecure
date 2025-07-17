@@ -41,7 +41,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm i -g nx@latest
+        run: npm ci --legacy-peer-deps
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
