@@ -38,7 +38,7 @@ jobs:
       - run: npm ci --legacy-peer-deps
       - uses: nrwl/nx-set-shas@v4
 
-      - run: npx nx affected -t lint test build
+      - run: npx nx affected -t lint test build --base=origin/main~1 --head=origin/main
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4

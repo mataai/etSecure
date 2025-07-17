@@ -24,6 +24,7 @@ const mqttOptions = {
 // Register your application as a normal plugin.
 server.register(app, mqttOptions);
 
+
 // Start listening.
 server.listen({ port, host }, (err) => {
   if (err) {
