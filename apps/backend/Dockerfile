@@ -12,6 +12,7 @@ ENV NODE_ENV=production
 ENV HOST=0.0.0.0
 ENV PORT=3000
 
+
 # Crée un utilisateur sécurisé
 RUN addgroup --system backend && \
     adduser --system -G backend backend

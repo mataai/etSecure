@@ -12,6 +12,7 @@ COPY ./dist/apps/frontend/browser/ .
 
 EXPOSE 80
 
+
 # Start Nginx directly with custom config
 ENTRYPOINT ["nginx", "-c", "/etc/nginx/nginx.conf"]
 CMD ["-g", "daemon off;"]
