@@ -140,9 +140,7 @@ import { CardModule } from 'primeng/card';
         cursor: pointer;
         transition: background 0.2s;
       }
-      .custom-file-input::-webkit-file-upload-button:hover {
-        background: var(--primary-color-dark, #059669);
-      }
+      /* Removed hover effect for green color */
       .custom-file-input::file-selector-button {
         background: var(--primary-color, #10b981);
         color: #fff;
@@ -153,9 +151,7 @@ import { CardModule } from 'primeng/card';
         cursor: pointer;
         transition: background 0.2s;
       }
-      .custom-file-input::file-selector-button:hover {
-        background: var(--primary-color-dark, #059669);
-      }
+      /* Removed hover effect for green color */
       .custom-file-input {
         color: #374151;
         background: transparent;
