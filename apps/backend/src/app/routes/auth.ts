@@ -7,6 +7,7 @@ import { RoomModel } from '../models/room.model';
 import { UserModel } from '../models/user.model';
 import { RoomUnlockRequest } from '@etsecure/data-contracts';
 import { AttendanceModel } from '../models/attendance.model';
+import path from 'path';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -231,4 +232,23 @@ export default async function (fastify: FastifyInstance) {
       reply.code(200).send({ message: 'Unlock command sent' });
     }
   );
+
+  fastify.get('/auth/ai-models/:id',
+    // { preValidation: [authPreValidator, groupPreValidator(['etsecure_device'])] },
+    async (request, reply) => {
+      const { id } = request.params as { id: string };
+
+      const filePath = path.resolve(`ai-models/${id}.pickle`);
+
+      if (!fs.existsSync(filePath)) {
+        reply.code(404).send({ message: 'Model not found'});
+      }
+
+      reply.header('Content-Type', 'application/octet-stream');
+      reply.header('Content-Disposition', `attachment; filename="${id}.pickle"`)
+
+      const fileStream = fs.createReadStream(filePath);
+      reply.send(fileStream);
+    }
+  )
 }
