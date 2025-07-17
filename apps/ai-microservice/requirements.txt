@@ -1,5 +1,5 @@
 python-socketio[client]
 setuptools
-face-recognition
 imutils
 opencv-python
+face-recognition

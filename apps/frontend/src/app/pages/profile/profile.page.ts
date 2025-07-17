@@ -75,17 +75,11 @@ import { Router } from '@angular/router';
                 />
               </div>
               <button
-                class="px-4 py-2 bg-primary text-white rounded block mx-auto mt-6"
+                class="px-4 py-2 bg-primary text-white rounded block mx-auto mt-6 hover:bg-primary-700 transition-all font-semibold"
                 (click)="uploadPicture()"
                 [disabled]="!selectedFile || uploadStatus === 'processing'"
               >
                 Upload
-              </button>
-              <button
-                class="px-4 py-2 bg-primary text-white rounded block mx-auto mt-6"
-                (click)="logout()"
-              >
-                Logout
               </button>
               @if (uploadStatus !== 'idle') {
               <div class="text-center mt-2 min-h-[1.5rem]">
@@ -112,6 +106,12 @@ import { Router } from '@angular/router';
         </div>
       </p-card>
     </div>
+    <button
+      class="mt-8 w-4/5 max-w-md py-4 text-lg bg-primary text-white rounded block mx-auto hover:bg-primary-700 transition-all font-bold shadow-lg"
+      (click)="logout()"
+    >
+      Logout
+    </button>
     <p-toast />
   `,
   styles: [
@@ -120,11 +120,14 @@ import { Router } from '@angular/router';
         color: white;
       }
       .custom-file-input::file-selector-button {
-        color: black;
-        background: #eee;
-        border: 1px solid #888;
-        padding: 0.5rem 1rem;
-        border-radius: 0.375rem;
+        color: #fff;
+        background: var(--primary-color, #10b981);
+        border: none;
+        padding: 0.5rem 1.25rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
       }
     `,
   ],
