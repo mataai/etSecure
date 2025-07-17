@@ -65,35 +65,8 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
             ${{ env.REGISTRY }}/${{ github.repository_owner }}/etsecure_frontend
 
-      - name: Check if backend build exists
-        id: has_backend
-        run: |
-          if [ -d dist/apps/backend ]; then
-            echo "exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "exists=false" >> $GITHUB_OUTPUT
-          fi
-      - name: Check if frontend build exists
-        id: has_frontend
-        run: |
-          if [ -d dist/apps/frontend ]; then
-            echo "exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "exists=false" >> $GITHUB_OUTPUT
-          fi
-      
-      - name: Build Docker backend image via Nx
-        if: steps.has_backend.outputs.exists == 'true'
-        run: npx nx run backend:docker-build
+      - name: Build Docker image via Nx
+        run: npx nx affected -t docker-build
 
-      - name: Publish Docker backend image via Nx
-        if: steps.has_backend.outputs.exists == 'true'
-        run: npx nx run backend:docker-publish
-
-      - name: Build Docker frontend image via Nx
-        if: steps.has_frontend.outputs.exists == 'true'
-        run: npx nx run frontend:docker-build
-
-      - name: Publish Docker frontend image via Nx
-        if: steps.has_frontend.outputs.exists == 'true'
-        run: npx nx run frontend:docker-publish
+      - name: Publish Docker image via Nx
+        run: npx nx affected -t docker-publish
