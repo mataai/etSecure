@@ -20,14 +20,6 @@ export default fp(async function (fastify: FastifyInstance) {
         console.log('Message received:', data.byteLength);
         // Process the received data (e.g., log it, store it, etc.)
 
-
-        try {
-          if (fastify.mqttClient?.connected)
-            fastify.mqttClient.publish('test', 'open');
-        } catch (error) {
-          console.error('Error publishing to MQTT:', error);
-        }
-
         // Save image to file
         // const filename = `images/image_${socket.id}.jpg`;
         // const filePath = join(process.cwd(), filename);
