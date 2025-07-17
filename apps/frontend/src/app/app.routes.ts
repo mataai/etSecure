@@ -9,7 +9,9 @@ import { UsersListPage } from './pages/admin/user-list.page';
 import { RoomsListPage } from './pages/admin/room-list.page';
 import { UserDetailsPage } from './pages/admin/user-details.page';
 import { RoomDetailsPage } from './pages/admin/room-details.page';
+
 import { ProfilePage } from './pages/profile/profile.page';
+import { AdminServiceAccountsPage } from './pages/admin/service-accounts/service-accounts.page';
 
 export const appRoutes: Routes = [
   { path: 'notfound', component: Notfound },
@@ -49,6 +51,10 @@ export const appRoutes: Routes = [
           { path: '', component: RoomsListPage },
           { path: ':id', component: RoomDetailsPage },
         ],
+      },
+      {
+        path: 'service-accounts',
+        component: AdminServiceAccountsPage,
       },
       { path: '**', redirectTo: '/notfound', pathMatch: 'full' },
     ],
