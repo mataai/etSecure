@@ -63,7 +63,7 @@ import { AuthService } from '../../../shared/services/auth.service';
               pButton
               type="button"
               class="w-full mt-2 p-button-outlined"
-              [routerLink]="['/auth/register']"
+              [routerLink]="['/auth/signup']"
               routerLinkActive="router-link-active"
             >
               Sign Up with Referral
