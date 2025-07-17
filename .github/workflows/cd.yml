@@ -67,7 +67,7 @@ jobs:
             ${{ env.REGISTRY }}/${{ github.repository_owner }}/etsecure_frontend
 
       - name: Build Docker image via Nx
-        run: npx nx affected -t docker-build --base=origin/master~1 --head=origin/master
+        run: npx nx run-many -t docker-build --all
 
       - name: Publish Docker image via Nx
-        run: npx nx affected -t docker-publish --base=origin/master~1 --head=origin/master
+        run: npx nx run-many -t docker-publish --all
