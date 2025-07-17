@@ -19,7 +19,6 @@ RUN addgroup --system backend && \
 # Attribution des droits
 RUN chown -R backend:backend .
 
-
 USER backend
 
 EXPOSE 3000

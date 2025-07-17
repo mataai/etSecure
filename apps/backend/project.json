@@ -56,12 +56,18 @@
       }
     },
     "docker-build": {
+      "executor": "@nx/workspace:run-commands",
       "dependsOn": ["build"],
-      "command": "docker build -f apps/backend/Dockerfile . -t ghcr.io/mataai/etsecure_backend:latest"
+      "options": {
+        "command": "docker build -f apps/backend/Dockerfile . -t ghcr.io/mataai/etsecure_backend:latest"
+      }
     },
     "docker-publish": {
+      "executor": "@nx/workspace:run-commands",
       "dependsOn": ["docker-build"],
-      "command": "docker push ghcr.io/mataai/etsecure_backend:latest"
+      "options": {
+        "command": "docker push ghcr.io/mataai/etsecure_backend:latest"
+      }
     }
   }
 }
