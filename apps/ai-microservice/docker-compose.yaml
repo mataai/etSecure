@@ -6,4 +6,5 @@ services:
     container_name: ai-service
     volumes:
       - ./models:/app/models
+      - ../../uploads:/app/dataset
     restart: unless-stopped

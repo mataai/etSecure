@@ -9,6 +9,7 @@ import { RoomUnlockRequest } from '@etsecure/data-contracts';
 import { AttendanceModel } from '../models/attendance.model';
 import path from 'path';
 import { Server } from 'socket.io';
+import { randomUUID } from 'crypto';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -84,9 +85,14 @@ export default async function (fastify: FastifyInstance) {
         return res.status(400).send({ error: 'File upload failed' });
       }
 
-      fs.mkdirSync('./uploads', { recursive: true });
+      const userFolderPath = `./uploads/${req.user._id}`
+      if (!fs.existsSync(userFolderPath)) {
+        fs.mkdirSync(`./uploads/${req.user._id}`, { recursive: true });
+      }
 
-      const savePath = `./uploads/${req.user.sub}.jpg`;
+      
+
+      const savePath = `./uploads/${req.user._id}/${randomUUID()}.jpg`;
       const writeStream = fs.createWriteStream(savePath);
 
       // Use a Promise to wait for the stream to finish
