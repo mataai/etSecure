@@ -66,8 +66,19 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
             ${{ env.REGISTRY }}/${{ github.repository_owner }}/etsecure_frontend
 
-      - name: Build Docker image via Nx
-        run: npx nx affected -t docker-build --base=origin/master~10 --head=origin/master
+      - name: Get affected projects
+        run: |
+          AFFECTED=$(npx nx show projects --affected --base=origin/master~5 --head=origin/master | grep -E 'frontend|backend' | tr '\n' ' ' | xargs)
+          AFFECTED_COMMA=$(echo $AFFECTED | tr ' ' ',')
+          echo "AFFECTED=$AFFECTED_COMMA" >> $GITHUB_ENV
 
-      - name: Publish Docker image via Nx
-        run: npx nx affected -t docker-publish --base=origin/master~10 --head=origin/master
+      - name: Build affected projects
+        run: |
+          IFS=' ' read -r -a affected_projects <<< "$AFFECTED"
+          npx nx run-many -t docker-build --projects="${affected_projects[@]}"
+
+      - name: Publish affected projects
+        run: |
+          IFS=' ' read -r -a affected_projects <<< "$AFFECTED"
+          npx nx run-many -t docker-publish --projects="${affected_projects[@]}"
+
