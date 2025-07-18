@@ -38,6 +38,8 @@ jobs:
       - run: npm ci --legacy-peer-deps
       - uses: nrwl/nx-set-shas@v4
 
+      - run: npx nx print-affected --base=origin/master~10 --head=origin/master
+
       - run: npx nx affected -t lint test build --base=origin/master~10 --head=origin/master
 
       - name: Upload build artifacts
