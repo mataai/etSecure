@@ -9,11 +9,9 @@ export class AuthService {
   public userManager: UserManager = new UserManager({
     authority: environment.oidcAuthority,
     client_id: environment.oidcClientId,
-    client_secret: environment.oidcClientSecret,
     redirect_uri: environment.oidcRedirectUri,
     response_type: 'code',
     scope: 'openid profile email offline_access',
-    automaticSilentRenew: true,
     userStore: new WebStorageStateStore({
       store: localStorage,
     }),

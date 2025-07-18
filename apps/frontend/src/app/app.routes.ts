@@ -22,12 +22,10 @@ export const appRoutes: Routes = [
       { path: 'login', canActivate: [authGuard(false)], component: LoginPage },
       {
         path: 'signup',
-        canActivate: [authGuard(false)],
         component: SignupPage,
       },
       {
         path: 'callback',
-        canActivate: [authGuard(false)],
         component: CallbackPage,
       },
     ],
