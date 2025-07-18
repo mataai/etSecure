@@ -54,7 +54,7 @@ export default fp(async function (fastify: FastifyInstance) {
         // });
 
         // Echo the message back to the client
-        io.emit('message', data);
+        io.emit('message', { image: data, roomId: String(socket.data.service.roomId) });
       });
 
       // Handle disconnection

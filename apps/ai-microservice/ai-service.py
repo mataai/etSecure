@@ -1,4 +1,4 @@
-from sqlite3 import Date
+from datetime import datetime
 import subprocess
 import socketio
 import face_recognition
@@ -10,6 +10,10 @@ import os
 
 TOKEN = os.environ.get("TOKEN", "")
 SERVER_URL = os.environ.get("SERVER_URL", "http://desktop-max:3000")
+COOLDOWN = int(os.environ.get("COOLDOWN", 10))
+
+last_face_seen = ""
+last_time = datetime.now()
 
 io = socketio.Client()
 
@@ -42,13 +46,27 @@ def on_connect():
 
 
 @io.on("message")
-def catch_all(event):
-    # Convert the byte array to a NumPy array
-    nparr = np.frombuffer(event, np.uint8)
-    # Decode the NumPy array as a JPEG image
+def catch_all(data):
+    image_bytes = data.get("image")
+    raw_room_id = data.get("roomId")
+    room_id = raw_room_id.decode("utf-8") if isinstance(raw_room_id, bytes) else raw_room_id
+
+    if image_bytes is None or room_id is None:
+        print("[ERROR] Missing image or roomId")
+        return
+
+    #print(f"[INFO] Received image of size: {len(image_bytes)} bytes and RoomID: {room_id}")
+
+    nparr = np.frombuffer(image_bytes, np.uint8)
     frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
-    process_frame(frame)
+    if frame is None:
+        print("[ERROR] Failed to decode image")
+        return
+
+    process_frame(frame, room_id)
+
+
 
 @io.on("train")
 def handle_train_request():
@@ -58,8 +76,8 @@ def handle_train_request():
     load_encodings()
 
 
-def process_frame(frame):
-    global face_locations, face_encodings, faces
+def process_frame(frame, roomId):
+    global face_locations, face_encodings, faces, last_face_seen, last_time
 
     # Resize the frame using cv_scaler to increase performance (less pixels processed, less time spent)
     resized_frame = cv2.resize(frame, (0, 0), fx=(1 / cv_scaler), fy=(1 / cv_scaler))
@@ -93,9 +111,28 @@ def process_frame(frame):
 
     # TODO send recognized face names to the server
 
+    # if (len(faces) == 0):
+    #     #print("[INFO] No faces recognized.")
+    #     return frame
+
+    # Face regonized
+    #print(f"[INFO] Recognized faces: {faces}")
+
+    # FOR DEBUGGING PURPOSES
+    faces.append("6871d4298da22a354f8af193")
+
+
+    timediff = (datetime.now() - last_time).total_seconds()
+    if (last_face_seen == faces[0] and timediff < COOLDOWN):
+        #print(f"[INFO] Same face seen again, skipping sending to server")
+        return frame
+
+    last_time = datetime.now()
+    last_face_seen = faces[0]
+
     url = SERVER_URL + "/auth/request-open"
     headers = {"Authorization": f"Bearer "}
-    payload = {"roomId": "", "userId": faces[0], "timestamp": str(Date.today())}
+    payload = {"roomId": roomId, "userId": faces[0], "timestamp": str(datetime.now())}
 
     try:
         response = requests.post(url, json=payload, headers=headers)

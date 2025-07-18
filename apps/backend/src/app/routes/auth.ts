@@ -195,18 +195,14 @@ export default async function (fastify: FastifyInstance) {
     '/auth/request-open',
     // { preValidation: [authPreValidator, groupPreValidator(['etsecure_ai'])] },
     async function (request, reply) {
+      console.log("REQUEST RECEIVED")
+
+
       const data = request.body as RoomUnlockRequest;
       if (!data || !data.roomId || !data.userId || !data.timestamp) {
         return reply
           .code(400)
           .send({ error: 'roomId, userId, and timestamp are required' });
-      }
-
-      const room = await roomsCollection.findOne({
-        _id: new ObjectId(data.roomId),
-      });
-      if (!room) {
-        return reply.code(404).send({ error: 'Room not found' });
       }
 
       const user = await usersCollection.findOne({
@@ -216,10 +212,14 @@ export default async function (fastify: FastifyInstance) {
         return reply.code(404).send({ error: 'User not found' });
       }
 
-      const isUserInRoom = room.users.includes(user._id);
-      if (!isUserInRoom) {
-        return reply.code(403).send({ error: 'User is not in the room' });
+      const room = await roomsCollection.findOne({
+        _id: new ObjectId(data.roomId),
+        users: user._id
+      });
+      if (!room) {
+        return reply.code(404).send({ error: 'Room not found' });
       }
+
       if (fastify.mqttClient?.connected) {
         fastify.mqttClient.publish(`rooms/${data.roomId}/command`, 'unlock');
       } else {
