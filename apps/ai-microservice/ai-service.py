@@ -111,15 +111,15 @@ def process_frame(frame, roomId):
 
     # TODO send recognized face names to the server
 
-    # if (len(faces) == 0):
-    #     #print("[INFO] No faces recognized.")
-    #     return frame
+    if (len(faces) == 0):
+        #print("[INFO] No faces recognized.")
+        return frame
 
     # Face regonized
     #print(f"[INFO] Recognized faces: {faces}")
 
     # FOR DEBUGGING PURPOSES
-    faces.append("6871d4298da22a354f8af193")
+    #faces.append("6871d4298da22a354f8af193")
 
 
     timediff = (datetime.now() - last_time).total_seconds()
