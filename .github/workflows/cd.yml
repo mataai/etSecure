@@ -69,7 +69,8 @@ jobs:
       - name: Get affected projects
         run: |
           AFFECTED=$(npx nx show projects --affected --base=origin/master~5 --head=origin/master | grep -E 'frontend|backend' | tr '\n' ' ' | xargs)
-          echo "AFFECTED=$AFFECTED" >> $GITHUB_ENV
+          AFFECTED_COMMA=$(echo $AFFECTED | tr ' ' ',')
+          echo "AFFECTED=$AFFECTED_COMMA" >> $GITHUB_ENV
 
       - name: Build affected projects
         run: |
