@@ -69,7 +69,7 @@ jobs:
       - name: Get affected projects
         id: affected
         run: |
-          echo "AFFECTED=$(npx nx show projects --affected --base=origin/master~5 --head=origin/master | grep -E 'frontend|backend')" >> $GITHUB_ENV
+          echo "AFFECTED=\"$(npx nx show projects --affected --base=origin/master~5 --head=origin/master | grep -E 'frontend|backend' | tr '\n' ' ' | xargs)\"" >> $GITHUB_ENV
 
       - name: Docker build affected projects
         run: npx nx run-many -t docker-build --projects=$AFFECTED
