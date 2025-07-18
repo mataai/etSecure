@@ -7,4 +7,6 @@ services:
     volumes:
       - ./models:/app/models
       - ../../uploads:/app/dataset
+    environment:
+      - TOKEN=REDACTED
     restart: unless-stopped

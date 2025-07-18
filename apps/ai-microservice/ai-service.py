@@ -6,9 +6,16 @@ import cv2
 import numpy as np
 import pickle
 import requests
+import os
+
+TOKEN = os.environ.get("TOKEN", "")
+SERVER_URL = os.environ.get("SERVER_URL", "http://desktop-max:3000")
 
 io = socketio.Client()
-io.connect("http://desktop-max:3000")
+
+io.on("connect_error", lambda e: print(f"Connection error: {e}"))
+
+io.connect(SERVER_URL, auth={"token": TOKEN})
 
 
 cv_scaler = 4  # Scale down the image to increase performance
@@ -86,7 +93,7 @@ def process_frame(frame):
 
     # TODO send recognized face names to the server
 
-    url = "http://laptop-mat:3000/auth/request-open"
+    url = SERVER_URL + "/auth/request-open"
     headers = {"Authorization": f"Bearer "}
     payload = {"roomId": "", "userId": faces[0], "timestamp": str(Date.today())}
 

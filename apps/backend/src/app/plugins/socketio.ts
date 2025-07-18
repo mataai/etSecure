@@ -1,3 +1,4 @@
+import { ServiceAccount } from '@etsecure/data-contracts';
 import { FastifyInstance } from 'fastify';
 import fp from 'fastify-plugin';
 import fastifyIO from 'fastify-socket';
@@ -12,12 +13,33 @@ export default fp(async function (fastify: FastifyInstance) {
   fastify.ready().then(() => {
     const io = fastify['io'] as Server;
     console.log('Socket.IO server is ready');
+
+    io.use(async (socket, next) => {
+      const { token } = socket.handshake.auth
+
+      if (!token) {
+        return next(new Error("Authentication error: token missing"));
+      }
+
+      const service = await fastify.mongo.db.collection<ServiceAccount>('services').findOne({ tokens: token });
+
+      if (!service) {
+        return next(new Error("Authentication error: token invalid"));
+      }
+
+      socket.data.service = service;
+      next();
+    })
+
     io.on('connection', (socket) => {
       console.log('A client connected:', socket.id);
 
       // Handle custom events
       socket.on('message', (data: Buffer) => {
         console.log('Message received:', data.byteLength);
+
+        console.log(socket.data.service)
+
         // Process the received data (e.g., log it, store it, etc.)
 
         // Save image to file
