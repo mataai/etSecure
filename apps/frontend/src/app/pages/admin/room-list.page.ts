@@ -1,7 +1,11 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import {
+  DialogService,
+  DynamicDialogModule,
+  DynamicDialogRef,
+} from 'primeng/dynamicdialog';
 import { ToolbarModule } from 'primeng/toolbar';
 import { ToastModule } from 'primeng/toast';
 import { ButtonModule } from 'primeng/button';
@@ -16,9 +20,10 @@ import { Router } from '@angular/router';
   selector: 'app-rooms-list-page',
   imports: [
     RoomsListComponent,
-    ToastModule,
     ToolbarModule,
     ButtonModule,
+    DynamicDialogModule,
+    ToastModule,
     ConfirmDialogModule,
   ],
   providers: [RoomsService, MessageService, ConfirmationService, DialogService],

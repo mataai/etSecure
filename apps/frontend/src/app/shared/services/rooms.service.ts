@@ -1,5 +1,4 @@
-import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import {
   Room,
@@ -11,24 +10,22 @@ import { environment } from './../../../environment/environment';
 
 @Injectable({ providedIn: 'root' })
 export class RoomsService extends Service<Room> {
-  private _http: HttpClient = inject(HttpClient);
-
   public async getRooms() {
     await firstValueFrom(
-      this._http.get<Room[]>(environment.backendUrl + '/rooms')
+      this._httpClient.get<Room[]>(environment.backendUrl + '/rooms')
     ).then((response) => this._dataList.set(response));
     return this.data;
   }
 
   public async getRoom(id: string) {
     return await firstValueFrom(
-      this._http.get<Room>(`${environment.backendUrl}/rooms/${id}`)
+      this._httpClient.get<Room>(`${environment.backendUrl}/rooms/${id}`)
     );
   }
 
   public async createRoom(room: RoomUpsertRequest) {
     return await firstValueFrom(
-      this._http.post<Room>(environment.backendUrl + '/rooms', room)
+      this._httpClient.post<Room>(environment.backendUrl + '/rooms', room)
     ).then(async (response) => {
       await this.getRooms();
       return response;
@@ -40,7 +37,7 @@ export class RoomsService extends Service<Room> {
     request: RoomAccessUpdateRequest
   ) {
     return await firstValueFrom(
-      this._http.put<void>(
+      this._httpClient.put<void>(
         `${environment.backendUrl}/rooms/${roomId}/users`,
         request
       )
@@ -49,7 +46,7 @@ export class RoomsService extends Service<Room> {
 
   public async disallowUserToRoom(roomId: string, userId: string) {
     return await firstValueFrom(
-      this._http.delete<void>(
+      this._httpClient.delete<void>(
         `${environment.backendUrl}/rooms/${roomId}/users/${userId}`
       )
     );
@@ -57,7 +54,7 @@ export class RoomsService extends Service<Room> {
 
   public async updateRoom(id: string, room: RoomUpsertRequest) {
     return await firstValueFrom(
-      this._http.put<Room>(`${environment.backendUrl}/rooms/${id}`, room)
+      this._httpClient.put<Room>(`${environment.backendUrl}/rooms/${id}`, room)
     ).then(async (response) => {
       await this.getRooms();
       return response;
@@ -66,7 +63,7 @@ export class RoomsService extends Service<Room> {
 
   public async deleteRoom(id: string) {
     return await firstValueFrom(
-      this._http.delete<void>(`${environment.backendUrl}/rooms/${id}`)
+      this._httpClient.delete<void>(`${environment.backendUrl}/rooms/${id}`)
     ).then(() => {
       this.getRooms();
     });
@@ -74,7 +71,7 @@ export class RoomsService extends Service<Room> {
 
   public async requestBypass(roomId: string) {
     await firstValueFrom(
-      this._http.post(`${environment.backendUrl}/auth/bypass`, { roomId })
+      this._httpClient.post(`${environment.backendUrl}/auth/bypass`, { roomId })
     );
   }
 }

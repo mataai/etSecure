@@ -4,12 +4,16 @@ export enum ServiceAccountTypes {
   PI = 'pi',
   AI = 'ai',
 }
+export const ServiceAccountTypeLabels: Record<ServiceAccountTypes, string> = {
+  [ServiceAccountTypes.PI]: 'Auth Device',
+  [ServiceAccountTypes.AI]: 'AI Service',
+};
 
 interface ServiceAccountBase {
-  id: string;
+  _id: string;
   name: string;
   type: ServiceAccountTypes;
-  tokens: string[];
+  tokens: number;
 }
 
 export interface RoomServiceAccount extends ServiceAccountBase {

@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb';
 
 interface ServiceAccountModelBase {
-  id: ObjectId;
+  _id: ObjectId;
   name: string;
   type: 'pi' | 'ai';
   tokens: string[];

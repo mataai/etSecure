@@ -9,9 +9,9 @@ import { UsersListPage } from './pages/admin/user-list.page';
 import { RoomsListPage } from './pages/admin/room-list.page';
 import { UserDetailsPage } from './pages/admin/user-details.page';
 import { RoomDetailsPage } from './pages/admin/room-details.page';
-
 import { ProfilePage } from './pages/profile/profile.page';
-import { AdminServiceAccountsPage } from './pages/admin/service-accounts/service-accounts.page';
+import { ServiceAccountsListPage } from './pages/admin/service-accounts/service-accounts-list.page';
+import { ServiceAccountDetailsPage } from './pages/admin/service-accounts/service-account-details.page';
 
 export const appRoutes: Routes = [
   { path: 'notfound', component: Notfound },
@@ -54,7 +54,10 @@ export const appRoutes: Routes = [
       },
       {
         path: 'service-accounts',
-        component: AdminServiceAccountsPage,
+        children: [
+          { path: '', component: ServiceAccountsListPage },
+          { path: ':id', component: ServiceAccountDetailsPage },
+        ],
       },
       { path: '**', redirectTo: '/notfound', pathMatch: 'full' },
     ],
@@ -66,7 +69,11 @@ export const appRoutes: Routes = [
     children: [
       { path: 'home', component: HomePage },
       { path: 'profile', component: ProfilePage },
-      { path: 'bypass', loadComponent: () => import('./pages/bypass/bypass.page').then(m => m.BypassPage) },
+      {
+        path: 'bypass',
+        loadComponent: () =>
+          import('./pages/bypass/bypass.page').then((m) => m.BypassPage),
+      },
       { path: '**', redirectTo: '/home', pathMatch: 'full' },
     ],
   },

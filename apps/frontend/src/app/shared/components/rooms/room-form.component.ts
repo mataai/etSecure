@@ -139,7 +139,7 @@ export class RoomFormComponent {
         ? this._roomService.createRoom(room)
         : this._roomService.updateRoom(id, room);
       await resp
-        .then((res) => {
+        .then(() => {
           upsertSuccess = true;
         })
         .catch((err) => {

@@ -29,7 +29,7 @@ export const servicePreValidator: preValidationMetaHookHandler = async (
     const serviceInfo = await fastify.mongo.db
       .collection<ServiceAccountModel>('services')
       .findOne({
-        token: token,
+        tokens: { $elemMatch: { token } },
       });
 
     if (!serviceInfo) {

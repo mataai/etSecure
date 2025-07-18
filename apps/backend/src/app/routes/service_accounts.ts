@@ -5,8 +5,15 @@ import { groupPreValidator } from '../request-modifiers/groups.pre-validator';
 import {
   ServiceAccountUpsertRequest,
   ServiceAccountTypes,
+  ServiceAccount,
+  Room,
+  RoomServiceAccount,
+  RoomServiceAccountUpsertRequest,
 } from '@etsecure/data-contracts';
-import { ServiceAccountModel } from '../models/service-account.model';
+import {
+  RoomServiceAccountModel,
+  ServiceAccountModel,
+} from '../models/service-account.model';
 
 const servicesRoutes: FastifyPluginAsync = async (fastify) => {
   const serviceAccountCollection =
@@ -20,13 +27,96 @@ const servicesRoutes: FastifyPluginAsync = async (fastify) => {
     },
     async (request, reply) => {
       try {
-        const dbServices = await serviceAccountCollection.find().toArray();
+        const dbServiceAccounts = await serviceAccountCollection
+          .aggregate([
+            {
+              $lookup: {
+                from: 'rooms',
+                localField: 'roomId',
+                foreignField: '_id',
+                as: 'room',
+              },
+            },
+            {
+              $unwind: {
+                path: '$room',
+                preserveNullAndEmptyArrays: true,
+              },
+            },
+          ])
+          .toArray();
 
-        if (!dbServices) {
+        if (!dbServiceAccounts) {
           return reply.code(404).send({ error: 'No services found' });
         }
 
-        return reply.code(200).send(dbServices);
+        const outputServiceAccounts = dbServiceAccounts.map(
+          (serviceAccount) => {
+            const tokenCount = serviceAccount.tokens.length || 0;
+            delete serviceAccount.tokens;
+
+            return {
+              ...serviceAccount,
+              _id: serviceAccount._id.toString(),
+              tokens: tokenCount,
+            } as ServiceAccount;
+          }
+        );
+        return reply.code(200).send(outputServiceAccounts);
+      } catch (error) {
+        fastify.log.error(error);
+        return reply.code(500).send({ error: 'Internal Server Error' });
+      }
+    }
+  );
+  fastify.get(
+    '/service_accounts/:id',
+    {
+      preValidation: [authPreValidator, groupPreValidator(['etsecure_admin'])],
+    },
+    async (request, reply) => {
+      const { id } = request.params as { id: string };
+
+      if (!id) {
+        return reply.code(400).send({ error: 'Service ID is required' });
+      }
+
+      if (!ObjectId.isValid(id)) {
+        return reply.code(400).send({ error: 'Invalid service ID' });
+      }
+
+      try {
+        const dbServiceAccount = (await serviceAccountCollection
+          .aggregate([
+            {
+              $match: { _id: new ObjectId(id) },
+            },
+            {
+              $lookup: {
+                from: 'rooms',
+                localField: 'roomId',
+                foreignField: '_id',
+                as: 'room',
+              },
+            },
+            {
+              $unwind: {
+                path: '$room',
+                preserveNullAndEmptyArrays: true,
+              },
+            },
+          ])
+          .toArray())[0];
+
+        if (!dbServiceAccount) {
+          return reply.code(404).send({ error: 'No services found' });
+        }
+        const outputServiceAccounts = {
+          ...dbServiceAccount,
+          _id: dbServiceAccount._id.toString(),
+          tokens: dbServiceAccount.tokens.length || 0,
+        } as ServiceAccount;
+        return reply.code(200).send(outputServiceAccounts);
       } catch (error) {
         fastify.log.error(error);
         return reply.code(500).send({ error: 'Internal Server Error' });
@@ -55,6 +145,15 @@ const servicesRoutes: FastifyPluginAsync = async (fastify) => {
           return reply.code(400).send({ error: 'Name is required' });
         if (serviceData.type === ServiceAccountTypes.PI && !serviceData.roomId)
           return reply.code(400).send({ error: 'Room ID is required' });
+      }
+
+      if (serviceData.type === ServiceAccountTypes.PI) {
+        if (!ObjectId.isValid(serviceData.roomId)) {
+          return reply.code(400).send({ error: 'Invalid room ID' });
+        } else {
+          (serviceData as unknown as RoomServiceAccountModel).roomId =
+            new ObjectId(serviceData.roomId);
+        }
       }
 
       const result = await serviceAccountCollection.insertOne({
