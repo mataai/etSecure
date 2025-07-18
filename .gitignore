@@ -54,4 +54,4 @@ docker-services/traefik/certs/*
 docker-services/traefik/**/*.log
 vite.config.*.timestamp*
 vitest.config.*.timestamp*
-encodings.pickle
+*.pickle
