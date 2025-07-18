@@ -8,6 +8,7 @@ import { UserModel } from '../models/user.model';
 import { RoomUnlockRequest } from '@etsecure/data-contracts';
 import { AttendanceModel } from '../models/attendance.model';
 import path from 'path';
+import { Server } from 'socket.io';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -103,6 +104,10 @@ export default async function (fastify: FastifyInstance) {
         console.error('Error writing file:', err);
         return res.status(500).send({ error: 'Failed to save file' });
       });
+
+      const io = fastify['io'] as Server;
+
+      io.emit('train');
 
       return res.status(200).send({
         message: 'File uploaded successfully',

@@ -25,4 +25,5 @@ RUN apt-get update && apt-get install -y \
 
 COPY apps/ai-microservice/ .
 
-CMD ["python", "ai-service.py"]
+CMD ["python", "-u",  "ai-service.py"]
+

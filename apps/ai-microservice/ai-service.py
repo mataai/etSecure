@@ -1,4 +1,5 @@
 from sqlite3 import Date
+import subprocess
 import socketio
 import face_recognition
 import cv2
@@ -7,15 +8,21 @@ import pickle
 import requests
 
 io = socketio.Client()
-io.connect("http://laptop-mat:3000")
+io.connect("http://desktop-max:3000")
 
 
 cv_scaler = 4  # Scale down the image to increase performance
-print("[INFO] loading encodings...")
-with open("encodings.pickle", "rb") as f:
-    data = pickle.loads(f.read())
-known_face_encodings = data["encodings"]
-known_face_names = data["names"]
+
+
+def load_encodings():
+    global known_face_encodings, known_face_names
+    print("[INFO] loading encodings...")
+    with open("/app/models/latest.pickle", "rb") as f:
+        data = pickle.loads(f.read())
+    known_face_encodings = data["encodings"]
+    known_face_names = data["names"]
+
+load_encodings()
 
 face_locations = []
 face_encodings = []
@@ -35,6 +42,13 @@ def catch_all(event):
     frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
     process_frame(frame)
+
+@io.on("train")
+def handle_train_request():
+    print("[INFO] Training requested, starting model training...")
+    subprocess.run(["python3", "model_training.py"])
+    print("[INFO] Training complete")
+    load_encodings()
 
 
 def process_frame(frame):
