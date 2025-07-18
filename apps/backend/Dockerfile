@@ -21,7 +21,6 @@ RUN chown -R backend:backend .
 
 USER backend
 
-
 EXPOSE 3000
 
 COPY ./dist/apps/backend .

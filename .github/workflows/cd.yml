@@ -66,11 +66,14 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
             ${{ env.REGISTRY }}/${{ github.repository_owner }}/etsecure_frontend
 
-      - name: Show affected projects
-        run: npx nx show projects --affected
+      - name: Get affected projects
+        id: affected
+        run: |
+          echo "AFFECTED=$(npx nx show projects --affected --base=origin/master~5 --head=origin/master | grep -E 'frontend|backend')" >> $GITHUB_ENV
 
-      - name: Build Docker image via Nx
-        run: npx nx affected -t docker-build --base=origin/master~10 --head=origin/master
+      - name: Docker build affected projects
+        run: npx nx run-many -t docker-build --projects=$AFFECTED
 
       - name: Publish Docker image via Nx
-        run: npx nx affected -t docker-publish --base=origin/master~10 --head=origin/master
+        run: npx nx run-many -t docker-publish --projects=$AFFECTED
+
