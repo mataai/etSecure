@@ -1,0 +1,63 @@
+<div class="flex flex-col gap-8 max-w-5xl mx-auto py-8">
+  <h1
+    class="text-3xl font-extrabold tracking-tight text-primary mb-2 text-center"
+  >
+    Admin Panel
+  </h1>
+  <p-card class="mb-4 p-6">
+    <ng-template pTemplate="header">
+      <div class="flex items-center gap-3">
+        <i class="pi pi-video text-2xl text-primary"></i>
+        <span class="text-xl font-bold">
+          Live Feed {{ (stream | async)?.roomId }}
+        </span>
+      </div>
+    </ng-template>
+    <div
+      class="flex justify-center items-center min-h-[300px] bg-surface-950 rounded-lg border border-surface-600 p-6"
+    >
+      <!-- Live video feed placeholder -->
+      @if (connected$ | async; as connected) {
+        @if (stream | async; as data) {
+          @if (
+            data.frame && data.timestamp && data.timestamp >= Date.now() - 2000
+          ) {
+            <img
+              [src]="data.frame"
+              alt="Live feed frame"
+              class="rounded-lg max-w-full object-cover"
+            />
+          } @else {
+            <ng-template [ngTemplateOutlet]="noFrame"></ng-template>
+          }
+        } @else {
+          <ng-template [ngTemplateOutlet]="noFrame"></ng-template>
+        }
+      } @else {
+        <div class="flex flex-col items-center gap-2 text-surface-100">
+          <i class="pi pi-exclamation-triangle text-xl"></i>
+          <span class="font-semibold text-xl">No live feed connection</span>
+          <span class="text-s">Waiting for backend connection...</span>
+        </div>
+      }
+    </div>
+  </p-card>
+
+  <p-card class="p-6">
+    <ng-template pTemplate="header">
+      <div class="flex items-center gap-3">
+        <i class="pi pi-list text-2xl text-primary"></i>
+        <span class="text-xl font-bold">Recent Logins</span>
+      </div>
+    </ng-template>
+    <app-attendances-list [attendances]="logins()"> </app-attendances-list>
+  </p-card>
+</div>
+
+<ng-template #noFrame>
+  <div class="flex flex-col items-center gap-2 text-surface-100">
+    <i class="pi pi-exclamation-triangle text-xl"></i>
+    <span class="font-semibold text-xl">Live feed currently idle</span>
+    <span class="text-s">No one is currently authenticating</span>
+  </div>
+</ng-template>
