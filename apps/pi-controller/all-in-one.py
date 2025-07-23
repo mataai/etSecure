@@ -6,19 +6,34 @@ from picamera2 import Picamera2
 import cv2
 import base64
 import socketio
+import os
 
 sio = socketio.Client()
 
-sio.connect('http://desktop-mat:3000') # Replace with your server URL
+ROOM_ID = os.environ.get("ROOM_ID")
+TOKEN = os.environ.get("TOKEN")
+SOCKET_IO_URL = os.environ.get("SOCKET_IO_URL")
+MQTT_URL = os.environ.get("BROKER_URL")
+MQTT_PORT = int(os.environ.get("MQTT_PORT", 8883))
+
+sio.on('connect_error', lambda e: print(f"Connection error: {e}"))
+
+sio.connect(SOCKET_IO_URL, auth={'token': TOKEN})
+
+
 
 DEBUG = False
 
+# === GPIO Setup ===
+PIR_PIN = 17
+RELAY_PIN = 21
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(PIR_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.setup(RELAY_PIN, GPIO.OUT)
+
 # === MQTT Configuration ===
-BROKER = "cloud-ind520"          
-PORT = 8883                      
-TOPIC = "test"                   
-CLIENT_ID = "test"               
-CERT_FILE = "./server.crt"    
+TOPIC = "rooms/" + ROOM_ID + "/commands"
+CERT_FILE = "./server.crt"
 
 # === MQTT Callbacks ===
 def on_connect(client, userdata, flags, rc):
@@ -29,6 +44,12 @@ def on_connect(client, userdata, flags, rc):
         print(f"❌ Connection failed. Code: {rc}")
 
 def on_message(client, userdata, msg):
+    if msg.payload.decode() == "unlock":
+        print("🔓 Unlocking door!")
+        GPIO.output(RELAY_PIN, GPIO.HIGH)
+        time.sleep(100)
+        GPIO.output(RELAY_PIN, GPIO.LOW)
+
     print(f"📨 Received on '{msg.topic}': {msg.payload.decode()}")
 
 def on_disconnect(client, userdata, rc):
@@ -49,13 +70,8 @@ client.tls_set(
 )
 
 # === Connect and Start MQTT client
-client.connect(BROKER, PORT, keepalive=180)
+client.connect(MQTT_URL, MQTT_PORT, keepalive=180)
 client.loop_start()
-
-# === GPIO Setup ===
-PIR_PIN = 17
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(PIR_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 # === Camera Setup ===
 picam2 = Picamera2()
@@ -74,7 +90,6 @@ try:
             if DEBUG:
                 print("⚠️ Motion detected!")
 
-            
             # Capture a frame
             frame = picam2.capture_array()
 
@@ -85,7 +100,8 @@ try:
                 # Convert to bytes and send via socketio
                 sio.emit('message', buffer.tobytes())
         elif DEBUG:
-            print("No motion.")
+            #print("No motion.")
+            GPIO.output(RELAY_PIN, GPIO.LOW)
         time.sleep(0.1)
 
 except KeyboardInterrupt:
