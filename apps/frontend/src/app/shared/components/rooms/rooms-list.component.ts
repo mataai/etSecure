@@ -52,13 +52,13 @@ import { Room } from '@etsecure/data-contracts';
           </th>
           <th pSortableColumn="name" style="min-width:16rem">
             Name
-            <p-sortIcon field="email" />
+            <p-sortIcon field="name" />
           </th>
-          <th pSortableColumn="location">Location</th>
-          <th pSortableColumn="groups" style="min-width: 8rem">
-            Allowed Members
-            <p-sortIcon field="groups" />
+          <th pSortableColumn="location">
+            Location
+            <p-sortIcon field="location" />
           </th>
+          <th style="min-width: 8rem">Allowed Members</th>
           <th style="min-width: 12rem"></th>
         </tr>
       </ng-template>
@@ -108,7 +108,7 @@ import { Room } from '@etsecure/data-contracts';
 })
 export class RoomsListComponent {
   public selectedRooms?: Room[];
-  rooms = input<Room[]>([]);
+  public rooms = input<Room[]>([]);
   public viewRoom = output<Room>();
   public editRoom = output<Room>();
   public deleteRoom = output<Room>();

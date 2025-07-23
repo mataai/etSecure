@@ -1,0 +1,5 @@
+python-socketio[client]
+setuptools
+imutils
+opencv-python
+face-recognition

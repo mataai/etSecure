@@ -8,7 +8,7 @@ import { ObjectId } from 'mongodb';
 
 declare module 'fastify' {
   interface FastifyInstance {
-    mqttClient: MqttClient;
+    mqttClient?: MqttClient;
   }
 }
 
@@ -48,7 +48,15 @@ const mqttClientPlugin: FastifyPluginAsync<MqttClientPluginOptions> = async (
     clientOptions.ca = options.ca;
   }
 
-  const client = mqtt.connect(url, clientOptions);
+  const client = await mqtt
+    .connectAsync(url, clientOptions, false)
+    .catch((err) => {
+      fastify.log.error(`Failed to connect to MQTT broker: ${err.message}`);
+    });
+
+  if (!client) {
+    return;
+  }
 
   client.subscribe('rooms/+/status');
 
@@ -60,19 +68,25 @@ const mqttClientPlugin: FastifyPluginAsync<MqttClientPluginOptions> = async (
       if (topic.endsWith('/status')) {
         fastify.log.info(`room ${roomId} status update: ${msg}`);
         // store status in db
-        fastify.mongo.db.collection('rooms').updateOne(
-          { _id: new ObjectId(roomId) },
-          { $set: { status: msg } },
-          { upsert: true }
-        ).then(() => {
-          fastify.log.info(`Updated room ${roomId} status to ${msg}`);
-        }).catch(err => {
-          fastify.log.error(`Failed to update room ${roomId} status: ${err.message}`);
-        });
+        fastify.mongo.db
+          .collection('rooms')
+          .updateOne(
+            { _id: new ObjectId(roomId) },
+            { $set: { status: msg } },
+            { upsert: true }
+          )
+          .then(() => {
+            fastify.log.info(`Updated room ${roomId} status to ${msg}`);
+          })
+          .catch((err) => {
+            fastify.log.error(
+              `Failed to update room ${roomId} status: ${err.message}`
+            );
+          });
         return;
       }
     }
-      fastify.log.warn(`Received message on unknown topic ${topic}: ${msg}`);
+    fastify.log.warn(`Received message on unknown topic ${topic}: ${msg}`);
   });
 
   fastify.decorate('mqttClient', client);

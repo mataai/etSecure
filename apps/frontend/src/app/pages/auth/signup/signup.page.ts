@@ -140,9 +140,6 @@ import { CardModule } from 'primeng/card';
         cursor: pointer;
         transition: background 0.2s;
       }
-      .custom-file-input::-webkit-file-upload-button:hover {
-        background: var(--primary-color-dark, #059669);
-      }
       .custom-file-input::file-selector-button {
         background: var(--primary-color, #10b981);
         color: #fff;
@@ -153,15 +150,11 @@ import { CardModule } from 'primeng/card';
         cursor: pointer;
         transition: background 0.2s;
       }
-      .custom-file-input::file-selector-button:hover {
-        background: var(--primary-color-dark, #059669);
-      }
       .custom-file-input {
         color: #374151;
         background: transparent;
         font-size: 1rem;
       }
-      /* Fix form overlap with header when image is added */
       main.flex-1 {
         margin-top: 0 !important;
         padding-top: 2rem;

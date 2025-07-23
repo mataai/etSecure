@@ -1,1 +1,1 @@
-export * from './lib/data-contracts';
+export * from './lib';

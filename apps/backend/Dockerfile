@@ -2,7 +2,6 @@ FROM node:lts-alpine
 
 WORKDIR /app
 
-COPY ./dist/apps/backend .
 COPY ./package.json .
 COPY ./package-lock.json .
 
@@ -20,8 +19,11 @@ RUN addgroup --system backend && \
 # Attribution des droits
 RUN chown -R backend:backend .
 
+
 USER backend
 
 EXPOSE 3000
+
+COPY ./dist/apps/backend .
 
 CMD ["node", "main.js"]

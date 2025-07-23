@@ -255,6 +255,7 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
           },
           {
             $unwind: '$room',
+            preserveNullAndEmptyArrays: true,
           },
           {
             $project: {

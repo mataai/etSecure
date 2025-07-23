@@ -50,12 +50,12 @@ import { User } from '@etsecure/data-contracts';
           <th style="width: 3rem">
             <!-- <p-tableHeaderCheckbox /> -->
           </th>
-          <th style="min-width: 16rem">ID</th>
+          <th style="width: 12rem">ID</th>
           <th pSortableColumn="name" style="min-width:16rem">
             Name
-            <p-sortIcon field="email" />
+            <p-sortIcon field="name" />
           </th>
-          <th pSortableColumn="email">Email</th>
+          <th pSortableColumn="email">Email <p-sortIcon field="email" /></th>
           <th style="min-width: 12rem"></th>
         </tr>
       </ng-template>
@@ -64,7 +64,7 @@ import { User } from '@etsecure/data-contracts';
           <td style="width: 3rem">
             <!-- <p-tableCheckbox [value]="user.id" /> -->
           </td>
-          <td style="min-width: 12rem">{{ user.authentik_id }}</td>
+          <td style="min-width: 2rem">{{ user.authentik_id }}</td>
           <td style="min-width: 16rem">{{ user.name }}</td>
           <td style="min-width: 16rem">{{ user.email }}</td>
           <td>

@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  ai-service:
+    image: ai-service:latest
+    container_name: ai-service
+    volumes:
+      - ./models:/app/models
+      - ../../uploads:/app/dataset
+    environment:
+      - TOKEN=REDACTED
+    restart: unless-stopped

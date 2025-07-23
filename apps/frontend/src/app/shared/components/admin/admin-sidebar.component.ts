@@ -39,6 +39,11 @@ export class AppAdminSidebar {
           icon: 'pi pi-fw pi-home',
           routerLink: ['rooms'],
         },
+        {
+          label: 'Service Accounts',
+          icon: 'pi pi-fw pi-briefcase',
+          routerLink: ['service-accounts'],
+        },
       ],
     },
   ];

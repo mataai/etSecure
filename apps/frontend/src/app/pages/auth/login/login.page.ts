@@ -59,15 +59,15 @@ import { AuthService } from '../../../shared/services/auth.service';
               <label for="password">Password</label>
             </span> -->
             <button pButton type="submit" class="w-full mt-2">Login</button>
-            <button
+            <!-- <button
               pButton
               type="button"
               class="w-full mt-2 p-button-outlined"
-              [routerLink]="['/auth/register']"
+              [routerLink]="['/auth/signup']"
               routerLinkActive="router-link-active"
             >
               Sign Up with Referral
-            </button>
+            </button> -->
           </form>
         </p-card>
       </main>

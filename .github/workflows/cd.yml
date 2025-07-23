@@ -15,6 +15,7 @@ permissions:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  NX_BRANCH: ${{ github.head_ref || github.ref_name }}
 jobs:
   deploy:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
@@ -65,35 +66,19 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
             ${{ env.REGISTRY }}/${{ github.repository_owner }}/etsecure_frontend
 
-      - name: Check if backend build exists
-        id: has_backend
+      - name: Get affected projects
         run: |
-          if [ -d dist/apps/backend ]; then
-            echo "exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "exists=false" >> $GITHUB_OUTPUT
-          fi
-      - name: Check if frontend build exists
-        id: has_frontend
+          AFFECTED=$(npx nx show projects --affected --base=origin/master~5 --head=origin/master | grep -E 'frontend|backend' | tr '\n' ' ' | xargs)
+          AFFECTED_COMMA=$(echo $AFFECTED | tr ' ' ',')
+          echo "AFFECTED=$AFFECTED_COMMA" >> $GITHUB_ENV
+
+      - name: Build affected projects
         run: |
-          if [ -d dist/apps/frontend ]; then
-            echo "exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "exists=false" >> $GITHUB_OUTPUT
-          fi
-      
-      - name: Build Docker backend image via Nx
-        if: steps.has_backend.outputs.exists == 'true'
-        run: npx nx run backend:docker-build
+          IFS=' ' read -r -a affected_projects <<< "$AFFECTED"
+          npx nx run-many -t docker-build --projects="${affected_projects[@]}"
 
-      - name: Publish Docker backend image via Nx
-        if: steps.has_backend.outputs.exists == 'true'
-        run: npx nx run backend:docker-publish
+      - name: Publish affected projects
+        run: |
+          IFS=' ' read -r -a affected_projects <<< "$AFFECTED"
+          npx nx run-many -t docker-publish --projects="${affected_projects[@]}"
 
-      - name: Build Docker frontend image via Nx
-        if: steps.has_frontend.outputs.exists == 'true'
-        run: npx nx run frontend:docker-build
-
-      - name: Publish Docker frontend image via Nx
-        if: steps.has_frontend.outputs.exists == 'true'
-        run: npx nx run frontend:docker-publish

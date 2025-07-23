@@ -10,6 +10,8 @@ import { RoomsListPage } from './pages/admin/room-list.page';
 import { UserDetailsPage } from './pages/admin/user-details.page';
 import { RoomDetailsPage } from './pages/admin/room-details.page';
 import { ProfilePage } from './pages/profile/profile.page';
+import { ServiceAccountsListPage } from './pages/admin/service-accounts/service-accounts-list.page';
+import { ServiceAccountDetailsPage } from './pages/admin/service-accounts/service-account-details.page';
 
 export const appRoutes: Routes = [
   { path: 'notfound', component: Notfound },
@@ -20,12 +22,10 @@ export const appRoutes: Routes = [
       { path: 'login', canActivate: [authGuard(false)], component: LoginPage },
       {
         path: 'signup',
-        canActivate: [authGuard(false)],
         component: SignupPage,
       },
       {
         path: 'callback',
-        canActivate: [authGuard(false)],
         component: CallbackPage,
       },
     ],
@@ -50,6 +50,13 @@ export const appRoutes: Routes = [
           { path: ':id', component: RoomDetailsPage },
         ],
       },
+      {
+        path: 'service-accounts',
+        children: [
+          { path: '', component: ServiceAccountsListPage },
+          { path: ':id', component: ServiceAccountDetailsPage },
+        ],
+      },
       { path: '**', redirectTo: '/notfound', pathMatch: 'full' },
     ],
   },
@@ -60,7 +67,11 @@ export const appRoutes: Routes = [
     children: [
       { path: 'home', component: HomePage },
       { path: 'profile', component: ProfilePage },
-      { path: 'bypass', loadComponent: () => import('./pages/bypass/bypass.page').then(m => m.BypassPage) },
+      {
+        path: 'bypass',
+        loadComponent: () =>
+          import('./pages/bypass/bypass.page').then((m) => m.BypassPage),
+      },
       { path: '**', redirectTo: '/home', pathMatch: 'full' },
     ],
   },
