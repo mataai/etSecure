@@ -107,7 +107,9 @@ def process_frame(frame, roomId):
             name = known_face_names[best_match_index]
             # Check if the detected face is in our authorized list
             print(f"Detected face: {name}")
-        faces.append(name)
+
+        if (name != "Unknown"):
+            faces.append(name)
 
     # TODO send recognized face names to the server
 
