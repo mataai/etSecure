@@ -7,7 +7,7 @@ import { AttendanceService, WebSocketService } from '../../shared/services';
 import { Subject } from 'rxjs';
 
 interface StreamData {
-  frame?: unknown;
+  frame?: string;
   roomId?: string;
   timestamp?: number;
 }
@@ -50,14 +50,16 @@ export class AdminPage {
     console.log(this._webSocketService.connected);
     this._webSocketService.addListener(
       'message',
-      (data: { image: StreamData['frame']; roomId: string }) => {
+      (data: { image: ArrayBuffer; roomId: string }) => {
         console.log('Message received:', data);
         if (!data || !data.image || !data.roomId) {
           console.error('Invalid message format:', data);
           return;
         }
+        const blob = new Blob([data.image], { type: 'image/jpeg' });
+        const frame = URL.createObjectURL(blob);
         this._videoObservable.next({
-          frame: data.image,
+          frame,
           roomId: data.roomId,
           timestamp: Date.now(),
         });

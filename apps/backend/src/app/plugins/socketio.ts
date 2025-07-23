@@ -35,7 +35,7 @@ export default fp(async function (fastify: FastifyInstance) {
           jwt,
         )) as UserAuthentik;
         if (!userInfo || !userInfo.sub) {
-          return next(new Error('Authentication error: token invalid'));
+          return next(new Error('Authentication error: token invalid.'));
         }
         socket.data.user = userInfo;
         return next();
@@ -48,8 +48,6 @@ export default fp(async function (fastify: FastifyInstance) {
 
       // Handle custom events
       socket.on('message', (data: Buffer) => {
-        console.log('Message received:', data.byteLength);
-
         if (!socket.data.service) {
           console.error('Service data not found on socket');
           return;

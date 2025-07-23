@@ -34,7 +34,7 @@ export default async function (fastify: FastifyInstance) {
         console.log(`Request received: ${req.method} ${req.url}`);
 
         res.redirect(uri);
-      }
+      },
     );
   });
 
@@ -85,12 +85,10 @@ export default async function (fastify: FastifyInstance) {
         return res.status(400).send({ error: 'File upload failed' });
       }
 
-      const userFolderPath = `./uploads/${req.user._id}`
+      const userFolderPath = `./uploads/${req.user._id}`;
       if (!fs.existsSync(userFolderPath)) {
         fs.mkdirSync(`./uploads/${req.user._id}`, { recursive: true });
       }
-
-      
 
       const savePath = `./uploads/${req.user._id}/${randomUUID()}.jpg`;
       const writeStream = fs.createWriteStream(savePath);
@@ -118,7 +116,7 @@ export default async function (fastify: FastifyInstance) {
       return res.status(200).send({
         message: 'File uploaded successfully',
       });
-    }
+    },
   );
 
   fastify.post(
@@ -162,7 +160,7 @@ export default async function (fastify: FastifyInstance) {
       const updatedUser = await usersCollection.findOneAndUpdate(
         { _id: new ObjectId(userId) },
         { $inc: { bypassLeft: -1 } },
-        { returnDocument: 'after' }
+        { returnDocument: 'after' },
       );
 
       if (!updatedUser) {
@@ -188,15 +186,13 @@ export default async function (fastify: FastifyInstance) {
         console.error('Error inserting attendance:', error);
         reply.code(500).send({ error: 'Failed to record attendance' });
       }
-    }
+    },
   );
 
   fastify.post(
     '/auth/request-open',
     // { preValidation: [authPreValidator, groupPreValidator(['etsecure_ai'])] },
     async function (request, reply) {
-      console.log("REQUEST RECEIVED")
-
 
       const data = request.body as RoomUnlockRequest;
       if (!data || !data.roomId || !data.userId || !data.timestamp) {
@@ -204,7 +200,9 @@ export default async function (fastify: FastifyInstance) {
           .code(400)
           .send({ error: 'roomId, userId, and timestamp are required' });
       }
-
+      if (data.userId == 'Unknown') {
+        return reply.code(404).send({ error: 'User invalid' });
+      }
       const user = await usersCollection.findOne({
         _id: new ObjectId(data.userId),
       });
@@ -214,14 +212,14 @@ export default async function (fastify: FastifyInstance) {
 
       const room = await roomsCollection.findOne({
         _id: new ObjectId(data.roomId),
-        users: user._id
+        users: user._id,
       });
       if (!room) {
         return reply.code(404).send({ error: 'Room not found' });
       }
 
       if (fastify.mqttClient?.connected) {
-        fastify.mqttClient.publish(`rooms/${data.roomId}/command`, 'unlock');
+        fastify.mqttClient.publish(`rooms/${data.roomId}/commands`, 'unlock');
       } else {
         console.error('Unlock command failed: MQTT client not connected');
       }
@@ -237,14 +235,15 @@ export default async function (fastify: FastifyInstance) {
         await attendancesCollection.insertOne(attendance as AttendanceModel);
       } catch (error) {
         console.error('Error inserting attendance:', error);
-        reply.code(500).send({ error: 'Failed to record attendance' });
+        return reply.code(500).send({ error: 'Failed to record attendance' });
       }
 
-      reply.code(200).send({ message: 'Unlock command sent' });
-    }
+      return reply.code(200).send({ message: 'Unlock command sent' });
+    },
   );
 
-  fastify.get('/auth/ai-models/:id',
+  fastify.get(
+    '/auth/ai-models/:id',
     // { preValidation: [authPreValidator, groupPreValidator(['etsecure_device'])] },
     async (request, reply) => {
       const { id } = request.params as { id: string };
@@ -252,14 +251,17 @@ export default async function (fastify: FastifyInstance) {
       const filePath = path.resolve(`ai-models/${id}.pickle`);
 
       if (!fs.existsSync(filePath)) {
-        reply.code(404).send({ message: 'Model not found'});
+        reply.code(404).send({ message: 'Model not found' });
       }
 
       reply.header('Content-Type', 'application/octet-stream');
-      reply.header('Content-Disposition', `attachment; filename="${id}.pickle"`)
+      reply.header(
+        'Content-Disposition',
+        `attachment; filename="${id}.pickle"`,
+      );
 
       const fileStream = fs.createReadStream(filePath);
       reply.send(fileStream);
-    }
-  )
+    },
+  );
 }
