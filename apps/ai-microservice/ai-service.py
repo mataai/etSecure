@@ -107,16 +107,17 @@ def process_frame(frame, roomId):
             name = known_face_names[best_match_index]
             # Check if the detected face is in our authorized list
             print(f"Detected face: {name}")
-        faces.append(name)
 
-    # TODO send recognized face names to the server
+        if (name != "Unknown"):
+            faces.append(name)
+
 
     if (len(faces) == 0):
         #print("[INFO] No faces recognized.")
         return frame
 
     # Face regonized
-    #print(f"[INFO] Recognized faces: {faces}")
+    print(f"[INFO] Recognized faces: {faces}")
 
     # FOR DEBUGGING PURPOSES
     #faces.append("6871d4298da22a354f8af193")
@@ -124,7 +125,7 @@ def process_frame(frame, roomId):
 
     timediff = (datetime.now() - last_time).total_seconds()
     if (last_face_seen == faces[0] and timediff < COOLDOWN):
-        #print(f"[INFO] Same face seen again, skipping sending to server")
+        print(f"[INFO] Same face seen again, skipping sending to server")
         return frame
 
     last_time = datetime.now()

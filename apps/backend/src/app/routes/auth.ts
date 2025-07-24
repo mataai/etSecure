@@ -240,6 +240,8 @@ export default async function (fastify: FastifyInstance) {
         reply.code(500).send({ error: 'Failed to record attendance' });
       }
 
+      fastify.mqttClient.publish(`rooms/${room._id}/commands`, 'unlock')
+
       reply.code(200).send({ message: 'Unlock command sent' });
     }
   );

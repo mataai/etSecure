@@ -36,9 +36,9 @@ export default fp(async function (fastify: FastifyInstance) {
 
       // Handle custom events
       socket.on('message', (data: Buffer) => {
-        console.log('Message received:', data.byteLength);
+        //console.log('Message received:', data.byteLength);
 
-        console.log(socket.data.service)
+        //console.log(socket.data.service)
 
         // Process the received data (e.g., log it, store it, etc.)
 
