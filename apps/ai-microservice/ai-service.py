@@ -111,6 +111,9 @@ def process_frame(frame, roomId):
         if (name != "Unknown"):
             faces.append(name)
 
+        if (name != "Unknown"):
+            faces.append(name)
+
 
     if (len(faces) == 0):
         #print("[INFO] No faces recognized.")

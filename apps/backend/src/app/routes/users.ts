@@ -307,6 +307,31 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
         .send({ message: `Bypass added to ${user.name} sucessfully` });
     }
   );
+
+  fastify.post(
+    '/users/:id/present',
+    {
+      preValidation: [authPreValidator, groupPreValidator(['etsecure_admin'])],
+    },
+    async (request, reply) => {
+      const { id } = request.params as { id: string };
+      const { roomId } = request.body as { roomId: string };
+
+      fastify.mqttClient.publish(`/rooms/${roomId}/command`, 'unlock');
+
+      const attendance = {
+        roomId: new ObjectId(roomId),
+        userId: new ObjectId(id),
+        timestamp: new Date(),
+      };
+
+      await fastify.mongo.db
+        .collection<AttendanceModel>('attendances')
+        .insertOne(attendance as AttendanceModel);
+
+      reply.code(200).send({ message: 'Unlock request sent to device' });
+    }
+  );
 };
 
 export default userRoutes;

@@ -8,5 +8,6 @@ services:
       - ./models:/app/models
       - ../../uploads:/app/dataset
     environment:
+      - SERVER_URL=http://laptop-mat:3000
       - TOKEN=REDACTED
     restart: unless-stopped
