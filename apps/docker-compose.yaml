@@ -20,7 +20,7 @@ services:
     volumes:
       - ../server.crt:/app/server.crt
       - ./models:/app/models
-      - ../../uploads:/app/uploads
+      - ./uploads:/app/uploads
 
   frontend:
     image: ghcr.io/mataai/etsecure_frontend:latest
@@ -42,7 +42,7 @@ services:
     container_name: ai-service
     volumes:
       - ./models:/app/models
-      - ../../uploads:/app/dataset
+      - ./uploads:/app/dataset
     environment:
       - SERVER_URL=https://api.etsecure.xyz
       - TOKEN=REDACTED
