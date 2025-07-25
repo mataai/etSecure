@@ -47,7 +47,7 @@ Thumbs.db
 .angular
 .env
 
-/uploads/*
+*/uploads/*
 
 venv
 docker-services/traefik/certs/*
