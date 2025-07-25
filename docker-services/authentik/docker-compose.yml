@@ -55,6 +55,7 @@ services:
     volumes:
       - ./media:/media
       - ./custom-templates:/templates
+      - ./branding/icon_left_brand.svg:/static/dist/assets/icons/icon_left_brand.svg
     env_file:
       - .env
     depends_on:

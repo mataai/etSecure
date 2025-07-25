@@ -55,3 +55,10 @@ docker-services/traefik/**/*.log
 vite.config.*.timestamp*
 vitest.config.*.timestamp*
 *.pickle
+.vscode/settings.json
+
+# Ignorer les logs RabbitMQ
+docker-services/broker/var-log/
+
+# Ignorer MongoDB volume
+docker-services/mongodb/mongo/

@@ -7,7 +7,7 @@ services:
     environment:
       NODE_ENV: production
     env_file:
-      - ../.env.example
+      - ../.env
     restart: unless-stopped
     networks:
       - traefik
@@ -30,7 +30,7 @@ services:
       - traefik
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`etsecure.xyz`)&&Host(`www.etsecure.xyz`)"
+      - "traefik.http.routers.frontend.rule=Host(`etsecure.xyz`) || Host(`www.etsecure.xyz`)"
       - "traefik.http.routers.frontend.entrypoints=https"
       - "traefik.http.routers.frontend.tls.certresolver=production"
       - "traefik.http.services.frontend.loadbalancer.server.port=80"
