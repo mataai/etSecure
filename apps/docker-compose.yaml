@@ -19,6 +19,8 @@ services:
       - "traefik.http.services.backend.loadbalancer.server.port=3000"
     volumes:
       - ../server.crt:/app/server.crt
+      - ./models:/app/models
+      - ../../uploads:/app/uploads
 
   frontend:
     image: ghcr.io/mataai/etsecure_frontend:latest
@@ -34,6 +36,17 @@ services:
       - "traefik.http.routers.frontend.entrypoints=https"
       - "traefik.http.routers.frontend.tls.certresolver=production"
       - "traefik.http.services.frontend.loadbalancer.server.port=80"
+
+  ai-service:
+    image: ghcr.io/mataai/etsecure_ai-service:latest
+    container_name: ai-service
+    volumes:
+      - ./models:/app/models
+      - ../../uploads:/app/dataset
+    environment:
+      - SERVER_URL=http://api.etsecure.xyz
+      - TOKEN=REDACTED
+    restart: unless-stopped
 
 networks:
   traefik:
