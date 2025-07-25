@@ -41,8 +41,10 @@ jobs:
       - name: Show affected projects
         run: npx nx show projects --affected
 
-
       - run: npx nx affected -t lint test build --base=origin/master~5 --head=origin/master
+
+      - name: Run copy-project-json on affected projects
+        run: npx nx affected -t copy-project-json --base=origin/master~5 --head=origin/master
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
