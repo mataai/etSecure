@@ -23,7 +23,7 @@ RUN apt-get update && apt-get install -y \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
-COPY apps/ai-microservice/ .
+COPY apps/ai-microservice/src .
 
 CMD ["python", "-u",  "ai-service.py"]
 
