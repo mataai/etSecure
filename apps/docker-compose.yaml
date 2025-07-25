@@ -44,7 +44,7 @@ services:
       - ./models:/app/models
       - ../../uploads:/app/dataset
     environment:
-      - SERVER_URL=http://api.etsecure.xyz
+      - SERVER_URL=https://api.etsecure.xyz
       - TOKEN=REDACTED
     restart: unless-stopped
 
