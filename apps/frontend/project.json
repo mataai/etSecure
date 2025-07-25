@@ -80,6 +80,9 @@
     "docker-publish": {
       "dependsOn": ["docker-build"],
       "command": "docker push ghcr.io/mataai/etsecure_frontend:latest"
+    },
+    "copy-project-json": {
+      "command": "cp apps/frontend/project.json dist/apps/frontend/project.json"
     }
   }
 }

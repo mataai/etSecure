@@ -68,6 +68,12 @@
       "options": {
         "command": "docker push ghcr.io/mataai/etsecure_backend:latest"
       }
+    },
+    "copy-project-json": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cp apps/backend/project.json dist/apps/backend/project.json"
+      }
     }
   }
 }
