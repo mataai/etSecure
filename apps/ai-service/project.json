@@ -1,0 +1,34 @@
+{
+  "name": "ai-service",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/ai-service",
+  "projectType": "application",
+  "targets": {
+    "run": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "python ai-service.py",
+        "cwd": "apps/ai-service"
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo 'No build step for Python, but you can add one here if needed.'"
+      }
+    },
+    "docker-build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker build -f ./apps/ai-microservice/Dockerfile . -t ghcr.io/mataai/ai-service:latest"
+      }
+    },
+    "docker-publish": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["docker-build"],
+      "options": {
+        "command": "docker push ghcr.io/mataai/ai-service:latest"
+      }
+    }
+  }
+}
