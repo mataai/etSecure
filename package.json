@@ -32,6 +32,7 @@
     "@fastify/sensible": "~6.0.2",
     "@primeuix/themes": "^1.2.1",
     "chart.js": "^4.5.0",
+    "dotenv": "^17.2.1",
     "express": "^4.21.2",
     "fastify": "~5.2.1",
     "fastify-plugin": "~5.0.1",
