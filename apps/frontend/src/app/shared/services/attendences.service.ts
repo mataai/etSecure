@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
-import { Attendance } from '@etsecure/data-contracts';
-import { firstValueFrom } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
+import { Attendance } from '@etsecure/data-contracts';
 import { environment } from '../../../environment/environment';
 
 @Injectable({ providedIn: 'root' })

@@ -7,9 +7,11 @@ import {
   CreateAttendanceRequest,
   RoomAccessUpdateRequest,
   Room,
+  Attendance,
 } from '@etsecure/data-contracts';
 import { UserModel } from '../models/user.model';
 import { RoomModel } from '../models/room.model';
+import { AttendanceModel } from '../models/attendance.model';
 
 const roomsRoutes: FastifyPluginAsync = async (fastify) => {
   const usersCollection = fastify.mongo.db.collection<UserModel>('users');
@@ -259,6 +261,7 @@ const roomsRoutes: FastifyPluginAsync = async (fastify) => {
           },
           { $unwind: '$room' },
         ])
+        .sort({ timestamp: -1 }) // Sort by timestamp descending
         .toArray();
 
       return reply.code(200).send(attendances);
@@ -298,8 +301,8 @@ const roomsRoutes: FastifyPluginAsync = async (fastify) => {
             $unwind: '$user', // flatten the array to just an object
           },
         ])
+        .sort({ timestamp: -1 }) // Sort by timestamp descending
         .toArray();
-
       return reply.code(200).send(attendances);
     }
   );

@@ -10,8 +10,15 @@ import { StyleClassModule } from 'primeng/styleclass';
   template: ` <div class="layout-topbar">
     <div class="layout-topbar-logo-container">
       <a class="layout-topbar-logo" routerLink="/">
-        <img src="/etsecure-logo.svg" alt="etSecure Logo" style="height:40px;" />
-        <span><span style="color:inherit;">etS</span><span style="color:white !important;">ecure</span></span>
+        <img
+          src="/etsecure-logo.svg"
+          alt="etSecure Logo"
+          style="height:40px;"
+        />
+        <span>
+          <span style="color:inherit;">etS</span>
+          <span style="color:white !important;">ecure</span>
+        </span>
       </a>
     </div>
 
@@ -35,7 +42,6 @@ import { StyleClassModule } from 'primeng/styleclass';
       </div>
     </div>
   </div>`,
-
   styles: [
     `
       .active {

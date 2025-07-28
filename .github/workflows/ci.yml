@@ -18,7 +18,10 @@ on:
       - .github/workflows/merge.yml
 permissions:
   contents: read
-  actions: read
+  packages: write
+  id-token: write
+  attestations: write
+  actions: write
 env:
   NX_BRANCH: ${{ github.head_ref || github.ref_name }}
   REGISTRY: ghcr.io

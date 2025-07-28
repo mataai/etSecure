@@ -73,7 +73,7 @@ export class UserDetailsPage {
         const attendances = await this._attendanceService.getUserAttendances(
           this.user()!._id!
         );
-        this.userAttendances.set(attendances.reverse());
+        this.userAttendances.set(attendances);
         console.log('User attendances:', attendances);
       }
     });

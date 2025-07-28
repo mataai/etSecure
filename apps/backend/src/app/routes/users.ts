@@ -254,18 +254,18 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
             },
           },
           {
-            $unwind: '$room',
-            preserveNullAndEmptyArrays: true,
+            $unwind: { path: '$room', preserveNullAndEmptyArrays: true },
           },
           {
             $project: {
-              _id: 1,
-              timestamp: 1,
-              'room.name': 1,
-              'room.location': 1,
+              _id: true,
+              timestamp: true,
+              'room.name': true,
+              'room.location': true,
             },
           },
         ])
+        .sort({ timestamp: -1 }) // Sort by timestamp descending
         .toArray();
 
       return reply.code(200).send(attendances);
@@ -322,7 +322,7 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
       const attendance = {
         roomId: new ObjectId(roomId),
         userId: new ObjectId(id),
-        timestamp: new Date(),
+        timestamp: new Date().getTime(),
       };
 
       await fastify.mongo.db

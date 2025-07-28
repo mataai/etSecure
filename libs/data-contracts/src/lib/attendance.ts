@@ -5,7 +5,7 @@ export interface Attendance {
   _id?: string; // Optional ID for the attendance record
   user: User; // ID of the user attending
   room: Room; // ID of the room where the attendance is recorded
-  timestamp: Date; // Timestamp of when the attendance was recorded
+  timestamp: number; // Timestamp of when the attendance was recorded
 }
 
 export interface CreateAttendanceRequest {

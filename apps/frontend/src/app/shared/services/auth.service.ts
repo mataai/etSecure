@@ -1,8 +1,10 @@
+import { firstValueFrom } from 'rxjs';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environment/environment';
 import { Router } from '@angular/router';
 import { UserManager, WebStorageStateStore } from 'oidc-client-ts'; // Ensure you have oidc-client-ts installed
-import { UserAuthentik } from '@etsecure/data-contracts';
+import { User, UserAuthentik } from '@etsecure/data-contracts';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -17,7 +19,8 @@ export class AuthService {
     }),
   });
 
-  private router = inject(Router);
+  private _router = inject(Router);
+  private _httpClient = inject(HttpClient);
 
   public get asyncToken(): Promise<string | null> {
     return this.userManager
@@ -59,6 +62,12 @@ export class AuthService {
     });
   }
 
+  public getMe(): Promise<User> {
+    return firstValueFrom(
+      this._httpClient.get<User>(environment.backendUrl + '/auth/profile')
+    );
+  }
+
   public login(): void {
     this.userManager.signinRedirect().catch((error) => {
       console.error('Error during login:', error);
@@ -76,7 +85,7 @@ export class AuthService {
         console.log('Login successful:', user);
 
         // Redirect to the home page or any other page after successful login
-        this.router.navigate(['/home']);
+        this._router.navigate(['/home']);
       })
       .catch((error) => {
         console.error('Login failed:', error);
@@ -92,7 +101,7 @@ export class AuthService {
       .signoutRedirect()
       .then(() => {
         // Clear local storage or any other state management after logout
-        this.router.navigate(['/auth/login']);
+        this._router.navigate(['/auth/login']);
       })
       .catch((error) => {
         console.error('Logout failed:', error);

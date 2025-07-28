@@ -34,7 +34,7 @@ export default async function (fastify: FastifyInstance) {
         console.log(`Request received: ${req.method} ${req.url}`);
 
         res.redirect(uri);
-      },
+      }
     );
   });
 
@@ -51,22 +51,16 @@ export default async function (fastify: FastifyInstance) {
     }
   });
 
-  fastify.get('/auth/profile', async function (req, res) {
-    // get token from request header
-    const token: string = req.headers.authorization?.split(' ')[1];
-    if (!token) {
-      return res.status(401).send({ error: 'Unauthorized' });
+  fastify.get(
+    '/auth/profile',
+    { preValidation: [authPreValidator] },
+    async function (req, res) {
+      // get token from request header
+      const user = { ...req.user };
+      delete user.bypassLeft;
+      return res.status(200).send(user);
     }
-    console.log(token);
-    try {
-      const userInfo = await fastify.customOauth2.userinfo(token);
-      console.log('User Info:', userInfo);
-      return userInfo;
-    } catch (err) {
-      console.error('Error fetching user profile:', err);
-      res.status(500).send({ error: 'Failed to fetch user profile' });
-    }
-  });
+  );
 
   fastify.post(
     '/auth/picture',
@@ -116,7 +110,7 @@ export default async function (fastify: FastifyInstance) {
       return res.status(200).send({
         message: 'File uploaded successfully',
       });
-    },
+    }
   );
 
   fastify.post(
@@ -160,7 +154,7 @@ export default async function (fastify: FastifyInstance) {
       const updatedUser = await usersCollection.findOneAndUpdate(
         { _id: new ObjectId(userId) },
         { $inc: { bypassLeft: -1 } },
-        { returnDocument: 'after' },
+        { returnDocument: 'after' }
       );
 
       if (!updatedUser) {
@@ -172,7 +166,7 @@ export default async function (fastify: FastifyInstance) {
       const attendance: Omit<AttendanceModel, '_id'> = {
         userId: new ObjectId(userId),
         roomId: new ObjectId(data.roomId),
-        timestamp: new Date(),
+        timestamp: new Date().getTime(),
         type: 'bypass',
       };
 
@@ -186,7 +180,7 @@ export default async function (fastify: FastifyInstance) {
         console.error('Error inserting attendance:', error);
         reply.code(500).send({ error: 'Failed to record attendance' });
       }
-    },
+    }
   );
 
   fastify.post(
@@ -225,7 +219,7 @@ export default async function (fastify: FastifyInstance) {
       const attendance: Omit<AttendanceModel, '_id'> = {
         userId: new ObjectId(data.userId),
         roomId: new ObjectId(data.roomId),
-        timestamp: data.timestamp,
+        timestamp: new Date(data.timestamp).getTime(),
         type: 'unlock',
         // image: data.image, // Assuming image is a Buffer
       };
@@ -240,7 +234,7 @@ export default async function (fastify: FastifyInstance) {
       fastify.mqttClient.publish(`rooms/${room._id}/commands`, 'unlock');
 
       return reply.code(200).send({ message: 'Unlock command sent' });
-    },
+    }
   );
 
   fastify.get(
@@ -258,11 +252,11 @@ export default async function (fastify: FastifyInstance) {
       reply.header('Content-Type', 'application/octet-stream');
       reply.header(
         'Content-Disposition',
-        `attachment; filename="${id}.pickle"`,
+        `attachment; filename="${id}.pickle"`
       );
 
       const fileStream = fs.createReadStream(filePath);
       reply.send(fileStream);
-    },
+    }
   );
 }
