@@ -38,6 +38,8 @@ services:
   ai-service:
     image: ghcr.io/mataai/etsecure_ai-service:latest
     container_name: etsecure_ai-service
+    depends_on:
+      - backend
     volumes:
       - /home/lanets/data/models:/app/models
       - /home/lanets/data/uploads:/app/uploads
