@@ -7,7 +7,7 @@ import fastifyIO from 'fastify-socket';
 export default fp(async function (fastify: FastifyInstance) {
   fastify.register(fastifyIO, {
     cors: {
-      origin: ['http://localhost:4200', 'https://www.etsecure.xyz', 'https://etsecure.xyz'],
+      origin: "*",
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     },
   });
