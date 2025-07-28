@@ -1,4 +1,4 @@
-name: CI
+name: Test Build and Publish
 on:
   pull_request:
     branches:
