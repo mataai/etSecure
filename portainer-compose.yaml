@@ -1,0 +1,46 @@
+services:
+  backend:
+    image: ghcr.io/mataai/etsecure_backend:latest
+    container_name: etsecure_backend
+    environment:
+      NODE_ENV: production
+    restart: unless-stopped
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=Host(`api.etsecure.xyz`)"
+      - "traefik.http.routers.backend.entrypoints=https"
+      - "traefik.http.routers.backend.tls.certresolver=production"
+      - "traefik.http.services.backend.loadbalancer.server.port=3000"
+    volumes:
+      - /home/lanets/IND520/server.crt:/app/server.crt
+      - /home/lanets/data/models:/app/models
+      - /home/lanets/data/uploads:/app/uploads
+
+  frontend:
+    image: ghcr.io/mataai/etsecure_frontend:latest
+    container_name: etsecure_frontend
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`etsecure.xyz`) || Host(`www.etsecure.xyz`)"
+      - "traefik.http.routers.frontend.entrypoints=https"
+      - "traefik.http.routers.frontend.tls.certresolver=production"
+      - "traefik.http.services.frontend.loadbalancer.server.port=80"
+
+  ai-service:
+    image: ghcr.io/mataai/etsecure_ai-service:latest
+    container_name: ai-service
+    volumes:
+      - /home/lanets/data/models:/app/models
+      - /home/lanets/data/uploads:/app/uploads
+    restart: unless-stopped
+
+networks:
+  traefik:
+    external: true
