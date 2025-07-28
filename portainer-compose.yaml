@@ -4,6 +4,8 @@ services:
     container_name: etsecure_backend
     environment:
       NODE_ENV: production
+    env_file:
+      - stack.env
     restart: unless-stopped
     networks:
       - traefik
@@ -35,10 +37,12 @@ services:
 
   ai-service:
     image: ghcr.io/mataai/etsecure_ai-service:latest
-    container_name: ai-service
+    container_name: etsecure_ai-service
     volumes:
       - /home/lanets/data/models:/app/models
       - /home/lanets/data/uploads:/app/uploads
+    env_file:
+      - stack.env
     restart: unless-stopped
 
 networks:
