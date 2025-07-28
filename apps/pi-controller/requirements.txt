@@ -1,0 +1,4 @@
+paho-mqtt
+picamera2
+opencv-python
+python-socketio
