@@ -167,7 +167,7 @@ export default async function (fastify: FastifyInstance) {
         return reply.code(500).send({ error: 'Failed to update user' });
       }
 
-      fastify.mqttClient.publish(`rooms/${data.roomId}/command`, 'unlock');
+      fastify.mqttClient.publish(`rooms/${data.roomId}/commands`, 'unlock');
 
       const attendance: Omit<AttendanceModel, '_id'> = {
         userId: new ObjectId(userId),
@@ -193,7 +193,6 @@ export default async function (fastify: FastifyInstance) {
     '/auth/request-open',
     // { preValidation: [authPreValidator, groupPreValidator(['etsecure_ai'])] },
     async function (request, reply) {
-
       const data = request.body as RoomUnlockRequest;
       if (!data || !data.roomId || !data.userId || !data.timestamp) {
         return reply
@@ -238,7 +237,7 @@ export default async function (fastify: FastifyInstance) {
         return reply.code(500).send({ error: 'Failed to record attendance' });
       }
 
-      fastify.mqttClient.publish(`rooms/${room._id}/commands`, 'unlock')
+      fastify.mqttClient.publish(`rooms/${room._id}/commands`, 'unlock');
 
       return reply.code(200).send({ message: 'Unlock command sent' });
     },
