@@ -6,21 +6,15 @@ from picamera2 import Picamera2
 import cv2
 import base64
 import socketio
-import os
 
 sio = socketio.Client()
 
-ROOM_ID = os.environ.get("ROOM_ID")
-TOKEN = os.environ.get("TOKEN")
-SOCKET_IO_URL = os.environ.get("SOCKET_IO_URL")
-MQTT_URL = os.environ.get("BROKER_URL")
-MQTT_PORT = int(os.environ.get("MQTT_PORT", 8883))
+ROOM_ID = "68717478f9d185d6407efec3"
+TOKEN = "REDACTED"
 
 sio.on('connect_error', lambda e: print(f"Connection error: {e}"))
 
-sio.connect(SOCKET_IO_URL, auth={'token': TOKEN})
-
-
+sio.connect('http://laptop-mat:3000', auth={'token': TOKEN}) # Replace with your server URL
 
 DEBUG = False
 
@@ -32,7 +26,10 @@ GPIO.setup(PIR_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(RELAY_PIN, GPIO.OUT)
 
 # === MQTT Configuration ===
+BROKER = "cloud-ind520"
+PORT = 8883
 TOPIC = "rooms/" + ROOM_ID + "/commands"
+CLIENT_ID = "rpi-max"
 CERT_FILE = "./server.crt"
 
 # === MQTT Callbacks ===
@@ -44,6 +41,7 @@ def on_connect(client, userdata, flags, rc):
         print(f"❌ Connection failed. Code: {rc}")
 
 def on_message(client, userdata, msg):
+    print(msg)
     if msg.payload.decode() == "unlock":
         print("🔓 Unlocking door!")
         GPIO.output(RELAY_PIN, GPIO.HIGH)
@@ -70,7 +68,7 @@ client.tls_set(
 )
 
 # === Connect and Start MQTT client
-client.connect(MQTT_URL, MQTT_PORT, keepalive=180)
+client.connect(BROKER, PORT, keepalive=180)
 client.loop_start()
 
 # === Camera Setup ===
