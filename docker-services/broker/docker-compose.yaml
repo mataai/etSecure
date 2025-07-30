@@ -21,6 +21,7 @@ services:
     volumes:
       - ./var-log:/var/log/rabbitmq
       - ./rabbitmq:/etc/rabbitmq/
+      - /certs:/etc/rabbitmq/certs
 
 networks:
   traefik:
