@@ -17,7 +17,7 @@ services:
       - "traefik.http.services.backend.loadbalancer.server.port=3000"
       - "com.centurylinklabs.watchtower.enable=true"
     volumes:
-      - /home/lanets/IND520/server.crt:/app/server.crt
+      - /home/lanets/IND520/docker-services/broker/rabbitmq/certs/server.crt:/app/server.crt
       - /home/lanets/data/models:/app/models
       - /home/lanets/data/uploads:/app/uploads
 

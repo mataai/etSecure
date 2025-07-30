@@ -18,7 +18,7 @@ services:
       - "traefik.http.routers.backend.tls.certresolver=production"
       - "traefik.http.services.backend.loadbalancer.server.port=3000"
     volumes:
-      - ../server.crt:/app/server.crt
+      - ../docker-services/broker/rabbitmq/certs/server.crt:/app/server.crt
       - ./models:/app/models
       - ./uploads:/app/uploads
 

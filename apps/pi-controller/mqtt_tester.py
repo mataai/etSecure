@@ -3,7 +3,7 @@ import ssl
 import time
 
 # === MQTT Configuration ===
-BROKER = "cloud-ind520"       # Your MQTT broker hostname or IP
+BROKER = "rabbitmq.etsecure.xyz       # Your MQTT broker hostname or IP
 PORT = 8883                   # Standard TLS port
 TOPIC = "doors/12/status"                # Topic to publish to
 CLIENT_ID = "test"            # MQTT client ID

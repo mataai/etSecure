@@ -27,7 +27,7 @@ GPIO.setup(PIR_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(RELAY_PIN, GPIO.OUT)
 
 # === MQTT Configuration ===
-BROKER = "cloud-ind520"
+BROKER = "rabbitmq.etsecure.xyz"
 PORT = 8883
 TOPIC = "rooms/" + ROOM_ID + "/commands"
 CLIENT_ID = "rpi-max"
