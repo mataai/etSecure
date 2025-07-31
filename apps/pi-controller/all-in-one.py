@@ -31,7 +31,7 @@ BROKER = "rabbitmq.etsecure.xyz"
 PORT = 8883
 TOPIC = "rooms/" + ROOM_ID + "/commands"
 CLIENT_ID = "rpi-max"
-CERT_FILE = "./server.crt"
+CERT_FILE = "../../certs/server.crt"
 
 # === MQTT Callbacks ===
 def on_connect(client, userdata, flags, rc):

@@ -7,7 +7,7 @@ BROKER = "rabbitmq.etsecure.xyz       # Your MQTT broker hostname or IP
 PORT = 8883                   # Standard TLS port
 TOPIC = "doors/12/status"                # Topic to publish to
 CLIENT_ID = "test"            # MQTT client ID
-CERT_FILE = "/certs/server.crt"    # Path to CA certificate
+CERT_FILE = "../../certs/server.crt"    # Path to CA certificate
 
 # Optional credentials
 USERNAME = "client"
