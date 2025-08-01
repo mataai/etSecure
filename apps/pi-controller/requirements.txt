@@ -1,6 +1,6 @@
 paho-mqtt
+numpy==1.26.4
 picamera2
 opencv-python
 aiohttp
 python-socketio
-aiohttp
