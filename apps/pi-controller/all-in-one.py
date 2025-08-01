@@ -4,20 +4,23 @@ import time
 import RPi.GPIO as GPIO
 from picamera2 import Picamera2
 import cv2
-import base64
 import socketio
 import asyncio
 
 sio = socketio.AsyncClient()
 
-ROOM_ID = "68717478f9d185d6407efec3"
+ROOM_ID = "6871747bf9d185d6407efec4"
 TOKEN = "REDACTED"
 
-sio.on('connect_error', lambda e: print(f"Connection error: {e}"))
+sio.on("connect_error", lambda e: print(f"Connection error: {e}"))
 
-sio.connect('https://api.etsecure.xyz', auth={'token': TOKEN}) # Replace with your server URL
-
+sio.connect(
+    "https://api.etsecure.xyz", auth={"token": TOKEN}
+)  # Replace with your server URL
+frameHistory = []
+fps = 0
 DEBUG = False
+FPS_SHOW = True  # Show FPS outside debug mode
 
 # === GPIO Setup ===
 PIR_PIN = 17
@@ -33,6 +36,7 @@ TOPIC = "rooms/" + ROOM_ID + "/commands"
 CLIENT_ID = "rpi-max"
 CERT_FILE = "../../certs/server.crt"
 
+
 # === MQTT Callbacks ===
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
@@ -41,18 +45,22 @@ def on_connect(client, userdata, flags, rc):
     else:
         print(f"❌ Connection failed. Code: {rc}")
 
+
 def on_message(client, userdata, msg):
     print(msg)
     if msg.payload.decode() == "unlock":
         print("🔓 Unlocking door!")
         GPIO.output(RELAY_PIN, GPIO.HIGH)
         time.sleep(1)
+        print("🔒 Locking door!")
         GPIO.output(RELAY_PIN, GPIO.LOW)
 
     print(f"📨 Received on '{msg.topic}': {msg.payload.decode()}")
 
+
 def on_disconnect(client, userdata, rc):
     print(f"🔌 Disconnected from broker with code {rc}")
+
 
 # === MQTT Client Setup ===
 client = mqtt.Client(protocol=mqtt.MQTTv311)
@@ -65,7 +73,7 @@ client.tls_set(
     certfile=None,
     keyfile=None,
     tls_version=ssl.PROTOCOL_TLS_CLIENT,
-    cert_reqs=ssl.CERT_REQUIRED
+    cert_reqs=ssl.CERT_REQUIRED,
 )
 
 # === Connect and Start MQTT client
@@ -76,7 +84,11 @@ client.loop_start()
 picam2 = Picamera2()
 picam2.preview_configuration.main.size = (640, 480)
 picam2.preview_configuration.main.format = "RGB888"
-picam2.configure(picam2.create_still_configuration(main={"format": "BGR888", "size": (640, 480)}))
+picam2.configure(
+    picam2.create_still_configuration(
+        main={"format": "BGR888", "size": (640, 480)}
+    )
+)
 picam2.start()
 
 # print("PIR Motion Sensor is warming up...")
@@ -125,32 +137,73 @@ picam2.start()
 
 
 async def main():
-    print("PIR Motion Sensor is warming up...")
-    await asyncio.sleep(3)
     print("Ready to detect motion!")
-
+    fps = 0
     try:
         while True:
             if sio.connected:
                 try:
-                    await sio.emit('ping', 'keepalive')
+                    if DEBUG:
+                        print("Sending keepalive ping...")
+                    await sio.emit("ping", "keepalive")
                 except Exception as e:
                     print(f"Emit error: {e}")
+            if DEBUG:
+                print(f"Checking for motion... {GPIO.input(PIR_PIN)}")
+
+            if FPS_SHOW:
+                print(
+                    f"Average FPS: {fps:.2f}, PIR Motion: {'Detected    ' if GPIO.input(PIR_PIN) else 'Not Detected'}",
+                    end="\r",
+                )
             if GPIO.input(PIR_PIN):
                 if DEBUG:
                     print("⚠️ Motion detected!")
                 frame = picam2.capture_array()
-                ret, buffer = cv2.imencode('.jpg', frame)
+                if DEBUG:
+                    print("Encoding frame...")
+                ret, buffer = cv2.imencode(".jpg", frame)
+                if DEBUG:
+                    print(
+                        f"Frame encoded.  {'Size: ' + str(len(buffer)) + ' bytes' if ret else 'Encoding failed'}"
+                    )
+
                 if ret:
                     try:
                         if not sio.connected:
-                            await sio.connect('https://api.etsecure.xyz', auth={'token': TOKEN})
-                        await sio.emit('message', buffer.tobytes())
+                            if DEBUG:
+                                print("Reconnecting to SocketIO...")
+                            await sio.connect(
+                                "https://api.etsecure.xyz",
+                                auth={"token": TOKEN},
+                            )
+                        if DEBUG:
+                            print("emitting frame...")
+                        await sio.emit("message", buffer.tobytes())
+                        frameHistory.append({"timestamp": time.time()})
                     except Exception as e:
                         print(f"SocketIO error: {e}")
-            elif DEBUG:
-                GPIO.output(RELAY_PIN, GPIO.LOW)
+
+            if len(frameHistory) > 1:
+                time_diffs = [
+                    frameHistory[i]["timestamp"]
+                    - frameHistory[i - 1]["timestamp"]
+                    for i in range(1, len(frameHistory))
+                ]
+                if time_diffs:
+                    fps = 1 / (sum(time_diffs) / len(time_diffs))
+                if DEBUG:
+                    print(
+                        f"Average FPS: {fps:.2f}, Total frames: {len(frameHistory)}"
+                    )
+                if FPS_SHOW:
+                    # print(
+                    #     "\033[A                                                                 \033[A"
+                    # )
+                    print(f"Average FPS: {fps:.2f}", end="\r")
+
             await asyncio.sleep(0.1)
+
     except KeyboardInterrupt:
         await sio.disconnect()
         picam2.stop()
@@ -163,6 +216,7 @@ async def main():
         cv2.destroyAllWindows()
         GPIO.cleanup()
         print("GPIO cleaned up. Exiting.")
+
 
 if __name__ == "__main__":
     asyncio.run(main())
