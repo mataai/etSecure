@@ -214,6 +214,7 @@ export default async function (fastify: FastifyInstance) {
       if (fastify.mqttClient?.connected) {
         fastify.mqttClient.publish(`rooms/${data.roomId}/commands`, 'unlock');
       } else {
+        return reply.code(500).send({ message: "Internal Server Error"})
         console.error('Unlock command failed: MQTT client not connected');
       }
       const attendance: Omit<AttendanceModel, '_id'> = {
@@ -230,8 +231,6 @@ export default async function (fastify: FastifyInstance) {
         console.error('Error inserting attendance:', error);
         return reply.code(500).send({ error: 'Failed to record attendance' });
       }
-
-      fastify.mqttClient.publish(`rooms/${room._id}/commands`, 'unlock');
 
       return reply.code(200).send({ message: 'Unlock command sent' });
     }
