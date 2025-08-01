@@ -25,7 +25,7 @@ import { Router } from '@angular/router';
       <p-card class="p-6 w-full max-w-md">
         <div class="flex flex-col items-center gap-4 mt-4">
           <ng-container *ngIf="profile; else loading">
-            <img
+            <!-- <img
               *ngIf="profile.photo; else photoSkeleton"
               [src]="profile.photo"
               alt="Profile Photo"
@@ -33,7 +33,7 @@ import { Router } from '@angular/router';
             />
             <ng-template #photoSkeleton>
               <p-skeleton shape="circle" size="6rem"></p-skeleton>
-            </ng-template>
+            </ng-template> -->
             <div class="w-full mt-4">
               <label
                 for="profile-name"
@@ -62,6 +62,7 @@ import { Router } from '@angular/router';
                 accept="image/*"
                 (change)="onFileSelected($event)"
                 class="custom-file-input"
+                capture="user"
               />
               <div
                 *ngIf="selectedFilePreview"
@@ -150,7 +151,7 @@ export class ProfilePage {
     });
   }
 
-  onFileSelected(event: Event) {
+  public onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       this.selectedFile = input.files[0];
