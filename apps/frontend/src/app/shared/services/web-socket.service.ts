@@ -73,4 +73,13 @@ export class WebSocketService {
 
     this._socket.on(event, callback);
   }
+
+  public removeListener(event: string) {
+    if (!this._socket) {
+      console.warn('WebSocket is not initialized');
+      return;
+    }
+
+    this._socket.off(event);
+  }
 }

@@ -9,7 +9,7 @@
       <div class="flex items-center gap-3">
         <i class="pi pi-video text-2xl text-primary"></i>
         <span class="text-xl font-bold">
-          Live Feed {{ (stream | async)?.roomId }}
+          Live Feed {{ currentRoom?.name }}
         </span>
       </div>
     </ng-template>
@@ -17,11 +17,9 @@
       class="flex justify-center items-center min-h-[300px] bg-surface-950 rounded-lg border border-surface-600 p-6"
     >
       <!-- Live video feed placeholder -->
-      @if (connected$ | async; as connected) {
+      @if (status() !== 'disconnected') {
         @if (stream | async; as data) {
-          @if (
-            data.frame && data.timestamp && data.timestamp >= Date.now() - 2000
-          ) {
+          @if (status() === 'live') {
             <img
               [src]="data.frame"
               alt="Live feed frame"
