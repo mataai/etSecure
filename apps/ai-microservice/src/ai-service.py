@@ -102,6 +102,11 @@ def process_frame(frame, roomId):
         face_distances = face_recognition.face_distance(
             known_face_encodings, face_encoding
         )
+
+        if len(face_distances) == 0:
+            print("[WARNING] No known faces to compare with.")
+            continue  # skip this encoding
+
         best_match_index = np.argmin(face_distances)
         if matches[best_match_index]:
             name = known_face_names[best_match_index]
