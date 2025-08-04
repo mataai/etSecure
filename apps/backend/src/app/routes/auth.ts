@@ -34,7 +34,7 @@ export default async function (fastify: FastifyInstance) {
         console.log(`Request received: ${req.method} ${req.url}`);
 
         res.redirect(uri);
-      }
+      },
     );
   });
 
@@ -59,7 +59,7 @@ export default async function (fastify: FastifyInstance) {
       const user = { ...req.user };
       delete user.bypassLeft;
       return res.status(200).send(user);
-    }
+    },
   );
 
   fastify.post(
@@ -77,6 +77,18 @@ export default async function (fastify: FastifyInstance) {
 
       if (!file) {
         return res.status(400).send({ error: 'File upload failed' });
+      }
+
+      const user = await usersCollection.findOne({ _id: req.user._id });
+
+      if (!user) {
+        return res.status(404).send({ message: 'User Not Found' });
+      }
+
+      if (user.uploadsLeft <= 0) {
+        return res
+          .status(400)
+          .send({ message: 'No more uploads available for this user' });
       }
 
       const userFolderPath = `./uploads/${req.user._id}`;
@@ -103,6 +115,11 @@ export default async function (fastify: FastifyInstance) {
         return res.status(500).send({ error: 'Failed to save file' });
       });
 
+      await usersCollection.updateOne(
+        { _id: user._id },
+        { $inc: { uploadsLeft: -1 } },
+      );
+
       const io = fastify['io'] as Server;
 
       io.emit('train');
@@ -110,7 +127,7 @@ export default async function (fastify: FastifyInstance) {
       return res.status(200).send({
         message: 'File uploaded successfully',
       });
-    }
+    },
   );
 
   fastify.post(
@@ -154,7 +171,7 @@ export default async function (fastify: FastifyInstance) {
       const updatedUser = await usersCollection.findOneAndUpdate(
         { _id: new ObjectId(userId) },
         { $inc: { bypassLeft: -1 } },
-        { returnDocument: 'after' }
+        { returnDocument: 'after' },
       );
 
       if (!updatedUser) {
@@ -180,7 +197,7 @@ export default async function (fastify: FastifyInstance) {
         console.error('Error inserting attendance:', error);
         reply.code(500).send({ error: 'Failed to record attendance' });
       }
-    }
+    },
   );
 
   fastify.post(
@@ -214,7 +231,7 @@ export default async function (fastify: FastifyInstance) {
       if (fastify.mqttClient?.connected) {
         fastify.mqttClient.publish(`rooms/${data.roomId}/commands`, 'unlock');
       } else {
-        return reply.code(500).send({ message: "Internal Server Error"})
+        return reply.code(500).send({ message: 'Internal Server Error' });
         console.error('Unlock command failed: MQTT client not connected');
       }
       const attendance: Omit<AttendanceModel, '_id'> = {
@@ -233,7 +250,7 @@ export default async function (fastify: FastifyInstance) {
       }
 
       return reply.code(200).send({ message: 'Unlock command sent' });
-    }
+    },
   );
 
   fastify.get(
@@ -251,11 +268,11 @@ export default async function (fastify: FastifyInstance) {
       reply.header('Content-Type', 'application/octet-stream');
       reply.header(
         'Content-Disposition',
-        `attachment; filename="${id}.pickle"`
+        `attachment; filename="${id}.pickle"`,
       );
 
       const fileStream = fs.createReadStream(filePath);
       reply.send(fileStream);
-    }
+    },
   );
 }

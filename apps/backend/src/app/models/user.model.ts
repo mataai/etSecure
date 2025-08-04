@@ -7,4 +7,5 @@ export interface UserModel {
   username: string;
   email: string;
   bypassLeft: number;
+  uploadsLeft: number;
 }
