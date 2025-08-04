@@ -191,11 +191,26 @@ export class ProfilePage {
 
   public async onPictureCaptured(picture: WebcamImage) {
     this.selectedFilePreview = picture.imageAsDataUrl;
+    // Convert data URL to Blob
+    const blob = this.dataURLtoBlob(picture.imageAsDataUrl);
     this.selectedFile = new File(
-      [picture.imageAsDataUrl],
+      [blob],
       `profile-${Date.now()}.jpg`,
-      { type: 'image/jpeg' },
+      { type: blob.type || 'image/jpeg' },
     );
+  }
+
+  private dataURLtoBlob(dataurl: string): Blob {
+    const arr = dataurl.split(',');
+    const mimeMatch = arr[0].match(/:(.*?);/);
+    const mime = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+    const bstr = atob(arr[1]);
+    const n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    for (let i = 0; i < n; i++) {
+      u8arr[i] = bstr.charCodeAt(i);
+    }
+    return new Blob([u8arr], { type: mime });
   }
 
   public onFileSelected(event: Event) {

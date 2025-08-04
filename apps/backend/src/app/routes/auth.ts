@@ -73,7 +73,7 @@ export default async function (fastify: FastifyInstance) {
         return res.status(400).send({ error: 'No file uploaded' });
       }
 
-      const file = data.file;
+      const file: unknown = data.file;
 
       if (!file) {
         return res.status(400).send({ error: 'File upload failed' });
@@ -96,19 +96,26 @@ export default async function (fastify: FastifyInstance) {
         fs.mkdirSync(`./uploads/${req.user._id}`, { recursive: true });
       }
 
-      const savePath = `./uploads/${req.user._id}/${randomUUID()}.jpg`;
+      const savePath = `./uploads/${req.user._id}/${randomUUID()}.jpeg`;
       const writeStream = fs.createWriteStream(savePath);
 
-      // Use a Promise to wait for the stream to finish
-      await new Promise<void>((resolve, reject) => {
-        file.pipe(writeStream);
+      if (typeof file === 'string' && (file as string).startsWith('data:image')) {
+        // Extract base64 part
+        const base64Data = (file as string).split(',')[1];
+        const buffer = Buffer.from(base64Data, 'base64');
+        fs.writeFileSync(savePath, buffer);
+      } else {
+        // Pipe as before for real file streams
+        await new Promise<void>((resolve, reject) => {
+          (file as NodeJS.ReadableStream).pipe(writeStream);
 
-        writeStream.on('finish', resolve);
-        writeStream.on('error', reject);
-      }).catch((err) => {
-        console.error('Error writing file:', err);
-        return res.status(500).send({ error: 'Failed to save file' });
-      });
+          writeStream.on('finish', resolve);
+          writeStream.on('error', reject);
+        }).catch((err) => {
+          console.error('Error writing file:', err);
+          return res.status(500).send({ error: 'Failed to save file' });
+        });
+      }
 
       writeStream.on('error', (err) => {
         console.error('Error writing file:', err);
