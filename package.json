@@ -39,6 +39,7 @@
     "fastify-socket": "^5.1.2",
     "mongoose": "^8.16.2",
     "mqtt": "^5.13.1",
+    "ngx-webcam": "^0.4.1",
     "oidc-client-ts": "^3.3.0",
     "primeicons": "^7.0.0",
     "primeng": "^20.0.0-rc.2",

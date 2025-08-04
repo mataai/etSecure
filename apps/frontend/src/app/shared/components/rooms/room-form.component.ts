@@ -37,10 +37,11 @@ import { UsersService } from '../../services/users.service';
             required
           />
         </p-floatlabel>
-        @if(this.formGroup.controls.name.touched) { @if
-        (this.formGroup.controls.name.errors?.['required']){
-        <small class="text-red-500"> Name is required. </small>
-        }}
+        @if (this.formGroup.controls.name.touched) {
+          @if (this.formGroup.controls.name.errors?.['required']) {
+            <small class="text-red-500"> Name is required. </small>
+          }
+        }
       </div>
       <div>
         <p-floatlabel>
@@ -53,24 +54,25 @@ import { UsersService } from '../../services/users.service';
             [formControl]="formGroup.controls.location"
           />
         </p-floatlabel>
-        @if (this.formGroup.controls.location.touched) { @if
-        (this.formGroup.controls.location.errors?.['required']) {
-        <small class="text-red-500">Location is required.</small>
-        } }
+        @if (this.formGroup.controls.location.touched) {
+          @if (this.formGroup.controls.location.errors?.['required']) {
+            <small class="text-red-500">Location is required.</small>
+          }
+        }
       </div>
     </div>
-    @if (this.membersFormControl){
-    <div class="flex flex-row gap-4 my-2">
-      <label for="location">Members</label>
-      <p-listbox
-        [options]="userOptions"
-        optionLabel="name"
-        [multiple]="true"
-        [metaKeySelection]="false"
-        [formControl]="this.membersFormControl"
-        class="w-full md:w-56"
-      />
-    </div>
+    @if (this.membersFormControl) {
+      <div class="flex flex-row gap-4 my-2">
+        <label for="location">Members</label>
+        <p-listbox
+          [options]="userOptions"
+          optionLabel="name"
+          [multiple]="true"
+          [metaKeySelection]="false"
+          [formControl]="this.membersFormControl"
+          class="w-full md:w-56"
+        />
+      </div>
     }
 
     <div class="flex justify-end">
@@ -90,7 +92,7 @@ import { UsersService } from '../../services/users.service';
 })
 export class RoomFormComponent {
   public room = input<Room | null>(
-    inject(DynamicDialogConfig)?.data?.room || null
+    inject(DynamicDialogConfig)?.data?.room || null,
   );
   private dialogRef = inject(DynamicDialogRef);
   private _roomService = inject(RoomsService);
@@ -121,10 +123,11 @@ export class RoomFormComponent {
     let upsertSuccess;
     let membersSuccess;
     if (
-      this.room() &&
-      this.room()?._id &&
-      (this.room()?.name !== this.formGroup.value.name ||
-        this.room()?.location !== this.formGroup.value.location)
+      (this.room() &&
+        this.room()?._id &&
+        (this.room()?.name !== this.formGroup.value.name ||
+          this.room()?.location !== this.formGroup.value.location)) ||
+      !this.room()
     ) {
       if (this.formGroup.invalid) {
         this.formGroup.markAllAsTouched();
@@ -221,7 +224,7 @@ export class RoomFormComponent {
       const startingValue =
         this.room()
           ?.users?.map((user) =>
-            this.userOptions.find((x) => x.value == user.id)
+            this.userOptions.find((x) => x.value == user.id),
           )
           ?.filter((x) => !!x) || [];
       console.log(startingValue);

@@ -8,10 +8,18 @@ import { UserAuthentik } from '@etsecure/data-contracts';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { Router } from '@angular/router';
+import { WebcamImage, WebcamInitError, WebcamModule } from 'ngx-webcam';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'app-profile',
-  imports: [CommonModule, CardModule, SkeletonModule, ToastModule],
+  imports: [
+    CommonModule,
+    CardModule,
+    SkeletonModule,
+    ToastModule,
+    WebcamModule,
+  ],
   providers: [MessageService],
   template: `
     <div
@@ -25,15 +33,6 @@ import { Router } from '@angular/router';
       <p-card class="p-6 w-full max-w-md">
         <div class="flex flex-col items-center gap-4 mt-4">
           <ng-container *ngIf="profile; else loading">
-            <!-- <img
-              *ngIf="profile.photo; else photoSkeleton"
-              [src]="profile.photo"
-              alt="Profile Photo"
-              class="w-40 h-40 rounded-full object-cover border"
-            />
-            <ng-template #photoSkeleton>
-              <p-skeleton shape="circle" size="6rem"></p-skeleton>
-            </ng-template> -->
             <div class="w-full mt-4">
               <label
                 for="profile-name"
@@ -56,47 +55,69 @@ import { Router } from '@angular/router';
               >
                 Change Profile Picture
               </label>
-              <input
-                id="profile-upload"
-                type="file"
-                accept="image/*"
-                (change)="onFileSelected($event)"
-                class="custom-file-input"
-                capture="user"
-              />
-              <div
-                *ngIf="selectedFilePreview"
-                class="flex flex-col items-center mt-4"
-              >
-                <span class="text-sm text-surface-500 mb-2">Preview:</span>
-                <img
-                  [src]="selectedFilePreview"
-                  alt="Selected Preview"
-                  class="w-40 h-40 rounded-full object-cover border"
+              {{ webcamAccess }}
+              @if (webcamAccess) {
+                @if (!selectedFilePreview) {
+                  <webcam
+                    [trigger]="webcamTrigger"
+                    (imageCapture)="onPictureCaptured($event)"
+                    (initError)="initError($event)"
+                    [width]="400"
+                    [height]="400"
+                    [captureImageData]="true"
+                  ></webcam>
+                  <button
+                    class="px-4 py-2 bg-primary text-white rounded block mx-auto mt-4 hover:bg-primary-700 transition-all font-semibold"
+                    (click)="capturePucture()"
+                  >
+                    Capture Picture
+                  </button>
+                }
+              } @else {
+                <input
+                  id="profile-upload"
+                  type="file"
+                  accept="image/*"
+                  (change)="onFileSelected($event)"
+                  class="custom-file-input"
+                  capture="user"
                 />
-              </div>
-              <button
-                class="px-4 py-2 bg-primary text-white rounded block mx-auto mt-6 hover:bg-primary-700 transition-all font-semibold"
-                (click)="uploadPicture()"
-                [disabled]="!selectedFile || uploadStatus === 'processing'"
-              >
-                Upload
-              </button>
-              @if (uploadStatus !== 'idle') {
-              <div class="text-center mt-2 min-h-[1.5rem]">
-                <span
-                  *ngIf="uploadStatus === 'processing'"
-                  class="text-surface-500"
+              }
+              @if (selectedFilePreview) {
+                <div class="flex flex-col items-center mt-4">
+                  <span class="text-sm text-surface-500 mb-2">Preview:</span>
+                  <img
+                    [src]="selectedFilePreview"
+                    alt="Selected Preview"
+                    class="w-40 h-40 rounded-full object-cover border"
+                  />
+                </div>
+
+                <button
+                  class="px-4 py-2 bg-primary text-white rounded block mx-auto mt-6 hover:bg-primary-700 transition-all font-semibold"
+                  (click)="uploadPicture()"
+                  [disabled]="!selectedFile || uploadStatus === 'processing'"
                 >
-                  Uploading...
-                </span>
-                <span *ngIf="uploadStatus === 'success'" class="text-green-500">
-                  Successfully updated!
-                </span>
-                <span *ngIf="uploadStatus === 'error'" class="text-red-500">
-                  Upload failed.
-                </span>
-              </div>
+                  Upload
+                </button>
+              }
+
+              @if (uploadStatus !== 'idle') {
+                <div class="text-center mt-2 min-h-[1.5rem]">
+                  @switch (uploadStatus) {
+                    @case ('error') {
+                      <span class="text-red-500"
+                        >Upload failed. Please try again.</span
+                      >;
+                    }
+                    @case ('processing') {
+                      <span class="text-surface-500">Uploading...</span>;
+                    }
+                    @case ('success') {
+                      <span class="text-green">Successfully updated!</span>;
+                    }
+                  }
+                </div>
               }
             </div>
           </ng-container>
@@ -139,9 +160,12 @@ export class ProfilePage {
   private _messageService = inject(MessageService);
   private _router = inject(Router);
   public profile: (UserAuthentik & { photo: string }) | null = null;
+  public webcamAccess = true;
   public selectedFile: File | null = null;
   public selectedFilePreview: string | null = null;
   public uploadStatus: 'idle' | 'processing' | 'success' | 'error' = 'idle';
+
+  public webcamTrigger = new Subject<void>();
 
   constructor() {
     effect(() => {
@@ -149,6 +173,24 @@ export class ProfilePage {
         this.profile = profile as UserAuthentik & { photo: string };
       });
     });
+  }
+
+  public capturePucture() {
+    if (this.selectedFilePreview) {
+      this.selectedFilePreview = null;
+      this.selectedFile = null;
+    } else {
+      this.webcamTrigger.next();
+    }
+  }
+
+  public async onPictureCaptured(picture: WebcamImage) {
+    this.selectedFilePreview = picture.imageAsDataUrl;
+    this.selectedFile = new File(
+      [picture.imageAsDataUrl],
+      `profile-${Date.now()}.jpg`,
+      { type: 'image/jpeg' },
+    );
   }
 
   public onFileSelected(event: Event) {
@@ -171,27 +213,39 @@ export class ProfilePage {
     this.uploadStatus = 'processing';
     try {
       await this._usersService.updateSelfPicture(this.selectedFile);
-      this.uploadStatus = 'success';
+      this.uploadStatus = 'idle';
       this._authService.getProfile().then((profile) => {
         this.profile = profile as UserAuthentik & { photo: string };
       });
-      setTimeout(() => {
-        this.uploadStatus = 'idle';
-      }, 2000);
+      this._messageService.add({
+        severity: 'success',
+        summary: 'Upload Successful',
+        detail: 'Your profile picture has been updated successfully.',
+      });
     } catch (error: any) {
-      this.uploadStatus = 'error';
+      this.uploadStatus = 'idle';
       this._messageService.add({
         severity: 'error',
         summary: 'Upload Failed',
         detail: 'There was an error uploading your profile picture.',
       });
-      setTimeout(() => {
-        this.uploadStatus = 'idle';
-      }, 2000);
     }
   }
 
   async logout() {
     this._router.navigate(['/auth/logout']);
+  }
+
+  public initError(data: WebcamInitError) {
+    if (data.mediaStreamError.name == 'NotAllowedError') {
+      console.error('Camera access denied');
+      this.webcamAccess = false;
+      this._messageService.add({
+        severity: 'error',
+        summary: 'Camera Access Denied',
+        detail:
+          'Please allow camera access to capture your profile picture using your camera.',
+      });
+    }
   }
 }
