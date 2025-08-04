@@ -22,7 +22,7 @@ export const authPreValidator: preValidationMetaHookHandler = async (
     throw new Error('Unauthorized');
   }
 
-  const token = authHeader.split(' ')[1];
+  const token = authHeader.split(' ')[1].trim();
   if (!token) {
     res.status(401).send({ error: 'Unauthorized: Invalid token format' });
     throw new Error('Unauthorized');
