@@ -48,78 +48,80 @@ import { Subject } from 'rxjs';
                 readonly
               />
             </div>
-            <div class="w-full mt-2">
-              <label
-                for="profile-upload"
-                class="block text-sm font-medium text-surface-500 mb-1"
-              >
-                Change Profile Picture
-              </label>
-              {{ webcamAccess }}
-              @if (webcamAccess) {
-                @if (!selectedFilePreview) {
-                  <webcam
-                    [trigger]="webcamTrigger"
-                    (imageCapture)="onPictureCaptured($event)"
-                    (initError)="initError($event)"
-                    [width]="400"
-                    [height]="400"
-                    [captureImageData]="true"
-                  ></webcam>
+            @if (this.canChangePicture) {
+              <div class="w-full mt-2">
+                <label
+                  for="profile-upload"
+                  class="block text-sm font-medium text-surface-500 mb-1"
+                >
+                  Change Profile Picture
+                </label>
+                {{ webcamAccess }}
+                @if (webcamAccess) {
+                  @if (!selectedFilePreview) {
+                    <webcam
+                      [trigger]="webcamTrigger"
+                      (imageCapture)="onPictureCaptured($event)"
+                      (initError)="initError($event)"
+                      [width]="400"
+                      [height]="400"
+                      [captureImageData]="true"
+                    ></webcam>
+                    <button
+                      class="px-4 py-2 bg-primary text-white rounded block mx-auto mt-4 hover:bg-primary-700 transition-all font-semibold"
+                      (click)="capturePucture()"
+                    >
+                      Capture Picture
+                    </button>
+                  }
+                } @else {
+                  <input
+                    id="profile-upload"
+                    type="file"
+                    accept="image/*"
+                    (change)="onFileSelected($event)"
+                    class="custom-file-input"
+                    capture="user"
+                  />
+                }
+                @if (selectedFilePreview) {
+                  <div class="flex flex-col items-center mt-4">
+                    <span class="text-sm text-surface-500 mb-2">Preview:</span>
+                    <img
+                      [src]="selectedFilePreview"
+                      alt="Selected Preview"
+                      class="w-40 h-40 rounded-full object-cover border"
+                    />
+                  </div>
+
                   <button
-                    class="px-4 py-2 bg-primary text-white rounded block mx-auto mt-4 hover:bg-primary-700 transition-all font-semibold"
-                    (click)="capturePucture()"
+                    class="px-4 py-2 bg-primary text-white rounded block mx-auto mt-6 hover:bg-primary-700 transition-all font-semibold"
+                    (click)="uploadPicture()"
+                    [disabled]="!selectedFile || uploadStatus === 'processing'"
                   >
-                    Capture Picture
+                    Upload
                   </button>
                 }
-              } @else {
-                <input
-                  id="profile-upload"
-                  type="file"
-                  accept="image/*"
-                  (change)="onFileSelected($event)"
-                  class="custom-file-input"
-                  capture="user"
-                />
-              }
-              @if (selectedFilePreview) {
-                <div class="flex flex-col items-center mt-4">
-                  <span class="text-sm text-surface-500 mb-2">Preview:</span>
-                  <img
-                    [src]="selectedFilePreview"
-                    alt="Selected Preview"
-                    class="w-40 h-40 rounded-full object-cover border"
-                  />
-                </div>
 
-                <button
-                  class="px-4 py-2 bg-primary text-white rounded block mx-auto mt-6 hover:bg-primary-700 transition-all font-semibold"
-                  (click)="uploadPicture()"
-                  [disabled]="!selectedFile || uploadStatus === 'processing'"
-                >
-                  Upload
-                </button>
-              }
-
-              @if (uploadStatus !== 'idle') {
-                <div class="text-center mt-2 min-h-[1.5rem]">
-                  @switch (uploadStatus) {
-                    @case ('error') {
-                      <span class="text-red-500"
-                        >Upload failed. Please try again.</span
-                      >;
+                @if (uploadStatus !== 'idle') {
+                  <div class="text-center mt-2 min-h-[1.5rem]">
+                    @switch (uploadStatus) {
+                      @case ('error') {
+                        <span class="text-red-500"
+                          >Upload failed. Please try again.</span
+                        >;
+                      }
+                      @case ('processing') {
+                        <span class="text-surface-500">Uploading...</span>;
+                      }
+                      @case ('success') {
+                        <span class="text-green">Successfully updated!</span>;
+                      }
                     }
-                    @case ('processing') {
-                      <span class="text-surface-500">Uploading...</span>;
-                    }
-                    @case ('success') {
-                      <span class="text-green">Successfully updated!</span>;
-                    }
-                  }
-                </div>
-              }
-            </div>
+                  </div>
+                }
+              </div>
+            }
           </ng-container>
           <ng-template #loading>
             <p-skeleton width="100%" height="2rem"></p-skeleton>
@@ -161,10 +163,10 @@ export class ProfilePage {
   private _router = inject(Router);
   public profile: (UserAuthentik & { photo: string }) | null = null;
   public webcamAccess = true;
+  public canChangePicture = false;
   public selectedFile: File | null = null;
   public selectedFilePreview: string | null = null;
   public uploadStatus: 'idle' | 'processing' | 'success' | 'error' = 'idle';
-
   public webcamTrigger = new Subject<void>();
 
   constructor() {
@@ -172,6 +174,9 @@ export class ProfilePage {
       this._authService.getProfile().then((profile) => {
         this.profile = profile as UserAuthentik & { photo: string };
       });
+    });
+    this._authService.getMe().then((me) => {
+      this.canChangePicture = me.uploadsLeft > 0;
     });
   }
 
@@ -211,25 +216,36 @@ export class ProfilePage {
   async uploadPicture() {
     if (!this.selectedFile) return;
     this.uploadStatus = 'processing';
-    try {
-      await this._usersService.updateSelfPicture(this.selectedFile);
-      this.uploadStatus = 'idle';
-      this._authService.getProfile().then((profile) => {
-        this.profile = profile as UserAuthentik & { photo: string };
+    this._usersService
+      .updateSelfPicture(this.selectedFile)
+      .then(() => {
+        this.uploadStatus = 'idle';
+        this._authService.getProfile().then((profile) => {
+          this.profile = profile as UserAuthentik & { photo: string };
+        });
+        this._messageService.add({
+          severity: 'success',
+          summary: 'Upload Successful',
+          detail: 'Your profile picture has been updated successfully.',
+        });
+      })
+      .catch((error) => {
+        this.uploadStatus = 'idle';
+        if (error.error.message == 'No more uploads available for this user') {
+          this._messageService.add({
+            severity: 'error',
+            summary: 'Upload Limit Reached',
+            detail:
+              'You have reached your upload limit. Please contact support if you need to change your picture.',
+          });
+        } else {
+          this._messageService.add({
+            severity: 'error',
+            summary: 'Upload Failed',
+            detail: 'There was an error uploading your profile picture.',
+          });
+        }
       });
-      this._messageService.add({
-        severity: 'success',
-        summary: 'Upload Successful',
-        detail: 'Your profile picture has been updated successfully.',
-      });
-    } catch (error: any) {
-      this.uploadStatus = 'idle';
-      this._messageService.add({
-        severity: 'error',
-        summary: 'Upload Failed',
-        detail: 'There was an error uploading your profile picture.',
-      });
-    }
   }
 
   async logout() {

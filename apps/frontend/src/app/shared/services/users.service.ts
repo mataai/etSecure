@@ -14,83 +14,73 @@ export class UsersService {
 
   public async getUserById(id: string) {
     const user = await firstValueFrom(
-      this.httpClient.get<User>(environment.backendUrl + '/users/' + id)
+      this.httpClient.get<User>(environment.backendUrl + '/users/' + id),
     );
     return user;
   }
 
   public async getUsers() {
-    await firstValueFrom(
-      this.httpClient.get<User[]>(environment.backendUrl + '/users')
-    ).then((users) => this._usersList.set(users));
-    return this.users;
+    return await firstValueFrom(
+      this.httpClient.get<User[]>(environment.backendUrl + '/users'),
+    ).then((users) => {
+      this._usersList.set(users);
+      return this._usersList;
+    });
   }
 
   public async createUser(user: UserUpsertRequest) {
-    try {
-      await firstValueFrom(
-        this.httpClient.post<{ message: string }>(
-          environment.backendUrl + '/users',
-          user
-        )
-      );
+    return await firstValueFrom(
+      this.httpClient.post<{ message: string }>(
+        environment.backendUrl + '/users',
+        user,
+      ),
+    ).then(async (users) => {
       await this.getUsers();
-    } catch (error) {
-      console.error('Error creating user:', error);
-      throw error; // Re-throw the error to handle it in the component
-    }
-
-    return;
+      return users;
+    });
   }
 
   public async updateUser(id: User['_id'], user: UserUpsertRequest) {
-    try {
-      await firstValueFrom(
-        this.httpClient.put<{ message: string }>(
-          environment.backendUrl + '/users/' + id,
-          user
-        )
-      );
+    return await firstValueFrom(
+      this.httpClient.put<{ message: string }>(
+        environment.backendUrl + '/users/' + id,
+        user,
+      ),
+    ).then(async (data) => {
+      console.log('User updated successfully:', data);
       await this.getUsers();
-    } catch (error) {
-      console.error('Error updating user:', error);
-      throw error; // Re-throw the error to handle it in the component
-    }
-    return;
+      return data;
+    });
   }
 
   public async updateSelfPicture(photo: File) {
     const formData = new FormData();
     formData.append('file', photo);
-    try {
-      await firstValueFrom(
-        this.httpClient.post<User>(
-          environment.backendUrl + '/auth/picture',
-          formData
-        )
-      );
+    return await firstValueFrom(
+      this.httpClient.post<User>(
+        environment.backendUrl + '/auth/picture',
+        formData,
+      ),
+    ).then(async (user) => {
       await this.getUsers();
-    } catch (error) {
-      console.error('Error updating user picture:', error);
-    }
-
-    return;
+      return user;
+    });
   }
 
   public async addBypassToUser(user: User) {
     await firstValueFrom(
       this.httpClient.post<{ message: string }>(
         environment.backendUrl + '/users/' + user._id + '/bypass',
-        {}
-      )
+        {},
+      ),
     );
   }
 
   public async deleteUser(user: User) {
     await firstValueFrom(
       this.httpClient.delete<{ message: string }>(
-        environment.backendUrl + '/users/' + user._id
-      )
+        environment.backendUrl + '/users/' + user._id,
+      ),
     ).catch((error) => {
       // Handle error appropriately, e.g., show a notification
       console.error('Error deleting user:', error);

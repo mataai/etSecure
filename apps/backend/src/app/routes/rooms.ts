@@ -330,6 +330,7 @@ const roomsRoutes: FastifyPluginAsync = async (fastify) => {
         roomId: new ObjectId(id),
         userId: new ObjectId(userId),
         timestamp: new Date(),
+        type: 'unlock',
       };
 
       await fastify.mongo.db.collection('attendances').insertOne(attendance);

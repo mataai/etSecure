@@ -10,6 +10,7 @@ import { Attendance } from '@etsecure/data-contracts';
 import { CommonModule } from '@angular/common';
 import { DialogModule } from 'primeng/dialog';
 import { AttendancesDetailsDialog } from './attendance-details.dialog';
+import { TagModule } from 'primeng/tag';
 
 @Component({
   selector: 'app-attendances-list',
@@ -23,6 +24,7 @@ import { AttendancesDetailsDialog } from './attendance-details.dialog';
     CommonModule,
     DialogModule,
     AttendancesDetailsDialog,
+    TagModule,
   ],
   template: `
     <p-table
@@ -53,6 +55,9 @@ import { AttendancesDetailsDialog } from './attendance-details.dialog';
             Timestamp
             <p-sortIcon field="timestamp" />
           </th>
+          <th>
+            Type
+          </th>
         </tr>
       </ng-template>
       <ng-template #body let-attendance>
@@ -60,7 +65,18 @@ import { AttendancesDetailsDialog } from './attendance-details.dialog';
           <td>{{ attendance.user.name }}</td>
           <td>{{ attendance.room.name }}</td>
           <td>{{ attendance.room.location }}</td>
-          <td>{{ attendance.timestamp | date : 'medium' }}</td>
+          <td>{{ attendance.timestamp | date: 'medium' }}</td>
+          <td>
+            @if (attendance.type === 'bypass') {
+              <p-tag
+                icon="pi pi-exclamation-triangle"
+                severity="error"
+                value="Bypass"
+              />
+            } @else {
+              <p-tag icon="pi pi-lock-open" severity="info" value="Unlock" />
+            }
+          </td>
         </tr>
       </ng-template>
     </p-table>

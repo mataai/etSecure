@@ -9,6 +9,8 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { AuthService } from '../../shared/services/auth.service';
 import { AttendanceService } from '../../shared/services';
 import { Attendance } from '@etsecure/data-contracts';
+import { ChipModule } from 'primeng/chip';
+import { TagModule } from 'primeng/tag';
 
 @Component({
   selector: 'app-home',
@@ -19,6 +21,8 @@ import { Attendance } from '@etsecure/data-contracts';
     TableModule,
     ButtonModule,
     SkeletonModule,
+    ChipModule,
+    TagModule,
   ],
   standalone: true,
   template: `
@@ -48,6 +52,7 @@ import { Attendance } from '@etsecure/data-contracts';
               <th>Timestamp</th>
               <th>Room</th>
               <th>Location</th>
+              <th>Type</th>
             </tr>
           </ng-template>
           <ng-template pTemplate="body" let-login>
@@ -55,6 +60,21 @@ import { Attendance } from '@etsecure/data-contracts';
               <td>{{ this.toDate(login.timestamp) }}</td>
               <td>{{ login.room.name }}</td>
               <td>{{ login.room.location }}</td>
+              <td>
+                @if (login.type === 'bypass') {
+                  <p-tag
+                    icon="pi pi-exclamation-triangle"
+                    severity="error"
+                    value="Bypass"
+                  />
+                } @else {
+                  <p-tag
+                    icon="pi pi-lock-open"
+                    severity="info"
+                    value="Unlock"
+                  />
+                }
+              </td>
             </tr>
           </ng-template>
           <ng-template pTemplate="emptymessage">

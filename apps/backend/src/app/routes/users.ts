@@ -263,6 +263,7 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
               timestamp: true,
               'room.name': true,
               'room.location': true,
+              type: true, // Ensure type is included in the projection
             },
           },
         ])

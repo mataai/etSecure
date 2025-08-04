@@ -16,6 +16,7 @@ export interface User {
   email: string;
   username: string;
   groups: string[];
+  uploadsLeft: number;
 }
 
 export interface UserShort {
