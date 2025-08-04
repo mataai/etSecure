@@ -49,6 +49,8 @@ services:
       - "traefik.http.routers.authentik.rule=Host(`auth.etsecure.xyz`)"
       - "traefik.http.routers.authentik.entrypoints=https"
       - "traefik.http.routers.authentik.tls.certresolver=production"
+      - "traefik.http.routers.authentik.middlewares=authentik-iframe"
+      - "traefik.http.middlewares.authentik-iframe.headers.customresponseheaders.X-Frame-Options=ALLOWALL"
     networks:
       - authentik
       - traefik
