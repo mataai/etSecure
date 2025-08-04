@@ -20,7 +20,7 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
     async (request, reply) => {
       const users = await usersCollection.find().toArray();
       return reply.send(users);
-    }
+    },
   );
 
   // GET /users/:id - Get user by ID
@@ -40,7 +40,7 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
         return reply.code(404).send({ error: 'User not found' });
       }
       return reply.code(200).send(user);
-    }
+    },
   );
 
   // POST /users - Create user
@@ -69,7 +69,7 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
             Authorization: `Bearer ${process.env.AUTHENTIK_API_TOKEN}`,
           },
           body: JSON.stringify(request.body),
-        }
+        },
       );
 
       if (!response.ok) {
@@ -85,7 +85,8 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
       const userData: Omit<UserModel, '_id'> = {
         ...data,
         authentik_id: pk.toString(), // Store the authentik UID
-        bypassLeft: 0,
+        bypassLeft: 1,
+        uploadsLeft: 1,
       };
 
       const dbres = usersCollection.insertOne(userData as UserModel);
@@ -97,7 +98,7 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
       }
 
       return reply.code(201).send({ message: 'User created successfully' });
-    }
+    },
   );
 
   // PUT /users/:id - Update user
@@ -127,7 +128,7 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
 
       const result = await usersCollection.updateOne(
         { _id: new ObjectId(id) },
-        { $set: userData }
+        { $set: userData },
       );
 
       if (result.matchedCount === 0) {
@@ -137,7 +138,7 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
         return reply.code(200).send({ message: 'No changes made' });
       }
       return reply.code(200).send({ message: 'User updated successfully' });
-    }
+    },
   );
 
   // DELETE /users/:id - Delete user
@@ -163,7 +164,7 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${process.env.AUTHENTIK_API_TOKEN}`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -183,7 +184,7 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
       }
 
       return reply.code(200).send({ message: 'User deleted successfully' });
-    }
+    },
   );
 
   fastify.get(
@@ -213,7 +214,7 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
 
       const rooms = await roomCollection.find({ users: user._id }).toArray();
       return reply.code(200).send(rooms);
-    }
+    },
   );
 
   fastify.get(
@@ -269,7 +270,7 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
         .toArray();
 
       return reply.code(200).send(attendances);
-    }
+    },
   );
 
   // POST /users/:id/bypass - Add a bypass for user
@@ -293,7 +294,7 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
       try {
         await usersCollection.updateOne(
           { _id: new ObjectId(id) },
-          { $inc: { bypassLeft: 1 } }
+          { $inc: { bypassLeft: 1 } },
         );
       } catch (error) {
         console.error('Error updating bypass count:', error);
@@ -305,7 +306,7 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
       return reply
         .code(200)
         .send({ message: `Bypass added to ${user.name} sucessfully` });
-    }
+    },
   );
 
   fastify.post(
@@ -330,7 +331,7 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
         .insertOne(attendance as AttendanceModel);
 
       reply.code(200).send({ message: 'Unlock request sent to device' });
-    }
+    },
   );
 };
 
