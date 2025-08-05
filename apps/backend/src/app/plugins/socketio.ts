@@ -7,7 +7,7 @@ import fastifyIO from 'fastify-socket';
 export default fp(async function (fastify: FastifyInstance) {
   fastify.register(fastifyIO, {
     cors: {
-      origin: "*",
+      origin: '*',
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     },
   });
@@ -31,13 +31,17 @@ export default fp(async function (fastify: FastifyInstance) {
         socket.data.service = service;
         return next();
       } else if (jwt) {
-        const userInfo = (await fastify.customOauth2.userinfo(
-          jwt,
-        )) as UserAuthentik;
-        if (!userInfo || !userInfo.sub) {
+        try {
+          const userInfo = (await fastify.customOauth2.userinfo(
+            jwt,
+          )) as UserAuthentik;
+          if (!userInfo || !userInfo.sub) {
+            return next(new Error('Authentication error: token invalid.'));
+          }
+          socket.data.user = userInfo;
+        } catch (err) {
           return next(new Error('Authentication error: token invalid.'));
         }
-        socket.data.user = userInfo;
         return next();
       }
       return next(new Error('Authentication error: token missing'));
