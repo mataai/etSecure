@@ -28,4 +28,6 @@ export interface UserUpsertRequest {
   name: string;
   username: string;
   email: string;
+  uploadsLeft: number;
+  resetUploads: boolean;
 }
