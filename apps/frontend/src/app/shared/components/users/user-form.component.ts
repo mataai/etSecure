@@ -14,10 +14,7 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { UsersService } from '../../services/users.service';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-interface GroupOption {
-  name: string;
-  value: string;
-}
+
 @Component({
   selector: 'app-user-form',
   imports: [
@@ -43,10 +40,11 @@ interface GroupOption {
               required
             />
           </p-floatlabel>
-          @if(this.formGroup.controls.name.touched) { @if
-          (this.formGroup.controls.name.errors?.['required']){
-          <small class="text-red-500"> Name is required. </small>
-          }}
+          @if (this.formGroup.controls.name.touched) {
+            @if (this.formGroup.controls.name.errors?.['required']) {
+              <small class="text-red-500"> Name is required. </small>
+            }
+          }
         </div>
         <div>
           <p-floatlabel>
@@ -59,29 +57,16 @@ interface GroupOption {
               [formControl]="formGroup.controls.email"
             />
           </p-floatlabel>
-          @if (this.formGroup.controls.email.touched) { @if
-          (this.formGroup.controls.email.errors?.['required']) {
-          <small class="text-red-500">Email is required.</small>
-          } @if (this.formGroup.controls.email.errors?.['email']) {
-          <small class="text-red-500">Invalid email address.</small>
-          } }
+          @if (this.formGroup.controls.email.touched) {
+            @if (this.formGroup.controls.email.errors?.['required']) {
+              <small class="text-red-500">Email is required.</small>
+            }
+            @if (this.formGroup.controls.email.errors?.['email']) {
+              <small class="text-red-500">Invalid email address.</small>
+            }
+          }
         </div>
       </div>
-      <!-- <div class="flex flex-row gap-4 my-2">
-      <div>
-        <p-floatlabel>
-          <label for="groups" class="block font-bold mb-3"> Groups </label>
-          <p-multiSelect
-            id="groups"
-            [options]="groups"
-            optionLabel="name"
-            placeholder="Select groups"
-            [overlayOptions]="{ mode: 'modal' }"
-            [formControl]="this.formGroup.controls.groups"
-          />
-        </p-floatlabel>
-      </div>
-    </div> -->
       <div class="flex justify-end">
         <p-button
           class="mr-auto"
@@ -107,15 +92,13 @@ interface GroupOption {
 })
 export class UserFormComponent {
   public user = input<User | null>(
-    inject(DynamicDialogConfig)?.data?.user || null
+    inject(DynamicDialogConfig)?.data?.user || null,
   );
   private dialogRef = inject(DynamicDialogRef);
   private _userService = inject(UsersService);
   private _messageService = inject(MessageService);
   private _confirmationService: ConfirmationService =
     inject(ConfirmationService);
-  // TODO : Fetch groups from the backend
-  public groups: GroupOption[] = [{ name: 'Admin', value: 'etsecure-admin' }];
 
   public formGroup = new FormGroup({
     name: new FormControl(this.user()?.name || '', Validators.required),
@@ -123,17 +106,9 @@ export class UserFormComponent {
       Validators.required,
       Validators.email,
     ]),
-    // groups: new FormControl<GroupOption[]>(
-    //   this.user()
-    //     ?.groups?.map((uGroup: string) =>
-    //       this.groups.find((oGroup) => oGroup.value === uGroup)
-    //     )
-    //     .filter((grp) => !!grp) || []
-    // ),
   });
 
   constructor() {
-    // Remove focus from the group frield that is focused by default for some reason
     setTimeout(() => {
       if (document.activeElement instanceof HTMLElement) {
         document.activeElement.blur();
@@ -150,7 +125,8 @@ export class UserFormComponent {
       name: this.formGroup.value.name!,
       email: this.formGroup.value.email!,
       username: this.formGroup.value.email?.split('@')[0] || '',
-      // groups: this.formGroup.value.groups?.map((x) => x.value) || [],
+      uploadsLeft: this.user()?.uploadsLeft || 0,
+      resetUploads: false,
     };
     const id = this.user()?._id;
     const resp = !id
