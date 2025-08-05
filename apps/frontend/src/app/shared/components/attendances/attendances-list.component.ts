@@ -36,6 +36,8 @@ import { TagModule } from 'primeng/tag';
       [globalFilterFields]="['name', 'room']"
       [rowHover]="true"
       [paginator]="false"
+      [scrollable]="true"
+      scrollHeight="40vh"
     >
       <ng-template #header>
         <tr>
@@ -47,7 +49,7 @@ import { TagModule } from 'primeng/tag';
             Room
             <p-sortIcon field="room" />
           </th>
-          <th pSortableColumn="building">
+          <th pSortableColumn="building" class="hidden sm:table-cell">
             Building
             <p-sortIcon field="building" />
           </th>
@@ -55,26 +57,35 @@ import { TagModule } from 'primeng/tag';
             Timestamp
             <p-sortIcon field="timestamp" />
           </th>
-          <th>
-            Type
-          </th>
+          <th>Type</th>
         </tr>
       </ng-template>
       <ng-template #body let-attendance>
         <tr (click)="openInfo(attendance)">
           <td>{{ attendance.user.name }}</td>
           <td>{{ attendance.room.name }}</td>
-          <td>{{ attendance.room.location }}</td>
-          <td>{{ attendance.timestamp | date: 'medium' }}</td>
+          <td class="hidden sm:table-cell">{{ attendance.room.location }}</td>
+          <td class="hidden sm:table-cell">
+            {{ attendance.timestamp | date: 'medium' }}
+          </td>
+          <td class="sm:hidden">{{ attendance.timestamp | date: 'short' }}</td>
           <td>
             @if (attendance.type === 'bypass') {
-              <p-tag
-                icon="pi pi-exclamation-triangle"
-                severity="error"
-                value="Bypass"
-              />
+              @if (smallScreen) {
+                <p-tag
+                  icon="pi pi-exclamation-triangle"
+                  severity="error"
+                  value="Bypass"
+                />
+              } @else {
+                <p-tag icon="pi pi-exclamation-triangle" severity="error" />
+              }
             } @else {
-              <p-tag icon="pi pi-lock-open" severity="info" value="Unlock" />
+              @if (smallScreen) {
+                <p-tag icon="pi pi-lock-open" severity="info" value="Unlock" />
+              } @else {
+                <p-tag icon="pi pi-lock-open" severity="info" />
+              }
             }
           </td>
         </tr>
@@ -88,16 +99,14 @@ import { TagModule } from 'primeng/tag';
   `,
 })
 export class AttendancesListComponent {
-  attendances = input<Attendance[]>([]);
-
-  selectedAttendance = model<Attendance | null>();
-
+  public attendances = input<Attendance[]>([]);
+  public selectedAttendance = model<Attendance | null>();
   @ViewChild('dt') dt!: Table;
+
+  public smallScreen = window.innerWidth < 470;
 
   public openInfo(attendance: Attendance) {
     // Logic to open a dialog or modal with attendance details
-    console.log('Opening info for attendance:', attendance);
-
     this.selectedAttendance.set(attendance);
   }
 }

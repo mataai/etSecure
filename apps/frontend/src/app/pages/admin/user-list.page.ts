@@ -11,6 +11,7 @@ import { UserFormComponent } from '../../shared/components/users/user-form.compo
 import { UsersListComponent } from '../../shared/components/users/users-list.component';
 import { UsersService } from '../../shared/services/users.service';
 import { Router } from '@angular/router';
+import { CardModule } from 'primeng/card';
 
 @Component({
   selector: 'app-users-list-page',
@@ -20,6 +21,7 @@ import { Router } from '@angular/router';
     ToolbarModule,
     ButtonModule,
     ConfirmDialogModule,
+    CardModule,
   ],
   providers: [UsersService, MessageService, ConfirmationService, DialogService],
   template: `
@@ -34,15 +36,16 @@ import { Router } from '@angular/router';
         />
       </ng-template>
     </p-toolbar>
-    <app-users-list
-      [users]="this.users()"
-      (viewUser)="this.openUserDetails($event)"
-      (createUser)="this.createUser()"
-      (editUser)="this.editUser($event)"
-      (deleteUser)="this.deleteUser($event)"
-    >
-    </app-users-list>
-
+    <p-card>
+      <app-users-list
+        [users]="this.users()"
+        (viewUser)="this.openUserDetails($event)"
+        (createUser)="this.createUser()"
+        (editUser)="this.editUser($event)"
+        (deleteUser)="this.deleteUser($event)"
+      >
+      </app-users-list>
+    </p-card>
     <p-toast />
     <p-confirmdialog [style]="{ width: '450px' }" />
   `,
@@ -83,7 +86,7 @@ export class UsersListPage implements OnInit {
         this._userFormCloseSub?.unsubscribe();
         this._userFormDialogRef = null;
         this._userFormCloseSub = null;
-      }
+      },
     );
   }
 
@@ -110,7 +113,7 @@ export class UsersListPage implements OnInit {
         this._userFormCloseSub?.unsubscribe();
         this._userFormDialogRef = null;
         this._userFormCloseSub = null;
-      }
+      },
     );
   }
 

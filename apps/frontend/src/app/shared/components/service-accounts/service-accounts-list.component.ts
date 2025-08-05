@@ -47,44 +47,42 @@ import { ServiceAccount } from '@etsecure/data-contracts';
       </ng-template>
       <ng-template #header>
         <tr>
-          <th style="width: 3rem"></th>
-          <th pSortableColumn="name" style="width:16rem">
+          <th pSortableColumn="name">
             Name
             <p-sortIcon field="name" />
           </th>
-          <th pSortableColumn="type" style="width:8rem; text-align: center">
+          <th pSortableColumn="type">
             Type
             <p-sortIcon field="type" />
           </th>
-          <th pSortableColumn="room.name" style="width: 8rem; text-align: center">
+          <th pSortableColumn="room.name">
             Room
             <p-sortIcon field="room.name" />
           </th>
-          <th pSortableColumn="tokens" style="width: 8rem; text-align: center">
+          <th pSortableColumn="tokens">
             Tokens
             <p-sortIcon field="tokens" />
           </th>
-
-          <th style="min-width: 18rem"></th>
+          <th></th>
         </tr>
       </ng-template>
       <ng-template #body let-serviceAccount>
         <tr>
-          <td style="width: 3rem"></td>
-          <td style="min-width: 16rem">{{ serviceAccount.name }}</td>
-          <td style="min-width: 8rem; text-align: center">
+          <td>{{ serviceAccount.name }}</td>
+          <td>
             @if (serviceAccount.type === 'pi') {
-            <span class="text-blue-500">Auth Device</span>
+              <span class="text-blue-500">Auth Device</span>
             } @else {
-            <span class="text-green-500">AI Service</span>}
+              <span class="text-green-500">AI Service</span>
+            }
           </td>
-          <td style="min-width: 8rem; text-align: center">
+          <td>
             {{ serviceAccount.room?.name }}
           </td>
-          <td style="width: 4rem; text-align: center">
+          <td>
             {{ serviceAccount.tokens || 0 }}
           </td>
-          <td style="width: 20rem">
+          <td>
             <div class="flex justify-center">
               <p-button
                 icon="pi pi-eye"
@@ -102,7 +100,7 @@ import { ServiceAccount } from '@etsecure/data-contracts';
               />
               <p-button
                 icon="pi pi-trash"
-                severity="danger"
+                class="mr-2"
                 [rounded]="true"
                 [outlined]="true"
                 (click)="deleteServiceAccount.emit(serviceAccount)"

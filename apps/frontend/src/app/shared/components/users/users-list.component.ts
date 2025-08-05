@@ -26,7 +26,6 @@ import { User } from '@etsecure/data-contracts';
       [rows]="10"
       [paginator]="true"
       [globalFilterFields]="['name', 'email', 'groups']"
-      [tableStyle]="{ 'min-width': '75rem' }"
       [(selection)]="selectedUsers"
       [rowHover]="true"
       [paginator]="false"
@@ -47,48 +46,44 @@ import { User } from '@etsecure/data-contracts';
       </ng-template>
       <ng-template #header>
         <tr>
-          <th style="width: 3rem">
-            <!-- <p-tableHeaderCheckbox /> -->
-          </th>
-          <th style="width: 12rem">ID</th>
-          <th pSortableColumn="name" style="min-width:16rem">
+          <th>ID</th>
+          <th pSortableColumn="name" class="hidden sm:table-cell">
             Name
             <p-sortIcon field="name" />
           </th>
           <th pSortableColumn="email">Email <p-sortIcon field="email" /></th>
-          <th style="min-width: 12rem"></th>
+          <th></th>
         </tr>
       </ng-template>
       <ng-template #body let-user>
-        <tr>
-          <td style="width: 3rem">
-            <!-- <p-tableCheckbox [value]="user.id" /> -->
-          </td>
-          <td style="min-width: 2rem">{{ user.authentik_id }}</td>
-          <td style="min-width: 16rem">{{ user.name }}</td>
-          <td style="min-width: 16rem">{{ user.email }}</td>
+        <tr (click)="viewUser.emit(user)">
+          <td>{{ user.authentik_id }}</td>
+          <td class="hidden sm:table-cell">{{ user.name }}</td>
+          <td>{{ user.email }}</td>
           <td>
-            <p-button
-              icon="pi pi-eye"
-              class="mr-2"
-              [rounded]="true"
-              [outlined]="true"
-              (click)="viewUser.emit(user)"
-            />
-            <p-button
-              icon="pi pi-pencil"
-              class="mr-2"
-              [rounded]="true"
-              [outlined]="true"
-              (click)="editUser.emit(user)"
-            />
-            <p-button
-              icon="pi pi-trash"
-              severity="danger"
-              [rounded]="true"
-              [outlined]="true"
-              (click)="deleteUser.emit(user)"
-            />
+            <div class="flex justify-content-end">
+              <p-button
+                icon="pi pi-eye"
+                class="mr-2"
+                [rounded]="true"
+                [outlined]="true"
+                (click)="viewUser.emit(user)"
+              />
+              <p-button
+                icon="pi pi-pencil"
+                class="mr-2"
+                [rounded]="true"
+                [outlined]="true"
+                (click)="editUser.emit(user)"
+              />
+              <p-button
+                icon="pi pi-trash"
+                class="mr-2"
+                [rounded]="true"
+                [outlined]="true"
+                (click)="deleteUser.emit(user)"
+              />
+            </div>
           </td>
         </tr>
       </ng-template>
@@ -97,7 +92,7 @@ import { User } from '@etsecure/data-contracts';
 })
 export class UsersListComponent {
   public selectedUsers?: User[];
-  users = input<User[]>([]);
+  public users = input<User[]>([]);
   public viewUser = output<User>();
   public editUser = output<User>();
   public deleteUser = output<User>();

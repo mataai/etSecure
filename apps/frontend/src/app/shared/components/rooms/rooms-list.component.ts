@@ -26,7 +26,6 @@ import { Room } from '@etsecure/data-contracts';
       [rows]="10"
       [paginator]="true"
       [globalFilterFields]="['name', 'location', 'members.name']"
-      [tableStyle]="{ 'min-width': '75rem' }"
       [(selection)]="selectedRooms"
       [rowHover]="true"
       [paginator]="false"
@@ -47,10 +46,7 @@ import { Room } from '@etsecure/data-contracts';
       </ng-template>
       <ng-template #header>
         <tr>
-          <th style="width: 3rem">
-            <!-- <p-tableHeaderCheckbox /> -->
-          </th>
-          <th pSortableColumn="name" style="min-width:16rem">
+          <th pSortableColumn="name">
             Name
             <p-sortIcon field="name" />
           </th>
@@ -58,48 +54,47 @@ import { Room } from '@etsecure/data-contracts';
             Location
             <p-sortIcon field="location" />
           </th>
-          <th style="min-width: 8rem">Allowed Members</th>
-          <th style="min-width: 12rem"></th>
+          <th class="hidden sm:table-cell">Allowed Members</th>
+          <th></th>
         </tr>
       </ng-template>
       <ng-template #body let-room>
         <tr>
-          <td style="width: 3rem">
-            <!-- <p-tableCheckbox [value]="room.id" /> -->
-          </td>
-          <td style="min-width: 16rem">{{ room.name }}</td>
-          <td style="min-width: 16rem">{{ room.location }}</td>
-          <td style="min-width: 16rem">
-            @for(user of room.users; track user) {
-            <p-chip
-              [label]="user.name"
-              [styleClass]="'mr-2'"
-              [removable]="false"
-            />
+          <td>{{ room.name }}</td>
+          <td>{{ room.location }}</td>
+          <td class="hidden sm:table-cell">
+            @for (user of room.users; track user) {
+              <p-chip
+                [label]="user.name"
+                [styleClass]="'mr-2'"
+                [removable]="false"
+              />
             }
           </td>
           <td>
-            <p-button
-              icon="pi pi-eye"
-              class="mr-2"
-              [rounded]="true"
-              [outlined]="true"
-              (click)="viewRoom.emit(room)"
-            />
-            <p-button
-              icon="pi pi-pencil"
-              class="mr-2"
-              [rounded]="true"
-              [outlined]="true"
-              (click)="editRoom.emit(room)"
-            />
-            <p-button
-              icon="pi pi-trash"
-              severity="danger"
-              [rounded]="true"
-              [outlined]="true"
-              (click)="deleteRoom.emit(room)"
-            />
+            <div class="flex justify-end ">
+              <p-button
+                icon="pi pi-eye"
+                class="mr-2"
+                [rounded]="true"
+                [outlined]="true"
+                (click)="viewRoom.emit(room)"
+              />
+              <p-button
+                icon="pi pi-pencil"
+                class="mr-2"
+                [rounded]="true"
+                [outlined]="true"
+                (click)="editRoom.emit(room)"
+              />
+              <p-button
+                icon="pi pi-trash"
+                class="mr-2"
+                [rounded]="true"
+                [outlined]="true"
+                (click)="deleteRoom.emit(room)"
+              />
+            </div>
           </td>
         </tr>
       </ng-template>
@@ -117,17 +112,5 @@ export class RoomsListComponent {
 
   public onGlobalFilter(table: Table, event: Event) {
     table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
-  }
-
-  public findIndexById(id: string): number {
-    let index = -1;
-    for (let i = 0; i < this.rooms().length; i++) {
-      if (this.rooms()[i]._id === id) {
-        index = i;
-        break;
-      }
-    }
-
-    return index;
   }
 }

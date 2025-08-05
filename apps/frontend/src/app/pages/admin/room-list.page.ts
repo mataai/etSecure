@@ -15,6 +15,7 @@ import { RoomFormComponent } from '../../shared/components/rooms/room-form.compo
 import { RoomsListComponent } from '../../shared/components/rooms/rooms-list.component';
 import { RoomsService } from '../../shared/services/rooms.service';
 import { Router } from '@angular/router';
+import { CardModule } from 'primeng/card';
 
 @Component({
   selector: 'app-rooms-list-page',
@@ -25,6 +26,7 @@ import { Router } from '@angular/router';
     DynamicDialogModule,
     ToastModule,
     ConfirmDialogModule,
+    CardModule,
   ],
   providers: [RoomsService, MessageService, ConfirmationService, DialogService],
   template: `
@@ -39,15 +41,16 @@ import { Router } from '@angular/router';
         />
       </ng-template>
     </p-toolbar>
-    <app-rooms-list
-      [rooms]="this.rooms()"
-      (viewRoom)="this.openRoomDetails($event)"
-      (createRoom)="this.createRoom()"
-      (editRoom)="this.editRoom($event)"
-      (deleteRoom)="this.deleteRoom($event)"
-    >
-    </app-rooms-list>
-
+    <p-card>
+      <app-rooms-list
+        [rooms]="this.rooms()"
+        (viewRoom)="this.openRoomDetails($event)"
+        (createRoom)="this.createRoom()"
+        (editRoom)="this.editRoom($event)"
+        (deleteRoom)="this.deleteRoom($event)"
+      >
+      </app-rooms-list>
+    </p-card>
     <p-toast />
     <p-confirmdialog [style]="{ width: '450px' }" />
   `,
@@ -88,7 +91,7 @@ export class RoomsListPage implements OnInit {
         this._roomFormCloseSub?.unsubscribe();
         this._roomFormDialogRef = null;
         this._roomFormCloseSub = null;
-      }
+      },
     );
   }
 
@@ -115,7 +118,7 @@ export class RoomsListPage implements OnInit {
         this._roomFormCloseSub?.unsubscribe();
         this._roomFormDialogRef = null;
         this._roomFormCloseSub = null;
-      }
+      },
     );
   }
 

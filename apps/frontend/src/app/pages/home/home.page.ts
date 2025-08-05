@@ -26,7 +26,7 @@ import { TagModule } from 'primeng/tag';
   ],
   standalone: true,
   template: `
-    <div class="flex flex-col gap-8 max-w-5xl mx-auto py-8 mt-24 relative">
+    <div class="flex flex-col gap-8 max-w-5xl mx-auto py-8 mt-8 relative">
       <div class="text-center mb-4">
         <span class="text-3xl font-extrabold tracking-tight text-primary">
           Welcome
@@ -46,6 +46,8 @@ import { TagModule } from 'primeng/tag';
           [value]="this.attendances()"
           class="mt-4"
           [responsiveLayout]="'scroll'"
+          [scrollable]="true"
+          [rows]="10"
         >
           <ng-template pTemplate="header">
             <tr>

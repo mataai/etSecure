@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, model } from '@angular/core';
 import { AppMenu } from '../app.menu';
 
 @Component({
@@ -20,6 +20,7 @@ import { AppMenu } from '../app.menu';
   ],
 })
 export class AppAdminSidebar {
+
   public items = [
     {
       label: 'Home',

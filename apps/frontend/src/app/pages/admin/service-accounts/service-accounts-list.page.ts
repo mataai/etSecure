@@ -16,6 +16,7 @@ import { Subscription } from 'rxjs';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { RoomsService } from '../../../shared/services/rooms.service';
+import { CardModule } from 'primeng/card';
 
 @Component({
   selector: 'app-admin-service-accounts-page',
@@ -27,6 +28,7 @@ import { RoomsService } from '../../../shared/services/rooms.service';
     DynamicDialogModule,
     ToastModule,
     ConfirmDialogModule,
+    CardModule,
   ],
   providers: [DialogService, MessageService, ConfirmationService],
   template: `
@@ -47,19 +49,20 @@ import { RoomsService } from '../../../shared/services/rooms.service';
           />
         </ng-template>
       </p-toolbar>
-      <app-service-accounts-list
-        [serviceAccounts]="this.serviceAccounts()"
-        (viewServiceAccount)="this.openDetails($event)"
-        (editServiceAccount)="this.openEditDialog($event)"
-        (deleteServiceAccount)="this.openDeleteDialog($event)"
-      />
+      <p-card>
+        <app-service-accounts-list
+          [serviceAccounts]="this.serviceAccounts()"
+          (viewServiceAccount)="this.openDetails($event)"
+          (editServiceAccount)="this.openEditDialog($event)"
+          (deleteServiceAccount)="this.openDeleteDialog($event)"
+        />
+      </p-card>
     </div>
     <p-toast />
     <p-confirmdialog [style]="{ width: '450px' }" />
   `,
 })
 export class ServiceAccountsListPage implements OnInit {
-
   private _serviceAccountsService = inject(ServiceAccountsService);
   public serviceAccounts = this._serviceAccountsService.data;
   private _roomService = inject(RoomsService);
@@ -89,7 +92,7 @@ export class ServiceAccountsListPage implements OnInit {
         modal: true,
         closable: true,
         closeOnEscape: false,
-      }
+      },
     );
 
     this._serviceAccountFormCloseSub =
@@ -99,7 +102,7 @@ export class ServiceAccountsListPage implements OnInit {
           this._serviceAccountFormCloseSub?.unsubscribe();
           this._serviceAccountFormDialogRef = null;
           this._serviceAccountFormCloseSub = null;
-        }
+        },
       );
   }
 
@@ -120,7 +123,7 @@ export class ServiceAccountsListPage implements OnInit {
         data: {
           serviceAccount,
         },
-      }
+      },
     );
 
     this._serviceAccountFormCloseSub =
@@ -130,7 +133,7 @@ export class ServiceAccountsListPage implements OnInit {
           this._serviceAccountFormCloseSub?.unsubscribe();
           this._serviceAccountFormDialogRef = null;
           this._serviceAccountFormCloseSub = null;
-        }
+        },
       );
   }
 
@@ -145,7 +148,7 @@ export class ServiceAccountsListPage implements OnInit {
       icon: 'pi pi-exclamation-triangle',
       accept: async () => {
         await this._serviceAccountsService.deleteServiceAccount(
-          serviceAccount._id
+          serviceAccount._id,
         );
         await this.loadData();
         this._messageService.add({

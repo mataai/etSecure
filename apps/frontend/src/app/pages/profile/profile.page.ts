@@ -62,8 +62,8 @@ import { Subject } from 'rxjs';
                       [trigger]="webcamTrigger"
                       (imageCapture)="onPictureCaptured($event)"
                       (initError)="initError($event)"
-                      [width]="400"
-                      [height]="400"
+                      [width]="500"
+                      [height]="500"
                       [captureImageData]="true"
                     ></webcam>
                     <button

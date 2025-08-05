@@ -30,8 +30,8 @@ export class AdminPage implements OnDestroy {
   private rooms!: Signal<Room[]>;
   public currentRoom!: Room | null;
   public status = model<'disconnected' | 'idle' | 'live'>('disconnected');
-
   private _subscriptions: Subscription[] = [];
+
 
   public Date = Date;
 
