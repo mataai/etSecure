@@ -1,5 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { AuthService } from '../../../shared/services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-callback-page',
@@ -47,9 +48,14 @@ import { AuthService } from '../../../shared/services/auth.service';
   ],
 })
 export class CallbackPage implements OnInit {
-  private authService = inject(AuthService);
+  private _authService = inject(AuthService);
+  private _router = inject(Router);
 
   ngOnInit(): void {
-    this.authService.handleCallback();
+    this._authService.handleCallback();
+
+    setTimeout(() => {
+      this._router.navigate(['/home']);
+    }, 5000);
   }
 }
