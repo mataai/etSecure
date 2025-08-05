@@ -71,21 +71,31 @@ import { TagModule } from 'primeng/tag';
           <td class="sm:hidden">{{ attendance.timestamp | date: 'short' }}</td>
           <td>
             @if (attendance.type === 'bypass') {
-              @if (smallScreen) {
+              <div class="hidden sm:inline">
                 <p-tag
                   icon="pi pi-exclamation-triangle"
                   severity="error"
                   value="Bypass"
                 />
-              } @else {
-                <p-tag icon="pi pi-exclamation-triangle" severity="error" />
-              }
+              </div>
+              <div class="sm:hidden">
+                <p-tag
+                  icon="pi pi-exclamation-triangle"
+                  severity="error"
+                  [rounded]="true"
+                />
+              </div>
             } @else {
-              @if (smallScreen) {
+              <div class="hidden sm:inline">
                 <p-tag icon="pi pi-lock-open" severity="info" value="Unlock" />
-              } @else {
-                <p-tag icon="pi pi-lock-open" severity="info" />
-              }
+              </div>
+              <div class="sm:hidden">
+                <p-tag
+                  icon="pi pi-lock-open"
+                  severity="info"
+                  [rounded]="true"
+                />
+              </div>
             }
           </td>
         </tr>
@@ -97,6 +107,18 @@ import { TagModule } from 'primeng/tag';
       (closeEvent)="selectedAttendance.set(null)"
     ></app-attendances-details-dialog>
   `,
+
+  styles: [
+    `
+      :host {
+        --p-tag-padding: 0.5rem;
+      }
+
+      ::ng-deep .p-tag-label {
+        display: none;
+      }
+    `,
+  ],
 })
 export class AttendancesListComponent {
   public attendances = input<Attendance[]>([]);
