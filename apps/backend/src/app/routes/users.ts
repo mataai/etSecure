@@ -5,6 +5,10 @@ import { ObjectId } from 'mongodb';
 import { UserModel } from '../models/user.model';
 import { RoomModel } from '../models/room.model';
 import { AttendanceModel } from '../models/attendance.model';
+import { UserUpsertRequest } from '@etsecure/data-contracts';
+import { promises as fs } from 'fs';
+import path from 'path';
+import { Server } from 'socket.io';
 
 const userRoutes: FastifyPluginAsync = async (fastify) => {
   const usersCollection = fastify.mongo.db.collection<UserModel>('users');
@@ -105,22 +109,18 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.put(
     '/users/:id',
     {
-      preValidation: [authPreValidator, groupPreValidator(['etsecure_admin'])],
+      //preValidation: [authPreValidator, groupPreValidator(['etsecure_admin'])],
     },
     async (request, reply) => {
       const { id } = request.params as { id: string };
       if (!id) {
         return reply.code(400).send({ error: 'User ID is required' });
       }
-      const userData = request.body as {
-        name?: string;
-        email?: string;
-        groups?: string[];
-      };
+      const userData = request.body as UserUpsertRequest;
 
-      if (!userData.name && !userData.email && !userData.groups) {
+      if (!userData.name && !userData.email && !userData.uploadsLeft) {
         return reply.code(400).send({
-          error: 'At least one field (name, email, groups) must be provided',
+          error: 'At least one field (name, email, uploadsLeft) must be provided',
         });
       }
 
@@ -134,9 +134,22 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
       if (result.matchedCount === 0) {
         return reply.code(404).send({ error: 'User not found' });
       }
-      if (result.modifiedCount === 0) {
-        return reply.code(200).send({ message: 'No changes made' });
+
+      if (userData.resetUploads) {
+        const uploadsDir = `./uploads/${id}/`
+
+        try {
+          await fs.rm(uploadsDir, { recursive: true, force: true });
+        } catch (err) {
+          console.error(`Failed to delete uploads for user ${id}:`, err);
+          return reply.code(500).send({ error: 'Error while deleting files' })
+        }
+
+        const io = fastify['io'] as Server;
+        
+        io.emit('train');
       }
+
       return reply.code(200).send({ message: 'User updated successfully' });
     },
   );
