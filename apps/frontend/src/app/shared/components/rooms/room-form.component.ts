@@ -172,7 +172,7 @@ export class RoomFormComponent {
       this.room()?._id
     ) {
       const selectedUserIds = this.membersFormControl.value.map((u) => u.value);
-      const originalUserIds = this.room()?.users?.map((u) => u.id);
+      const originalUserIds = this.room()?.users?.map((u) => u._id);
       const isSame =
         !!originalUserIds &&
         selectedUserIds.length === originalUserIds.length &&
@@ -224,7 +224,7 @@ export class RoomFormComponent {
       const startingValue =
         this.room()
           ?.users?.map((user) =>
-            this.userOptions.find((x) => x.value == user.id),
+            this.userOptions.find((x) => x.value == user._id),
           )
           ?.filter((x) => !!x) || [];
       console.log(startingValue);
