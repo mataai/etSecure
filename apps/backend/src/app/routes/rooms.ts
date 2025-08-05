@@ -8,11 +8,13 @@ import {
 import { authPreValidator } from '../request-modifiers/auth.pre-validator';
 import { groupPreValidator } from '../request-modifiers/groups.pre-validator';
 import { RoomModel } from '../models/room.model';
+import { UserModel } from '../models/user.model';
 
 const roomsRoutes: FastifyPluginAsync = async (fastify) => {
+  const usersCollection = fastify.mongo.db.collection<UserModel>('users');
   const roomCollection = fastify.mongo.db.collection<RoomModel>('rooms');
   // GET /rooms - Get all rooms
-  fastify.get('/rooms', async (request, reply) => {
+  fastify.get('/rooms', (request, reply) => {
     return roomCollection
       .aggregate([
         {
@@ -32,7 +34,7 @@ const roomsRoutes: FastifyPluginAsync = async (fastify) => {
   });
 
   // GET /rooms/:id - Get a single room
-  fastify.get('/rooms/:id', async (request, reply) => {
+  fastify.get('/rooms/:id', (request, reply) => {
     const { id } = request.params as { id: string };
     return roomCollection
       .aggregate([
@@ -58,12 +60,11 @@ const roomsRoutes: FastifyPluginAsync = async (fastify) => {
         },
       ])
       .tryNext()
-      .then((room) => {
-        if (!room) {
-          return reply.code(404).send({ error: 'room not found' });
-        }
-        return reply.code(200).send(room);
-      });
+      .then((room) =>
+        room
+          ? reply.code(200).send(room)
+          : reply.code(404).send({ error: 'room not found' }),
+      );
   });
 
   // POST /rooms - Create a room
@@ -161,17 +162,38 @@ const roomsRoutes: FastifyPluginAsync = async (fastify) => {
   // Get users that have access to a room
   fastify.get('/rooms/:id/users', async (request, reply) => {
     const { id } = request.params as { id: string };
-    const room = await roomCollection.findOne({ _id: new ObjectId(id) });
-    if (!room) {
-      return reply.code(404).send({ error: 'room not found' });
-    }
-
-    const users = await fastify.mongo.db
-      .collection('users')
-      .find({ _id: { $in: room.users || [] } })
-      .toArray();
-
-    return reply.code(200).send(users);
+    return await roomCollection
+      .aggregate([
+        {
+          $match: { _id: new ObjectId(id) },
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'users',
+            foreignField: '_id',
+            as: 'users',
+          },
+        },
+        {
+          $unset: ['users.bypassLeft', 'users.uploadsLeft'],
+        },
+        {
+          $unwind: {
+            path: '$users',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $replaceWith: '$users',
+        },
+      ])
+      .toArray()
+      .then((users) =>
+        users
+          ? reply.code(200).send(users)
+          : reply.code(404).send({ error: 'room not found' }),
+      );
   });
 
   // Update users access to a room
@@ -192,24 +214,24 @@ const roomsRoutes: FastifyPluginAsync = async (fastify) => {
       if (!room) {
         return reply.code(404).send({ error: 'room not found' });
       }
+      let newUsers = [];
+      if (userIds.length >= 0) {
+        const users = await usersCollection
+          .find({ _id: { $in: userIds.map((id) => new ObjectId(id)) } })
+          .map((user) => user._id)
+          .toArray();
+        if (!users || users.length <= 0) {
+          return reply.code(404).send({ error: 'User not found' });
+        }
 
-      const users = await fastify.mongo.db
-        .collection('users')
-        .find({ _id: { $in: userIds.map((id) => new ObjectId(id)) } })
-        .toArray();
-      if (!users || users.length <= 0) {
-        return reply.code(404).send({ error: 'User not found' });
-      }
-
-      if (!room.users) {
-        room.users = [];
+        newUsers = users;
       }
 
       // Add new users to room and ensure no duplicates
 
       await roomCollection.updateOne(
         { _id: new ObjectId(id) },
-        { $set: { users: users.map((user) => user._id) } },
+        { $set: { users: newUsers } },
       );
 
       return reply
