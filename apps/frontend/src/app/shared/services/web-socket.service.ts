@@ -4,6 +4,7 @@ import { io, Socket } from 'socket.io-client';
 import { environment } from '../../../environment/environment';
 import { AuthService } from './auth.service';
 import { BehaviorSubject, distinctUntilChanged } from 'rxjs';
+import { isTokenExpired } from '../utils/token-expiry-checker';
 
 @Injectable({
   providedIn: 'root',
@@ -36,7 +37,15 @@ export class WebSocketService {
 
   private async _init() {
     this._socket = io(environment.backendUrl, {
-      auth: { jwt: await this._authService.asyncToken },
+      auth: (callBack: (data: object) => void) => {
+        this._authService.asyncToken.then(async (token) => {
+          if (isTokenExpired(token)) {
+            await this._authService.userManager.signinRedirect();
+            return;
+          }
+          callBack({ jwt: token });
+        });
+      },
     });
     this._socket.on('connect_error', (error) => {
       console.error('WebSocket connection error:', error);

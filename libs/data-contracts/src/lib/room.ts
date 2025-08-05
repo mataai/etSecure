@@ -1,10 +1,10 @@
-import { UserShort } from './user';
+import { User } from './user';
 
 export interface Room {
   _id?: string;
   name: string;
   location: string;
-  users: UserShort[];
+  users: User[];
 }
 
 export type RoomUpsertRequest = Pick<Room, 'name' | 'location'>;

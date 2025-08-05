@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { UserManager, WebStorageStateStore } from 'oidc-client-ts'; // Ensure you have oidc-client-ts installed
 import { User, UserAuthentik } from '@etsecure/data-contracts';
 import { HttpClient } from '@angular/common/http';
+import { isTokenExpired } from '../utils/token-expiry-checker';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -64,7 +65,7 @@ export class AuthService {
 
   public getMe(): Promise<User> {
     return firstValueFrom(
-      this._httpClient.get<User>(environment.backendUrl + '/auth/profile')
+      this._httpClient.get<User>(environment.backendUrl + '/auth/profile'),
     );
   }
 
