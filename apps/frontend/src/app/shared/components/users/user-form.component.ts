@@ -14,6 +14,7 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { UsersService } from '../../services/users.service';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { CheckboxModule } from 'primeng/checkbox';
 
 @Component({
   selector: 'app-user-form',
@@ -24,6 +25,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
     ButtonModule,
     ConfirmDialogModule,
     InputText,
+    CheckboxModule,
   ],
   providers: [ConfirmationService],
   template: `
@@ -36,7 +38,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
               type="text"
               pInputText
               id="name"
-              [formControl]="this.formGroup.controls.name"
+              formControlName="name"
               required
             />
           </p-floatlabel>
@@ -54,7 +56,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
               pInputText
               id="email"
               required
-              [formControl]="formGroup.controls.email"
+              formControlName="email"
             />
           </p-floatlabel>
           @if (this.formGroup.controls.email.touched) {
@@ -65,6 +67,35 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
               <small class="text-red-500">Invalid email address.</small>
             }
           }
+        </div>
+      </div>
+      <div class="flex flex-row gap-4 my-2">
+        <div>
+          <p-floatlabel>
+            <label for="uploadsLeft">Uploads Left</label>
+            <input
+              type="number"
+              pInputText
+              id="uploadsLeft"
+              formControlName="uploadsLeft"
+              [min]="0"
+            />
+          </p-floatlabel>
+          @if (this.formGroup.controls.uploadsLeft.touched) {
+            @if (this.formGroup.controls.uploadsLeft.errors?.['min']) {
+              <small class="text-red-500">
+                Uploads left cannot be negative.
+              </small>
+            }
+          }
+        </div>
+        <div class="flex items-center">
+          <p-checkbox
+            id="resetUploads"
+            formControlName="resetUploads"
+            binary="true"
+          />
+          <label for="resetUploads" class="ml-2">Reset Uploads</label>
         </div>
       </div>
       <div class="flex justify-end">
@@ -106,6 +137,10 @@ export class UserFormComponent {
       Validators.required,
       Validators.email,
     ]),
+    uploadsLeft: new FormControl(this.user()?.uploadsLeft || 0, [
+      Validators.min(0),
+    ]),
+    resetUploads: new FormControl(false),
   });
 
   constructor() {
@@ -125,13 +160,16 @@ export class UserFormComponent {
       name: this.formGroup.value.name!,
       email: this.formGroup.value.email!,
       username: this.formGroup.value.email?.split('@')[0] || '',
-      uploadsLeft: this.user()?.uploadsLeft || 0,
-      resetUploads: false,
+      uploadsLeft: this.formGroup.value.resetUploads
+        ? 0
+        : this.formGroup.value.uploadsLeft || 0,
+      resetUploads: this.formGroup.value.resetUploads || false,
     };
     const id = this.user()?._id;
     const resp = !id
       ? this._userService.createUser(user)
       : this._userService.updateUser(id, user);
+
     resp
       .then((res) => {
         console.log('User saved successfully:', res);
