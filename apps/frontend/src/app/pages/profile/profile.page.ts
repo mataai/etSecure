@@ -56,7 +56,6 @@ import { Subject } from 'rxjs';
                 >
                   Change Profile Picture
                 </label>
-                {{ webcamAccess }}
                 @if (webcamAccess) {
                   @if (!selectedFilePreview) {
                     <webcam
