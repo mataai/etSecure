@@ -11,10 +11,6 @@ export const tokenInterceptor: HttpInterceptorFn = (
   req: HttpRequest<any>,
   next: HttpHandlerFn
 ) => {
-  if (!(req.url.includes('localhost:3000') || req.url.includes('api.etsecure.xyz'))) {
-    return next(req);
-  }
-
   const _authService = inject(AuthService);
   return from(_authService.asyncToken).pipe(
     // switchMap is used to handle the observable returned by next()
