@@ -46,7 +46,7 @@ services:
       - "com.centurylinklabs.watchtower.enable=true"
     volumes:
       - /home/lanets/data/models:/app/models
-      - /home/lanets/data/uploads:/app/uploads
+      - /home/lanets/data/uploads:/app/dataset
     env_file:
       - stack.env
     restart: unless-stopped
