@@ -123,17 +123,9 @@ export class UserFormComponent {
       Validators.required,
       Validators.email,
     ]),
-    // groups: new FormControl<GroupOption[]>(
-    //   this.user()
-    //     ?.groups?.map((uGroup: string) =>
-    //       this.groups.find((oGroup) => oGroup.value === uGroup)
-    //     )
-    //     .filter((grp) => !!grp) || []
-    // ),
   });
 
   constructor() {
-    // Remove focus from the group frield that is focused by default for some reason
     setTimeout(() => {
       if (document.activeElement instanceof HTMLElement) {
         document.activeElement.blur();
@@ -150,7 +142,8 @@ export class UserFormComponent {
       name: this.formGroup.value.name!,
       email: this.formGroup.value.email!,
       username: this.formGroup.value.email?.split('@')[0] || '',
-      // groups: this.formGroup.value.groups?.map((x) => x.value) || [],
+      uploadsLeft: this.user()?.uploadsLeft || 0,
+      resetUploads: false,
     };
     const id = this.user()?._id;
     const resp = !id
