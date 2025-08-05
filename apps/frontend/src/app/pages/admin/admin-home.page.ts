@@ -62,6 +62,9 @@ export class AdminPage implements OnDestroy {
             : 'idle',
         );
       }
+      if (this.status() !== 'live') {
+        this.currentRoom = null; // Reset current room if not live
+      }
     }, 2000); // Refresh stream status every 2 seconds
   }
 
