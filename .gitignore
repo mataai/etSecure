@@ -62,3 +62,8 @@ docker-services/broker/var-log/
 
 # Ignorer MongoDB volume
 docker-services/mongodb/mongo/
+
+# secrets
+certs/server.key
+docker-services/broker/rabbitmq/certs/server.key
+docker-services/authentik/.env
